@@ -10,10 +10,8 @@ module.exports = (plugin, path) => {
             fs.writeFile(this._path,  JSON.stringify(Array.from(this._settings)), (err) => {
                 console.log(err);
             });
-            this._streams.forEach(element => {
-                element.write(`data: ${this.prefix}/${setting} ${value}`);
-            });
             this.onChange(setting, value);
+            this._streams.forEach(element => {element.write(`data: ${this.prefix} ${setting} ${value}\n\n`)});
             return result;
         },
         onChange(setting, value){},
