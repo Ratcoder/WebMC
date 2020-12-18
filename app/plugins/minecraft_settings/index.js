@@ -10,7 +10,7 @@ module.exports = class MinecraftSettings{
         this.settings.onChange = (setting, value) => {
             if(setting.startsWith('server.properties.')){
                 let serverProperties = 'level-name=../../worlds/bedrock_level' + os.EOL;
-                for(set of this.settings._settings.entries()){
+                for(const set of this.settings._settings.entries()){
                     if(set[0].startsWith('server.properties.')){
                         serverProperties += `${set[0].substring(18)}=${set[1]}${os.EOL}`;
                     }
