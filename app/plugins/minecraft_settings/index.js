@@ -32,13 +32,15 @@ module.exports = class MinecraftSettings{
                         name: 'Server Name',
                         desc: 'Used as the server name',
                         type: 'string',
-                        setting: 'server.properties.server-name'
+                        setting: 'server.properties.server-name',
+                        default: 'Dedicated Server'
                     },
                     {
                         name: 'Seed',
                         desc: 'Use to randomize the world',
                         type: 'string',
-                        setting: 'server.properties.level-seed'
+                        setting: 'server.properties.level-seed',
+                        default: ''
                     },
                     {
                         name: 'Max View Distance',
@@ -47,7 +49,8 @@ module.exports = class MinecraftSettings{
                         range:{
                             min: 0
                         },
-                        setting: 'server.properties.view-distance'
+                        setting: 'server.properties.view-distance',
+                        default: 32
                     },
                     {
                         name: 'Tick Distance',
@@ -57,7 +60,8 @@ module.exports = class MinecraftSettings{
                             min: 4,
                             max: 12
                         },
-                        setting: 'server.properties.tick-distance'
+                        setting: 'server.properties.tick-distance',
+                        default: 4
                     },
                     {
                         name: 'Max Threads',
@@ -66,20 +70,23 @@ module.exports = class MinecraftSettings{
                         range: {
                             min: 0
                         },
-                        setting: 'server.properties.max-threads'
+                        setting: 'server.properties.max-threads',
+                        default: 8
                     },
                     
                     {
                         name: 'Texturepack Required',
                         desc: 'Force clients to use texture packs in the current world',
                         type: 'bool',
-                        setting: 'server.properties.texturepack-required'
+                        setting: 'server.properties.texturepack-required',
+                        default: false
                     },
                     {
                         name: 'Content Log File Enabled',
                         desc: 'Enables logging content errors to a file',
                         type: 'bool',
-                        setting: 'server.properties.content-log-file-enabled'
+                        setting: 'server.properties.content-log-file-enabled',
+                        default: false
                     }
                 ]
             },
@@ -92,27 +99,31 @@ module.exports = class MinecraftSettings{
                         desc: 'Sets the game mode for new players.',
                         type: 'enum',
                         enum: ['survival', 'creative', 'adventure'],
-                        setting: 'server.properties.gamemode'
+                        setting: 'server.properties.gamemode',
+                        default: 'survival'
                     },
                     {
                         name: 'Difficulty',
                         desc: 'Sets the difficulty of the world.',
                         type: 'enum',
                         enum: ['easy', 'normal', 'hard'],
-                        setting: 'server.properties.difficulty'
+                        setting: 'server.properties.difficulty',
+                        default: 'easy'
                     },
                     {
                         name: 'Cheats',
                         desc: 'If true then cheats like commands can be used.',
                         type: 'bool',
-                        setting: 'server.properties.allow-cheats'
+                        setting: 'server.properties.allow-cheats',
+                        default: false
                     },
                     {
                         name: 'Default Player Permission Level',
                         desc: 'Permission level for new players joining for the first time.',
                         type: 'enum',
                         enum: ["visitor", "member", "operator"],
-                        setting: 'server.properties.default-player-permission-level'
+                        setting: 'server.properties.default-player-permission-level',
+                        default: 'member'
                     }
                 ]
             },
@@ -128,7 +139,8 @@ module.exports = class MinecraftSettings{
                             min: 1,
                             max: 65535
                         },
-                        setting: 'server.properties.server-port'
+                        setting: 'server.properties.server-port',
+                        default: 19132
                     },
                     {
                         name: 'IPv6 Port',
@@ -138,7 +150,8 @@ module.exports = class MinecraftSettings{
                             min: 1,
                             max: 65535
                         },
-                        setting: 'server.properties.server-portv6'
+                        setting: 'server.properties.server-portv6',
+                        default: 19133
                     },
                     {
                         name: 'Compression Threshold',
@@ -148,7 +161,8 @@ module.exports = class MinecraftSettings{
                             min: 0,
                             max: 65535
                         },
-                        setting: 'server.properties.compression-threshold'
+                        setting: 'server.properties.compression-threshold',
+                        default: 1
                     }
                 ]
             },
@@ -163,19 +177,22 @@ module.exports = class MinecraftSettings{
                         range:{
                             min: 0
                         },
-                        setting: 'server.properties.max-players'
+                        setting: 'server.properties.max-players',
+                        default: 10
                     },
                     {
                         name: 'Online Mode',
                         desc: 'If true then all connected players must be authenticated to Xbox Live.\nClients connecting to remote (non-LAN) servers will always require Xbox Live authentication regardless of this setting.\nIf the server accepts connections from the Internet, then it\'s highly recommended to enable online-mode.',
                         type: 'bool',
-                        setting: 'server.properties.online-mode'
+                        setting: 'server.properties.online-mode',
+                        default: true
                     },
                     {
                         name: 'White List',
                         desc: 'If true then all connected players must be listed in the separate whitelist.json file.',
                         type: 'bool',
-                        setting: 'server.properties.white-list'
+                        setting: 'server.properties.white-list',
+                        default: false
                     },
                     {
                         name: 'Player Idle Timeout',
@@ -184,7 +201,8 @@ module.exports = class MinecraftSettings{
                         range:{
                             min: 0
                         },
-                        setting: 'server.properties.player-idle-timeout'
+                        setting: 'server.properties.player-idle-timeout',
+                        default: 30
                     },
                     {
                         name: 'Server Authoritative Movement',
@@ -195,31 +213,36 @@ module.exports = class MinecraftSettings{
                                 desc: `Enables server authoritative movement. If "server-auth", the server will replay local user input on the server and send down corrections when the client's position doesn't match the server's.\nCorrections will only happen if correct-player-movement is set to true.`,
                                 type: 'enum',
                                 enum: ["client-auth", "server-auth"],
-                                setting: 'server.properties.server-authoritative-movement'
+                                setting: 'server.properties.server-authoritative-movement',
+                                default: 'server-auth'
                             },
                             {
                                 name: 'Player Movement Score Threshold',
                                 desc: 'The number of incongruent time intervals needed before abnormal behavior is reported.\nDisabled by server-authoritative-movement.',
                                 type: 'int',
-                                setting: 'server.properties.player-movement-score-threshold'
+                                setting: 'server.properties.player-movement-score-threshold',
+                                default: 20
                             },
                             {
                                 name: 'Player Movement Distance Threshold',
                                 desc: 'The difference between server and client positions that needs to be exceeded before abnormal behavior is detected.\nDisabled by server-authoritative-movement.',
                                 type: 'float',
-                                setting: 'server.properties.player-movement-distance-threshold'
+                                setting: 'server.properties.player-movement-distance-threshold',
+                                default: 0.3
                             },
                             {
                                 name: 'Player Movement Durtion Threshold (in ms)',
                                 desc: 'The duration of time the server and client positions can be out of sync (as defined by player-movement-distance-threshold)\nbefore the abnormal movement score is incremented. This value is defined in milliseconds.\nDisabled by server-authoritative-movement.',
                                 type: 'int',
-                                setting: 'server.properties.player-movement-duration-threshold-in-ms'
+                                setting: 'server.properties.player-movement-duration-threshold-in-ms',
+                                default: 500
                             },
                             {
                                 name: 'Correct Player Movement',
                                 desc: 'If true, the client position will get corrected to the server position if the movement score exceeds the threshold.',
                                 type: 'bool',
-                                setting: 'server.properties.correct-player-movement'
+                                setting: 'server.properties.correct-player-movement',
+                                default: false
                             }
                         ]
                     }
