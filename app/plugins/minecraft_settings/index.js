@@ -92,27 +92,27 @@ module.exports = class MinecraftSettings{
                         desc: 'Sets the game mode for new players.',
                         type: 'enum',
                         enum: ['survival', 'creative', 'adventure'],
-                        setting: 'server.properties.'
+                        setting: 'server.properties.gamemode'
                     },
                     {
                         name: 'Difficulty',
                         desc: 'Sets the difficulty of the world.',
                         type: 'enum',
                         enum: ['easy', 'normal', 'hard'],
-                        setting: 'server.properties.'
+                        setting: 'server.properties.difficulty'
                     },
                     {
                         name: 'Cheats',
                         desc: 'If true then cheats like commands can be used.',
                         type: 'bool',
-                        setting: 'server.properties.'
+                        setting: 'server.properties.allow-cheats'
                     },
                     {
                         name: 'Default Player Permission Level',
                         desc: 'Permission level for new players joining for the first time.',
                         type: 'enum',
                         enum: ["visitor", "member", "operator"],
-                        setting: 'server.properties.'
+                        setting: 'server.properties.default-player-permission-level'
                     }
                 ]
             },
