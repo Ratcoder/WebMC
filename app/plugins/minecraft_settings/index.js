@@ -2,13 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = class MinecraftSettings{
-
-
     constructor(settings, referances){
-        console.log('10')
-        setTimeout(()=>{
-            this.settings.set(1)
-        },100)
+        
+    }
+    init(){
+        
     }
 
     display = {
@@ -22,6 +20,11 @@ module.exports = class MinecraftSettings{
                         desc: 'Used as the server name',
                         type: 'string',
                         post: '/api/minecraft-settings/set-server-name'
+                    },
+                    {
+                        name: 'Seed',
+                        desc: 'Use to randomize the world',
+                        type: 'string'
                     },
                     {
                         name: 'Max View Distance',
@@ -87,11 +90,6 @@ module.exports = class MinecraftSettings{
                         desc: 'Permission level for new players joining for the first time.',
                         type: 'enum',
                         enum: ["visitor", "member", "operator"]
-                    },
-                    {
-                        name: 'Seed',
-                        desc: 'Use to randomize the world',
-                        type: 'string'
                     }
                 ]
             },
