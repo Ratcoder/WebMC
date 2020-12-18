@@ -1,5 +1,6 @@
-module.exports = (request, responce, buffer) => {
-    plugins.forEach(element => {
+module.exports = (request, responce, ref, buffer) => {
+    const path = request.headers[':path'];
+    ref.mc.plugins.forEach(element => {
         if(element.http){
             if(path.startsWith('/api/' + element.http.prefix + '/')){
                 if(request.headers[':method'] == 'POST'){

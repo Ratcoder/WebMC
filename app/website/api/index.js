@@ -4,6 +4,7 @@ const authorize = require('./authorize.js');
 const authenticate = require('./authenticate.js');
 const bcrypt = require('bcrypt');
 const customPluginRoute = require('./routes/custom.js');
+const pluginSettingsRoute = require('./routes/plugin_settings.js');
 const saltRounds = 10;
 
 let privateKey;
@@ -86,32 +87,12 @@ function route(request, responce, ref){
                     responce.stream.end("Not authorized.")
                 }
                 else{
-                    plugins.forEach(element => {
-                        if(element.http){
-                            if(path.startsWith('/api/' + element.http.prefix + '/')){
-                                if(request.headers[':method'] == 'POST'){
-                                    for (const key in element.http.post) {
-                                        if (element.http.post.hasOwnProperty(key)) {
-                                            const route = element.http.post[key];
-                                            if(path.startsWith('/api/' + element.http.prefix + '/' + key)){
-                                                route(request, responce, buffer);
-                                            }
-                                        }
-                                    }
-                                }
-                                else{
-                                    for (const key in element.http.get) {
-                                        if (element.http.get.hasOwnProperty(key)) {
-                                            const route = element.http.get[key];
-                                            if(path.startsWith('/api/' + element.http.prefix + '/' + key)){
-                                                route(request, responce, buffer);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
+                    if(path.startsWith('/api/plugin-settings')){
+                        pluginSettingsRoute(request, responce, ref, buffer);
+                    }
+                    else{
+                        customPluginRoute(request, responce, ref, buffer);
+                    }
                 }
             });
 
