@@ -1,6 +1,8 @@
 const child_process = require('child_process');
 const EventEmitter = require('events');
+const fs = require('fs');
 const os = require('os');
+const pluginSettings = require('./plugin_settings.js');
 
 module.exports = function(){
     let mcServer;
@@ -23,28 +25,14 @@ module.exports = function(){
             intervals = [];
             // get the path to each one
             let normalizedPath = require("path").join(__dirname, "../plugins");
-            require("fs").readdirSync(normalizedPath).forEach(function(file) {
+            fs.readdirSync(normalizedPath).forEach(function(file) {
                 try{
                     // import the plugin class
                     const pc = require("../plugins/" + file);
                     // make an instance
                     let plugin = new pc({}, {mcServer: mcServer, mcEvents: mcServerEventEmitter});
-                    plugin.settings = {
-                        get(setting){
-                            return this._settings.get(setting);
-                        },
-                        set(setting, value){
-                            this.onChange(setting, value);
-                            this._streams.forEach(element => {
-                                element.write(`data: ${this.prefix}/${setting} ${value}`);
-                            });
-                            return this._settings.set(setting, value);
-                        },
-                        onChange(setting, value){},
-                        prefix: plugin.http.prefix,
-                        _settings: new Map(),
-                        _streams: []
-                    }
+                    // settings
+                    if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
                     // add it to the array of plugins
                     plugins.push(plugin);
                     // run its init function, if it has one
