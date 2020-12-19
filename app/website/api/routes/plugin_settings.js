@@ -8,6 +8,9 @@ module.exports = (request, responce, ref, buffer) => {
         });
         plugins.forEach(element => {
             if(element.settings){
+                for (const [key, value] of element.settings._settings.entries()) {
+                    responce.stream.write(`data: ${JSON.stringify([element.settings.prefix, key, value])}\n\n`);
+                }
                 element.settings._streams.push(responce.stream);
                 responce.stream.on('end', () => {
                     for (let i = 0; i < element.settings._streams.length; i++) {
@@ -20,7 +23,6 @@ module.exports = (request, responce, ref, buffer) => {
         });
     }
     else{
-        console.log(path)
         plugins.forEach(element => {
             if(element.settings && path.startsWith('/api/plugin-settings/' + element.settings.prefix)){
                 if(request.headers[':method'] == 'POST'){

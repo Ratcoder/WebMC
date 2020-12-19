@@ -31,6 +31,7 @@ module.exports = function(){
                     const pc = require("../plugins/" + file);
                     // make an instance
                     let plugin = new pc({}, {mcServer: mcServer, mcEvents: mcServerEventEmitter});
+                    if(plugin.display) plugin.display.prefix = plugin.http.prefix;
                     // settings
                     if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
                     // add it to the array of plugins

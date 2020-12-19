@@ -1,8 +1,22 @@
 <script>
-
-
+    export let prefix;
     export let setting;
-
+    window.addEventListener("setting-changed", (event) => {
+        if(prefix == event.setting[0] && setting.setting == event.setting[1]){
+            value = event.setting[2];
+            value1 = event.setting[2];
+            value2 = event.setting[2];
+        }
+    });
+    
+    let value = setting.default;
+    let value1 = setting.default;
+    let value2 = setting.default;
+    function submit(){
+        if(setting.type == 'int') value = value1
+        if(setting.type == 'bool') value = value2
+        fetch(`/api/plugin-settings/${prefix}`, {method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify([setting.setting, value])});
+    }
 </script>
 
 <div>
@@ -10,22 +24,22 @@
     <details>
         <summary>{setting.name}</summary>
         {#each setting.fields as s}
-            <svelte:self setting={s}/>
+            <svelte:self setting={s} {prefix}/>
         {/each}
     </details>
     {:else if setting.type == 'string'}
-        <form action="" title={setting.desc}>
+        <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
-            <input type="text" name="setting" id={setting.name}>
+            <input bind:value type="text" name="setting" id={setting.name}>
         </form>
     {:else if setting.type == 'int'}
-        <form action="" title={setting.desc}>
+        <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
-            <input type="number" name="setting" id={setting.name} min={setting?.range?.min} max={setting?.range?.max}>
+            <input bind:value={value1} type="number" name="setting" id={setting.name} min={setting?.range?.min} max={setting?.range?.max}>
         </form>
     {:else if setting.type == 'bool'}
-        <form action="" style="margin-bottom: 11.15px; margin-top: 11.15px" title={setting.desc}>
-            <input type="checkbox" name="setting" id={setting.name} value={setting.name} style="display: inline-block; vertical-align:middle;">
+        <form onsubmit="return false;" on:change={submit} style="margin-bottom: 11.15px; margin-top: 11.15px" title={setting.desc}>
+            <input bind:value={value2} type="checkbox" name="setting" id={setting.name} style="display: inline-block; vertical-align:middle;">
             <label for={setting.name} style="display: inline-block; vertical-align:middle;">{setting.name}</label>
         </form>
     {/if}

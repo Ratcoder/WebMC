@@ -11,7 +11,7 @@ module.exports = (plugin, path) => {
                 console.log(err);
             });
             this.onChange(setting, value);
-            this._streams.forEach(element => {element.write(`data: ${this.prefix} ${setting} ${value}\n\n`)});
+            this._streams.forEach(element => {element.write(`data: ${JSON.stringify([this.prefix, setting, value])}\n\n`);});
             return result;
         },
         onChange(setting, value){},
