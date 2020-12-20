@@ -6,6 +6,7 @@
             value = event.setting[2];
             value1 = event.setting[2];
             value2 = event.setting[2];
+            value3 = event.setting[2];
         }
     });
     
