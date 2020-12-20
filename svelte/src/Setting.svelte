@@ -40,8 +40,8 @@
             <input bind:value={value1} type="number" name={setting.name} id={setting.name} min={setting?.range?.min} max={setting?.range?.max}>
         </form>
     {:else if setting.type == 'bool'}
-        <form onsubmit="return false;" on:change={submit} style="margin-bottom: 11.15px; margin-top: 11.15px" title={setting.desc}>
-            <input bind:value={value2} type="checkbox" name={setting.name} id={setting.name} style="display: inline-block; vertical-align:middle;">
+        <form on:change={submit} style="margin-bottom: 11.15px; margin-top: 11.15px" title={setting.desc}>
+            <input bind:checked={value2} type="checkbox" name={setting.name} id={setting.name} style="display: inline-block; vertical-align:middle;">
             <label for={setting.name} style="display: inline-block; vertical-align:middle;">{setting.name}</label>
         </form>
     {:else if setting.type == 'enum'}
