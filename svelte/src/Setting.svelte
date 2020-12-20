@@ -32,22 +32,22 @@
     {:else if setting.type == 'string'}
         <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
-            <input bind:value type="text" name="setting" id={setting.name}>
+            <input bind:value type="text" name={setting.name} id={setting.name}>
         </form>
     {:else if setting.type == 'int'}
         <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
-            <input bind:value={value1} type="number" name="setting" id={setting.name} min={setting?.range?.min} max={setting?.range?.max}>
+            <input bind:value={value1} type="number" name={setting.name} id={setting.name} min={setting?.range?.min} max={setting?.range?.max}>
         </form>
     {:else if setting.type == 'bool'}
         <form onsubmit="return false;" on:change={submit} style="margin-bottom: 11.15px; margin-top: 11.15px" title={setting.desc}>
-            <input bind:value={value2} type="checkbox" name="setting" id={setting.name} style="display: inline-block; vertical-align:middle;">
+            <input bind:value={value2} type="checkbox" name={setting.name} id={setting.name} style="display: inline-block; vertical-align:middle;">
             <label for={setting.name} style="display: inline-block; vertical-align:middle;">{setting.name}</label>
         </form>
     {:else if setting.type == 'enum'}
         <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
-            <select bind:value={value3} type="text" name="setting" id={setting.name}>
+            <select bind:value={value3} type="text" name={setting.name} id={setting.name}>
                 {#each setting.enum as option}
                     <option value={option}>{option}</option>
                 {/each}
