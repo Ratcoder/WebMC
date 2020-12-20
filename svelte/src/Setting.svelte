@@ -12,9 +12,11 @@
     let value = setting.default;
     let value1 = setting.default;
     let value2 = setting.default;
+    let value3 = setting.default;
     function submit(){
         if(setting.type == 'int') value = value1
         if(setting.type == 'bool') value = value2
+        if(setting.type == 'enum') value = value3
         fetch(`/api/plugin-settings/${prefix}`, {method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify([setting.setting, value])});
     }
 </script>
@@ -42,6 +44,15 @@
             <input bind:value={value2} type="checkbox" name="setting" id={setting.name} style="display: inline-block; vertical-align:middle;">
             <label for={setting.name} style="display: inline-block; vertical-align:middle;">{setting.name}</label>
         </form>
+    {:else if setting.type == 'enum'}
+        <form onsubmit="return false;" on:change={submit} title={setting.desc}>
+            <label for={setting.name}>{setting.name}</label>
+            <select bind:value={value3} type="text" name="setting" id={setting.name}>
+                {#each setting.enum as option}
+                    <option value={option}>{option}</option>
+                {/each}
+            </select>
+        </form>
     {/if}
 </div>
 
@@ -55,7 +66,7 @@
     form{
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     }
-    input{
+    input, select{
         appearance: none;
         -webkit-appearance: none;
         -webkit-border-radius: 0;
@@ -88,11 +99,11 @@
         color: transparent;
         text-align: center;
     }
-    input:hover{
+    input:hover, select:hover{
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }
-    input:focus{
+    input:focus, select:focus{
         border: none;
         outline: none;
     }
