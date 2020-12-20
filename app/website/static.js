@@ -8,18 +8,34 @@ const fetch = require('node-fetch');
  */
 module.exports = function staticServe(request, responce){
     let path = request.headers[':path'];
-    if(path == '/players' || path == '/settings' || path == '/terminal' || path == '/login'){
-        path = '/';
-    }
-    fetch('http://localhost:5000' + path)
-        .then(res => res.text())
-        .then(res => {
-            responce.stream.respond({
-                ':status': 200
-            });
-            responce.stream.end(res.toString());
-        })
-    return;
+    // if(path == '/players' || path == '/settings' || path == '/terminal' || path == '/login'){
+    //     path = '/';
+    // }
+    // fetch('http://localhost:5000' + path)
+    //     .then(res => res.text())
+    //     .then(res => {
+    //         if(path.endsWith('.svg')){
+    //             responce.stream.respond({
+    //                 ':status': 200,
+    //                 'Content-Type': 'image/svg+xml; charset=utf-8'
+    //             });
+    //             responce.stream.end(res.toString());
+    //         }
+    //         else if(path.endsWith('.png')){
+    //             responce.stream.respond({
+    //                 ':status': 200,
+    //                 'Content-Type': 'image/png'
+    //             });
+    //             responce.stream.end(res.body.read());
+    //         }
+    //         else{
+    //             responce.stream.respond({
+    //                 ':status': 200
+    //             });
+    //             responce.stream.end(res.toString());
+    //         }
+    //     })
+    // return;
 
     let file = 'svelte/public' + path;
     // If we are asked for a folder, we will try to send an index.html file inside that folder
