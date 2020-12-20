@@ -32,6 +32,7 @@
 </script>
 
 {#if page != "/login"}
+	<img src="/icons/webmclogo2.svg" alt="Web MC logo" width=50 height=50>
 	<nav>
 		<IconButton style="margin: 14px" src="/icons/activity.svg" on:click={()=>{changePage("/")}}></IconButton>
 		<IconButton style="margin: 14px" src="/icons/users.svg" on:click={()=>{changePage("/players")}}></IconButton>
@@ -88,6 +89,15 @@
 		text-align: center;
 		box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
 		z-index: 100;
+	}
+	img{
+		width: 50px;
+		height: 50px;
+		position: fixed;
+		left: 10px;
+		top: 5px;
+		display: block;
+		z-index: 101;
 	}
 	/* p{
 		color: rgba(255,255,255,0.6);
