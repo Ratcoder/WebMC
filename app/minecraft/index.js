@@ -17,7 +17,7 @@ module.exports = function(){
         console.log('Starting server...');
         // spawn the child process
         //mcServer = child_process.spawn((process.platform == 'win32') ? 'mc/bedrock-server/bedrock_server.exe' : (__dirname + '/../../start_mc_server.sh'));
-        mcServer = child_process.spawn(__dirname + '/../../start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
+        mcServer = child_process.spawn(__dirname + '/../scripts/start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
         mcServer.on('spawn', () => {
             // Load the plugins
             console.log('Loading plugins...');
