@@ -1,2 +1,2 @@
-cd ../../mc/bedrock-server
+cd mc/bedrock-server
 bedrock_server.exe
