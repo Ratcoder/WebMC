@@ -76,7 +76,7 @@ module.exports = function(){
         });
         mcServer.on('exit', (code, signal) => {
             // was it a crash?
-            if(code !== 0 || true){
+            if(code !== 0){
                 console.log('Minecraft server crashed: ' + code);
                 // clear all the intervals
                 intervals.forEach(element => {
