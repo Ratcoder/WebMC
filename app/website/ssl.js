@@ -1,30 +1,31 @@
 const schedule = require('node-schedule');
 const fs = require('fs');
 
-module.exports = function(server, startAdminServer){
-    // makes a tsl certificate
-    function generateSSLCert(){
-        console.log('Generating SSL certificate...')
+function generateSSLCert(){
+    console.log('Generating SSL certificate...')
 
-        const selfsigned = require('selfsigned');
-        var attrs = [{ name: 'commonName', value: 'a server' }];
-        var pems = selfsigned.generate(attrs, {
-            keySize: 2048, // the size for the private key in bits (default: 1024)
-            days: 60, // how long till expiry of the signed certificate (default: 365)
-            algorithm: 'sha256', // sign the certificate with specified algorithm (default: 'sha1')
-            extensions: [{ name: 'basicConstraints', cA: true }], // certificate extensions array
-            pkcs7: true, // include PKCS#7 as part of the output (default: false)
-        });
-        fs.writeFileSync('cert/private', pems.private, ()=>{
+    const selfsigned = require('selfsigned');
+    var attrs = [{ name: 'commonName', value: 'a server' }];
+    var pems = selfsigned.generate(attrs, {
+        keySize: 2048, // the size for the private key in bits (default: 1024)
+        days: 60, // how long till expiry of the signed certificate (default: 365)
+        algorithm: 'sha256', // sign the certificate with specified algorithm (default: 'sha1')
+        extensions: [{ name: 'basicConstraints', cA: true }], // certificate extensions array
+        pkcs7: true, // include PKCS#7 as part of the output (default: false)
+    });
+    fs.writeFileSync('cert/private', pems.private, ()=>{
 
-        });
-        fs.writeFileSync('cert/cert', pems.cert, ()=>{
+    });
+    fs.writeFileSync('cert/cert', pems.cert, ()=>{
 
-        });
-        fs.writeFileSync('cert/date', Date.now(), ()=>{
+    });
+    fs.writeFileSync('cert/date', Date.now().toString(), ()=>{
 
-        });
-    }
+    });
+}
+
+module.exports.watch = function(server, startAdminServer){
+    
     // every month renew the certificate
     schedule.scheduleJob('0 0 0 * *', function(){
         generateSSLCert();
@@ -44,3 +45,5 @@ module.exports = function(server, startAdminServer){
         generateSSLCert();
     }
 }
+
+module.exports.generateSSLCert = generateSSLCert;

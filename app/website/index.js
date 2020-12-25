@@ -1,9 +1,10 @@
 const schedule = require('node-schedule');
 const fs = require('fs');
 const static = require('./static.js');
+const SSL = require('./ssl');
 
 module.exports = function(ref){
-    
+    if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
     // ----- SERVER -----
     const http2 = require('http2');
     var server;
@@ -41,6 +42,6 @@ module.exports = function(ref){
     startAdminServer();
 
     // ----- SSL -----
-    require('./ssl.js')(server, startAdminServer);
+    SSL.watch(server, startAdminServer);
 }
 
