@@ -10,7 +10,11 @@ module.exports = class PlayerManager{
 
     constructor(settings, referances){
         this.referances = referances;
-        require(path.join(__dirname, '../../../settings/players.json')).forEach(player => {
+        const playersPath = path.join(__dirname, '../../../settings/players.json');
+        if(!fs.existsSync(playersPath)){
+            fs.writeFileSync('settings/players.json', '[]');
+        }
+        require(playersPath).forEach(player => {
             this.players.set(player.name, player);
         });
 
