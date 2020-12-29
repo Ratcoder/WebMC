@@ -5,7 +5,7 @@
   "main": "app/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "node .",
     "buildsite": "cd svelte ; npm run build",
     "devsite": "cd svelte ; npm run dev"
   },
