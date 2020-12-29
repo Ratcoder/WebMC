@@ -108,7 +108,9 @@ function startMcServer(){
 }
 
 function processMcServerLog(log){
-    console.log(log);
+    if(os.platform == 'win32' && (log.endsWith('cd mc/bedrock-server ') || log.endsWith('bedrock_server.exe'))){
+        return;
+    }
     mcServerEventEmitter.emit('log', log);
     if(log.startsWith('[')){
         //log = log.substring(27);
