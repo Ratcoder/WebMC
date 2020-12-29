@@ -33,9 +33,6 @@
         }
         graphData = [...graphData, data];
     }
-    source.onerror = () => {
-        window.location.replace("/login");
-    }
     
     let colors = ['#f5cb5c', '#43b581'];//['#2F9987', '#70DBAB']//
     function draw(){

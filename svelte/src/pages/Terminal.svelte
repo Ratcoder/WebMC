@@ -9,9 +9,6 @@
     source.onmessage = (event) => {
         logs += event.data + '\n';
     }
-    source.onerror = (err) => {
-        window.location.replace("/login");
-    }
     onMount(() => {
         //document.body.scrollTo(0,document.body.scrollHeight);
     });

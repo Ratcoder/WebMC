@@ -11,9 +11,17 @@
 
 	let pluginDisplay;
 	fetch(`/api/display.json`)
-  		.then(response => response.json())
-		.then(data => {pluginDisplay = data});
-
+  		.then(response => {
+			if(response.status == 401){
+				if(window.location.pathname != '/login') window.location.href = '/login';
+				return response
+			}
+			else {
+				return response.json();
+			}
+		})
+		.then(data => {pluginDisplay = data})
+		.catch(reason => {console.log(reason)});
 	
 	let page = window.location.pathname;
 	// const pageTransitionTime = 300;

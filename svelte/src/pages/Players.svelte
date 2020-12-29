@@ -49,20 +49,11 @@
             players = players;
         }
     }
-    source.onerror = () => {
-        window.location.replace("/login");
-    }
-	// fetch('/api/player-managment/players')
-  	// 	.then(response => response.json())
-	// 	.then(data => {
-    //         players = data;
-            
-    //     });
 
     import { quintOut } from 'svelte/easing';
     import { crossfade } from 'svelte/transition';
     import { flip } from 'svelte/animate';
-import { element } from 'svelte/internal';
+    import { element } from 'svelte/internal';
     const [send, receive] = crossfade({
 		duration: d => Math.sqrt(d * 200),
 
