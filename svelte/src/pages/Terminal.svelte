@@ -29,22 +29,6 @@
 </form>
 
 <style>
-    pre{
-        color: rgba(255,255,255,0.6);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-        text-align: left;
-        margin-bottom: 40px;
-        padding: 20px;
-        position: absolute;
-        top: 45px;
-        height: calc(100% - 140px);
-        width: calc(100% - 40px);
-        /* display:block; */
-        overflow-y: scroll;
-        overflow-x: hidden;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-    }
     code{
         color: rgba(255,255,255,0.6);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
