@@ -95,9 +95,13 @@ function startMcServer(){
         mcServerStringBuffer = '';
         mcLogs = '';
         console.log('Quiting');
+        // clear all the intervals
         intervals.forEach(element => {
             clearInterval(element);
         });
+        plugins=[];
+        // restart the mc server
+        startMcServer();
     })
 
     mcServer.emit('spawn');
