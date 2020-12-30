@@ -107,12 +107,18 @@ function startMcServer(){
     mcServer.emit('spawn');
 }
 
+let nextLineIsSavedFiles = false;
 function processMcServerLog(log){
     if(os.platform == 'win32' && (log.endsWith('cd mc/bedrock-server ') || log.endsWith('bedrock_server.exe'))){
         return;
     }
     mcServerEventEmitter.emit('log', log);
-    if(log.startsWith('[')){
+    if(nextLineIsSavedFiles){
+        mcServerEventEmitter.emit('dataSaved', log.split(', ').map(el => el.split(':')));
+        console.log(log.split(', ').map(el => el.split(':')));
+        nextLineIsSavedFiles = false;
+    }
+    else if(log.startsWith('[')){
         //log = log.substring(27);
         if(log.startsWith('[INFO] Player connected: ')){
             const split = log.substring(25).split(', xuid: ');
@@ -126,6 +132,9 @@ function processMcServerLog(log){
     else if(log.startsWith('Kicked ')){
         const split = log.substring(7).split(' from the game: ');
         mcServerEventEmitter.emit('playerKicked', split[0], split[1])
+    }
+    else if(log.startsWith('Data saved. Files are now ready to be copied.')){
+        nextLineIsSavedFiles = true;
     }
     else if(log == 'Quit correctly'){
         mcServerEventEmitter.emit('quit');
