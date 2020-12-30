@@ -56,17 +56,6 @@ module.exports = class MinecraftSettings{
                         default: 32
                     },
                     {
-                        name: 'Tick Distance',
-                        desc: 'The world will be ticked this many chunks away from any player.',
-                        type: 'int',
-                        range:{
-                            min: 4,
-                            max: 12
-                        },
-                        setting: 'server.properties.tick-distance',
-                        default: 4
-                    },
-                    {
                         name: 'Max Threads',
                         desc: 'Maximum number of threads the server will try to use. If set to 0, it will use as many as possible.',
                         type: 'int',
@@ -94,7 +83,7 @@ module.exports = class MinecraftSettings{
                 ]
             },
             {
-                name: 'Gamerules',
+                name: 'Game Settings',
                 type: 'section',
                 fields: [
                     {
@@ -120,6 +109,17 @@ module.exports = class MinecraftSettings{
                         enum: ["visitor", "member", "operator"],
                         setting: 'server.properties.default-player-permission-level',
                         default: 'member'
+                    },
+                    {
+                        name: 'Simulation Distance',
+                        desc: 'The world will be ticked this many chunks away from any player.',
+                        type: 'int',
+                        range:{
+                            min: 4,
+                            max: 12
+                        },
+                        setting: 'server.properties.tick-distance',
+                        default: 4
                     },
                     {
                         name: 'Friendly Fire',
