@@ -21,10 +21,10 @@ module.exports = class Backups{
         });
         fs.readdir('mc/backups', (err, files) => {
             files.forEach(file => {
-                this.display.settings[0].fields[0].fields.push({
+                this.display.settings[0].fields[1].fields.push({
                     name: new Date(parseInt(file)).toLocaleString(),
                     type: 'button',
-                    url: '/api/backups/' + file
+                    url: '/api/backups/restore/' + file
                 });
             });
         });
@@ -43,13 +43,12 @@ module.exports = class Backups{
             await copyFile(`mc/worlds/bedrock_level/${shortPath}`, `${path}/${shortPath}`);
             await truncate(`${path}/${shortPath}`, parseInt(element[1]));
         }
-        console.log(this.mcServer)
         this.mcServer.stdin.write('save resume\n');
         console.log('Backup done!');
-        this.display.settings[0].fields[0].fields.push({
-            name: date.toLocaleString(),
+        this.display.settings[0].fields[1].fields.push({
+            name: new Date(date).toLocaleString(),
             type: 'button',
-            url: '/api/backups/' + date
+            url: '/api/backups/restore/' + date
         });
     }
 
@@ -59,6 +58,11 @@ module.exports = class Backups{
                 name: 'Backups',
                 type: 'section',
                 fields: [
+                    {
+                        name: 'Take Backup',
+                        type: 'button',
+                        url: '/api/backups/backup'
+                    },
                     {
                         name: 'Roll Back',
                         type: 'section',
@@ -71,6 +75,14 @@ module.exports = class Backups{
     }
 
     http = {
-        prefix: 'backups'
+        prefix: 'backups',
+        post: {
+            'backup': (req, res, body) => {
+                this.mcServer.stdin.write('save hold\n');
+                this.interval = setInterval(() => {
+                    this.mcServer.stdin.write('save query\n');
+                }, 1000);
+            }
+        }
     }
 }
