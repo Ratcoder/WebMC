@@ -100,7 +100,7 @@
         color: rgba(255,255,255,0.6);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         transition: all 300ms;
-        width:100%;
+        width: 200px;
     }
     input[type=checkbox]{
         width: 20px;
