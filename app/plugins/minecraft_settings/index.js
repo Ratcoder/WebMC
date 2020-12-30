@@ -98,7 +98,7 @@ module.exports = class MinecraftSettings{
                 type: 'section',
                 fields: [
                     {
-                        name: 'Gamemode',
+                        name: 'Default Gamemode',
                         desc: 'Sets the game mode for new players.',
                         type: 'enum',
                         enum: ['survival', 'creative', 'adventure'],
@@ -114,13 +114,6 @@ module.exports = class MinecraftSettings{
                         default: 'easy'
                     },
                     {
-                        name: 'Cheats',
-                        desc: 'If true then cheats like commands can be used.',
-                        type: 'bool',
-                        setting: 'server.properties.allow-cheats',
-                        default: false
-                    },
-                    {
                         name: 'Default Player Permission Level',
                         desc: 'Permission level for new players joining for the first time.',
                         type: 'enum',
@@ -129,149 +122,9 @@ module.exports = class MinecraftSettings{
                         default: 'member'
                     },
                     {
-                        name: 'Enable Command Blocks',
-                        desk: '',
-                        setting: 'gamerule.commandBlocksEnabled',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Command Block Output',
-                        desk: '',
-                        setting: 'gamerule.commandBlockOutput',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Do Daylight Cycle',
-                        desk: '',
-                        setting: 'gamerule.doDaylightCycle',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Do Entity Drops',
-                        desk: '',
-                        setting: 'gamerule.doDaylightCycle',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Fire Spreads',
-                        desk: '',
-                        setting: 'gamerule.doFireTick',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Insomnia',
-                        desk: '',
-                        setting: 'gamerule.doInsomnia',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Immediate Respawn',
-                        desk: '',
-                        setting: 'gamerule.doImmediateRespawn',
-                        type: 'bool',
-                        default: false
-                    },
-                    {
-                        name: 'Mob Spawning',
-                        desk: '',
-                        setting: 'gamerule.doMobSpawning',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Mob Drops',
-                        desk: '',
-                        setting: 'gamerule.doMobLoot',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Tile Drops',
-                        desk: '',
-                        setting: 'gamerule.doTileDrops',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Weather Cycle',
-                        desk: '',
-                        setting: 'gamerule.doWeatherCycle',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Drowning Damage',
-                        desk: '',
-                        setting: 'gamerule.drowningDamage',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Fall Damage',
-                        desk: '',
-                        setting: 'gamerule.fallDamage',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Fire Damage',
-                        desk: '',
-                        setting: 'gamerule.fireDamage',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Keep Inventory',
-                        desk: '',
-                        setting: 'gamerule.keepInventory',
-                        type: 'bool',
-                        default: false
-                    },
-                    {
-                        name: 'Max Command Chain Length',
-                        desk: '',
-                        setting: 'gamerule.maxCommandChainLength',
-                        type: 'int',
-                        default: 65536
-                    },
-                    {
-                        name: 'Mob Griefing',
-                        desk: '',
-                        setting: 'gamerule.mobGriefing',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Natural Regeneration',
-                        desk: '',
-                        setting: 'gamerule.naturalRegeneration',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Random Tick Speed',
-                        desk: '',
-                        setting: 'gamerule.randomTickSpeed',
-                        type: 'int',
-                        default: 1
-                    },
-                    {
-                        name: 'PvP',
+                        name: 'Friendly Fire',
                         desk: '',
                         setting: 'gamerule.pvp',
-                        type: 'bool',
-                        default: true
-                    },
-                    {
-                        name: 'Send Command Feedback',
-                        desk: '',
-                        setting: 'gamerule.sendCommandFeedback',
                         type: 'bool',
                         default: true
                     },
@@ -283,18 +136,11 @@ module.exports = class MinecraftSettings{
                         default: true
                     },
                     {
-                        name: 'Show Death Messages',
+                        name: 'Fire Spreads',
                         desk: '',
-                        setting: 'gamerule.showDeathMessages',
+                        setting: 'gamerule.doFireTick',
                         type: 'bool',
                         default: true
-                    },
-                    {
-                        name: 'Spawn Radius',
-                        desk: '',
-                        setting: 'gamerule.spawnRadius',
-                        type: 'int',
-                        default: 5
                     },
                     {
                         name: 'TNT Explodes',
@@ -304,11 +150,171 @@ module.exports = class MinecraftSettings{
                         default: true
                     },
                     {
-                        name: 'Show Tags',
+                        name: 'Mob Loot',
                         desk: '',
-                        setting: 'gamerule.showTags',
+                        setting: 'gamerule.doMobLoot',
                         type: 'bool',
                         default: true
+                    },
+                    {
+                        name: 'Natural Regeneration',
+                        desk: '',
+                        setting: 'gamerule.naturalRegeneration',
+                        type: 'bool',
+                        default: true
+                    },
+                    {
+                        name: 'Tile Drops',
+                        desk: '',
+                        setting: 'gamerule.doTileDrops',
+                        type: 'bool',
+                        default: true
+                    },
+                    {
+                        name: 'Immediate Respawn',
+                        desk: '',
+                        setting: 'gamerule.doImmediateRespawn',
+                        type: 'bool',
+                        default: false
+                    },
+                    {
+                        name: 'Respawn Radius',
+                        desk: '',
+                        setting: 'gamerule.spawnRadius',
+                        type: 'int',
+                        default: 5
+                    },
+                    {
+                        name: 'Cheats',
+                        type: 'section',
+                        fields: [
+                            {
+                                name: 'Cheats',
+                                desc: 'If true then cheats like commands can be used.',
+                                type: 'bool',
+                                setting: 'server.properties.allow-cheats',
+                                default: false
+                            },
+                            {
+                                name: 'Do Daylight Cycle',
+                                desk: '',
+                                setting: 'gamerule.doDaylightCycle',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Keep Inventory',
+                                desk: '',
+                                setting: 'gamerule.keepInventory',
+                                type: 'bool',
+                                default: false
+                            },
+                            {
+                                name: 'Mob Spawning',
+                                desk: '',
+                                setting: 'gamerule.doMobSpawning',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Mob Griefing',
+                                desk: '',
+                                setting: 'gamerule.mobGriefing',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Do Entity Drops',
+                                desk: '',
+                                setting: 'gamerule.doEntityDrops',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Weather Cycle',
+                                desk: '',
+                                setting: 'gamerule.doWeatherCycle',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Command Blocks Enabled',
+                                desk: '',
+                                setting: 'gamerule.commandBlocksEnabled',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Random Tick Speed',
+                                desk: '',
+                                setting: 'gamerule.randomTickSpeed',
+                                type: 'int',
+                                default: 1
+                            },
+                            {
+                                name: 'Insomnia',
+                                desk: '',
+                                setting: 'gamerule.doInsomnia',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Drowning Damage',
+                                desk: '',
+                                setting: 'gamerule.drowningDamage',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Fall Damage',
+                                desk: '',
+                                setting: 'gamerule.fallDamage',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Fire Damage',
+                                desk: '',
+                                setting: 'gamerule.fireDamage',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Show Death Messages',
+                                desk: '',
+                                setting: 'gamerule.showDeathMessages',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Send Command Feedback',
+                                desk: '',
+                                setting: 'gamerule.sendCommandFeedback',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Command Block Output',
+                                desk: '',
+                                setting: 'gamerule.commandBlockOutput',
+                                type: 'bool',
+                                default: true
+                            },
+                            {
+                                name: 'Max Command Chain Length',
+                                desk: '',
+                                setting: 'gamerule.maxCommandChainLength',
+                                type: 'int',
+                                default: 65536
+                            },
+                            {
+                                name: 'Show Tags',
+                                desk: '',
+                                setting: 'gamerule.showTags',
+                                type: 'bool',
+                                default: true
+                            }
+                        ]
                     }
                 ]
             },
