@@ -1,19 +1,34 @@
 <script>
     export let prefix;
     export let setting;
-    window.addEventListener("setting-changed", (event) => {
-        if(prefix == event.setting[0] && setting.setting == event.setting[1]){
-            value = event.setting[2];
-            value1 = event.setting[2];
-            value2 = event.setting[2];
-            value3 = event.setting[2];
-        }
-    });
+    
+    
     
     let value = setting.default;
     let value1 = setting.default;
     let value2 = setting.default;
     let value3 = setting.default;
+    console.log('mounted0')
+    function load(){
+        console.log('mounted0')
+        console.log('mounted1')
+        window.addEventListener("setting-changed", (event) => {
+            if(prefix == event.setting[0] && setting.setting == event.setting[1]){
+                value = event.setting[2];
+                value1 = event.setting[2];
+                value2 = event.setting[2];
+                value3 = event.setting[2];
+            }
+        });
+        let e = new Event('setting-request');
+        e.setting = prefix + ':' + setting.setting;
+        console.log('mounted2')
+        window.dispatchEvent(e);
+    }
+    load();
+    
+    
+
     function submit(){
         if(setting.type == 'int') value = value1
         if(setting.type == 'bool') value = value2
@@ -24,12 +39,10 @@
 
 <div>
     {#if setting.type == 'section'}
-    <details>
-        <summary>{setting.name}</summary>
+        <h3>{setting.name}</h3>
         {#each setting.fields as s}
             <svelte:self setting={s} {prefix}/>
         {/each}
-    </details>
     {:else if setting.type == 'string'}
         <form onsubmit="return false;" on:change={submit} title={setting.desc}>
             <label for={setting.name}>{setting.name}</label>
@@ -61,8 +74,12 @@
 <style>
     div{
         text-align: left;
-        padding-left: 30px;
+        margin-left: 0px;
+        padding: 0px;
         color: rgba(255,255,255,0.6);
+    }
+    h3{
+        color: rgba(255,255,255,0.87);
     }
     form{
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -81,6 +98,7 @@
         color: rgba(255,255,255,0.6);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
         transition: all 300ms;
+        width:100%;
     }
     input[type=checkbox]{
         width: 20px;
@@ -107,16 +125,5 @@
     input:focus, select:focus{
         border: none;
         outline: none;
-    }
-    details{
-        padding: 5px;
-    }
-    summary{
-        margin-bottom: 5px;
-    }
-    @media only screen and (max-width: 600px) {
-        div{
-            padding-left: 5px;
-        }
     }
 </style>
