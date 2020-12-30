@@ -78,7 +78,6 @@
     .settings{
         position: absolute;
         left: calc(50vw - 100px);
-        width: 200px;
     }
     @media only screen and (max-width: 700px) {
         .tabs{
