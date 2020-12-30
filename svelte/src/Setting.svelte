@@ -67,6 +67,8 @@
                 {/each}
             </select>
         </form>
+    {:else if setting.type == 'button'}
+        <button on:click={()=>{fetch(setting.url,{method: 'post', headers: {'Content-Type': 'text/json'}})}}>{setting.name}</button>
     {/if}
 </div>
 
@@ -84,7 +86,7 @@
     form{
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     }
-    input, select{
+    input, select, button{
         appearance: none;
         -webkit-appearance: none;
         -webkit-border-radius: 0;
@@ -118,11 +120,11 @@
         color: transparent;
         text-align: center;
     }
-    input:hover, select:hover{
+    input:hover, select:hover, button:hover{
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }
-    input:focus, select:focus{
+    input:focus, select:focus, button:focus{
         border: none;
         outline: none;
     }
