@@ -8,12 +8,36 @@ const static = require('./website/static.js');
 const SSL = require('./website/ssl');
 
 // ----- MINECRAFT SERVER -----
+let keepMinecraftServerOn = true;
 let mcServer;
 let mcServerEventEmitter = new EventEmitter();
 let mcServerStringBuffer = '';
 let mcLogs = '';
 let plugins = [];
 let intervals = [];
+
+function start(){
+    keepMinecraftServerOn = true;
+    mcServerStringBuffer = '';
+    mcLogs = '';
+    console.log('Quiting');
+    // clear all the intervals
+    intervals.forEach(element => {
+        clearInterval(element);
+    });
+    plugins = [];
+    // restart the mc server
+    startMcServer();
+}
+function stop(){
+    keepMinecraftServerOn = false;
+    return new Promise( (res, reg) => {
+        mcServer.stdin.write('stop\n');
+        mcServerEventEmitter.once('quit', () => {
+            res();
+        });
+    });
+}
 
 startMcServer();
 function startMcServer(){
@@ -32,7 +56,7 @@ function startMcServer(){
                 // import the plugin class
                 const pc = require("./plugins/" + file);
                 // make an instance
-                let plugin = new pc({}, {mcServer: mcServer, mcEvents: mcServerEventEmitter});
+                let plugin = new pc({}, {mcServer: mcServer, mcEvents: mcServerEventEmitter, start, stop});
                 if(plugin.display) plugin.display.prefix = plugin.http.prefix;
                 // settings
                 if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
@@ -78,7 +102,7 @@ function startMcServer(){
     });
     mcServer.on('exit', (code, signal) => {
         // was it a crash?
-        if(code !== 0){
+        if(code !== 0 && keepMinecraftServerOn){
             console.log('Minecraft server crashed: ' + code);
             // clear all the intervals
             intervals.forEach(element => {
@@ -92,6 +116,7 @@ function startMcServer(){
 
     mcServerEventEmitter = new EventEmitter();
     mcServerEventEmitter.on('quit',()=>{
+        if(!keepMinecraftServerOn) return;
         mcServerStringBuffer = '';
         mcLogs = '';
         console.log('Quiting');
@@ -164,7 +189,7 @@ function startAdminServer(){
             console.log('No path in http request!');
         }
         else if(path.startsWith('/api')){
-            api(request, responce, {mc:{plugins}});
+            api(request, responce, {mc:{plugins, stop, start}});
         }
         else{
             static(request, responce);
