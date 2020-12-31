@@ -29,7 +29,7 @@ module.exports = class Backups{
     }
 
     addRestoreButton(save){
-        this.display.settings[0].fields[1].fields.unshift({
+        this.display.settings[0].fields[2].fields.unshift({
             name: new Date(parseInt(save)).toLocaleString(),
             type: 'button',
             url: '/api/backups/restore/' + save,
@@ -38,8 +38,7 @@ module.exports = class Backups{
             }
         });
         this.http.post['restore/' + save] = (req, res, body) => {
-            console.log('restoring');
-            this.restore(`mc/backups/${save}`);
+            this.restore(save);
         }
     }
     backup = async function backup(event){
@@ -56,16 +55,34 @@ module.exports = class Backups{
             await truncate(`${path}/${shortPath}`, parseInt(element[1]));
         }
         this.mcServer.stdin.write('save resume\n');
-        console.log('Backup done!');
         this.addRestoreButton(date);
+        console.log('Backup done!');
+        if(this.settings.get('announceBackups')){
+            this.mcServer.stdin.write(`say §lBackup taken at: ${new Date(parseInt(date)).toLocaleString()}\n`);
+        }
     }
     startBackup(){
+        if(this.settings.get('announceBackups')){
+            this.mcServer.stdin.write('say §lTaking a backup...\n');
+        }
         this.mcServer.stdin.write('save hold\n');
         this.interval = setInterval(() => {
             this.mcServer.stdin.write('save query\n');
         }, 1000);
     }
-    restore = async function restore(path){
+    restore = async function restore(date){
+        console.log('Restoring...');
+        this.mcServer.stdin.write(`say §l§cReverting to the backup taken at: ${new Date(parseInt(date)).toLocaleString()}\n`);
+        this.mcServer.stdin.write('say §l§cReverting in 60 seconds\n');
+        await this.sleep(30000);
+        this.mcServer.stdin.write('say §l§cReverting in 30 seconds\n');
+        await this.sleep(20000);
+        for(let i = 10; i > 0; i--){
+            this.mcServer.stdin.write(`say §l§cReverting in ${i} seconds\n`);
+            await this.sleep(1000);
+        }
+        this.mcServer.stdin.write(`say §l§cReverting!\n`);
+        const path = `mc/backups/${date}`;
         await this.stop();
         await rmdir('mc/worlds/bedrock_level', {recursive: true});
         await mkdir('mc/worlds/bedrock_level');
@@ -82,6 +99,9 @@ module.exports = class Backups{
         }
         this.start();
     }
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     display = {
         settings: [
@@ -89,6 +109,11 @@ module.exports = class Backups{
                 name: 'Backups',
                 type: 'section',
                 fields: [
+                    {
+                        name: 'Announce Backups In Chat',
+                        type: 'bool',
+                        setting: 'announceBackups'
+                    },
                     {
                         name: 'Take Backup',
                         type: 'button',
