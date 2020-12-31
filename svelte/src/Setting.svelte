@@ -157,13 +157,13 @@
         /* top: calc(50vh - 100px); */
         left: -25px;
         padding: 20px;
-        visibility: hidden;
+        transform: translateX(-100vw);
     }
     .warn p{
         margin: 0px;
     }
     .wr:focus-within .warn{
-        visibility: unset;
+        transform: translateX(0px);
     }
     .wr{
         width:100%;
