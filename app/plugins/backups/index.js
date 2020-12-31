@@ -32,7 +32,10 @@ module.exports = class Backups{
         this.display.settings[0].fields[1].fields.unshift({
             name: new Date(parseInt(save)).toLocaleString(),
             type: 'button',
-            url: '/api/backups/restore/' + save
+            url: '/api/backups/restore/' + save,
+            warn: {
+                text: 'Are you sure you want to revert to this backup? All progress in the world after the backup will be lost forever.'
+            }
         });
         this.http.post['restore/' + save] = (req, res, body) => {
             console.log('restoring');
