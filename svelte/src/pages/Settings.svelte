@@ -14,7 +14,6 @@
         settings.set(data[0] + ':' + data[1], data);
     }
     window.addEventListener("setting-request", (event) => {
-        console.log(event.setting)
         if(!settings.get(event.setting)) return;
         let e = new Event('setting-changed');
         e.setting = settings.get(event.setting);
