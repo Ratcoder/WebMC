@@ -28,6 +28,9 @@
     let warnPopupActive = false;
     let ignoreWarn = false;
     function submit(){
+        if(setting.mcRestartRequired){
+            fetch(`/api/plugin-settings/${prefix}`, {method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(['mc-restart-required', true])});
+        }
         if(ignoreWarn){
             warnPopupActive = false;
             ignoreWarn = false;

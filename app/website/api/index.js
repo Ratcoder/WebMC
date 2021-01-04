@@ -10,6 +10,23 @@ const saltRounds = 10;
 let privateKey;
 let admins = new Map();
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function restart60(ref){
+    ref.mc.server.stdin.write('say §l§9Restarting in 60 seconds\n');
+    await sleep(30000);
+    ref.mc.server.stdin.write('say §l§9Restarting in 30 seconds\n');
+    await sleep(20000);
+    for(let i = 10; i > 0; i--){
+        ref.mc.server.stdin.write(`say §l§9Restarting in ${i} seconds\n`);
+        await sleep(1000);
+    }
+    ref.mc.server.stdin.write(`say §l§9Restarting!\n`);
+    await ref.mc.stop();
+    ref.mc.start();
+}
+
 function route(request, responce, ref){
     const path = request.headers[':path'];
     let plugins = ref.mc.plugins;
@@ -61,6 +78,17 @@ function route(request, responce, ref){
                         if(element.display) pluginViews.push(element.display);
                     });
                     responce.stream.end(JSON.stringify(pluginViews));
+                }
+                else if(path == '/api/restart-mc'){
+                    console.log('Restarting mc...')
+                    restart60(ref);
+                    responce.stream.respond({
+                        'content-type': 'text/json; charset=utf-8',
+                        ':status': 200
+                    });
+                    responce.stream.end(JSON.stringify({
+                        text: 'Server will restart in 60s.'
+                    }));
                 }
                 else if(path.startsWith('/api/graphs/')){
                     

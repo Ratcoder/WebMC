@@ -5,8 +5,11 @@ const os = require('os');
 module.exports = class MinecraftSettings{
     constructor(settings, referances){
         this.mcServer = referances.mcServer;
+        this.stop = referances.stop;
+        this.start = referances.start;
     }
     init(){
+        this.settings.set('mc-restart-required', false);
         this.settings.onChange = (setting, value) => {
             if(setting.startsWith('server.properties.')){
                 let serverProperties = 'level-name=../../worlds/bedrock_level' + os.EOL;
@@ -16,7 +19,7 @@ module.exports = class MinecraftSettings{
                     }
                 }
                 fs.writeFile('mc/bedrock-server/server.properties', serverProperties, (err) => {
-                    this.mcServer.stdin.write('reload\n');
+                    
                 });
             }
             else if(setting.startsWith('gamerule.')){
@@ -36,14 +39,16 @@ module.exports = class MinecraftSettings{
                         desc: 'Used as the server name',
                         type: 'string',
                         setting: 'server.properties.server-name',
-                        default: 'Dedicated Server'
+                        default: 'Dedicated Server',
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Seed',
                         desc: 'Use to randomize the world',
                         type: 'string',
                         setting: 'server.properties.level-seed',
-                        default: ''
+                        default: '',
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Max View Distance',
@@ -53,7 +58,8 @@ module.exports = class MinecraftSettings{
                             min: 0
                         },
                         setting: 'server.properties.view-distance',
-                        default: 32
+                        default: 32,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Max Threads',
@@ -63,7 +69,8 @@ module.exports = class MinecraftSettings{
                             min: 0
                         },
                         setting: 'server.properties.max-threads',
-                        default: 8
+                        default: 8,
+                        mcRestartRequired: true
                     },
                     
                     {
@@ -71,14 +78,16 @@ module.exports = class MinecraftSettings{
                         desc: 'Force clients to use texture packs in the current world',
                         type: 'bool',
                         setting: 'server.properties.texturepack-required',
-                        default: false
+                        default: false,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Content Log File Enabled',
                         desc: 'Enables logging content errors to a file',
                         type: 'bool',
                         setting: 'server.properties.content-log-file-enabled',
-                        default: false
+                        default: false,
+                        mcRestartRequired: true
                     }
                 ]
             },
@@ -92,7 +101,8 @@ module.exports = class MinecraftSettings{
                         type: 'enum',
                         enum: ['survival', 'creative', 'adventure'],
                         setting: 'server.properties.gamemode',
-                        default: 'survival'
+                        default: 'survival',
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Difficulty',
@@ -100,7 +110,8 @@ module.exports = class MinecraftSettings{
                         type: 'enum',
                         enum: ['easy', 'normal', 'hard'],
                         setting: 'server.properties.difficulty',
-                        default: 'easy'
+                        default: 'easy',
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Default Player Permission Level',
@@ -108,7 +119,8 @@ module.exports = class MinecraftSettings{
                         type: 'enum',
                         enum: ["visitor", "member", "operator"],
                         setting: 'server.properties.default-player-permission-level',
-                        default: 'member'
+                        default: 'member',
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Simulation Distance',
@@ -119,7 +131,8 @@ module.exports = class MinecraftSettings{
                             max: 12
                         },
                         setting: 'server.properties.tick-distance',
-                        default: 4
+                        default: 4,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Friendly Fire',
@@ -193,7 +206,8 @@ module.exports = class MinecraftSettings{
                                 desc: 'If true then cheats like commands can be used.',
                                 type: 'bool',
                                 setting: 'server.properties.allow-cheats',
-                                default: false
+                                default: false,
+                                mcRestartRequired: true
                             },
                             {
                                 name: 'Do Daylight Cycle',
@@ -369,21 +383,24 @@ module.exports = class MinecraftSettings{
                             min: 0
                         },
                         setting: 'server.properties.max-players',
-                        default: 10
+                        default: 10,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Online Mode',
                         desc: 'If true then all connected players must be authenticated to Xbox Live.\nClients connecting to remote (non-LAN) servers will always require Xbox Live authentication regardless of this setting.\nIf the server accepts connections from the Internet, then it\'s highly recommended to enable online-mode.',
                         type: 'bool',
                         setting: 'server.properties.online-mode',
-                        default: true
+                        default: true,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'White List',
                         desc: 'If true then all connected players must be listed in the separate whitelist.json file.',
                         type: 'bool',
                         setting: 'server.properties.white-list',
-                        default: false
+                        default: false,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Player Idle Timeout',
@@ -393,7 +410,8 @@ module.exports = class MinecraftSettings{
                             min: 0
                         },
                         setting: 'server.properties.player-idle-timeout',
-                        default: 30
+                        default: 30,
+                        mcRestartRequired: true
                     },
                     {
                         name: 'Server Authoritative Movement',
@@ -405,35 +423,40 @@ module.exports = class MinecraftSettings{
                                 type: 'enum',
                                 enum: ["client-auth", "server-auth"],
                                 setting: 'server.properties.server-authoritative-movement',
-                                default: 'server-auth'
+                                default: 'server-auth',
+                                mcRestartRequired: true
                             },
                             {
                                 name: 'Player Movement Score Threshold',
                                 desc: 'The number of incongruent time intervals needed before abnormal behavior is reported.\nDisabled by server-authoritative-movement.',
                                 type: 'int',
                                 setting: 'server.properties.player-movement-score-threshold',
-                                default: 20
+                                default: 20,
+                                mcRestartRequired: true
                             },
                             {
                                 name: 'Player Movement Distance Threshold',
                                 desc: 'The difference between server and client positions that needs to be exceeded before abnormal behavior is detected.\nDisabled by server-authoritative-movement.',
                                 type: 'float',
                                 setting: 'server.properties.player-movement-distance-threshold',
-                                default: 0.3
+                                default: 0.3,
+                                mcRestartRequired: true
                             },
                             {
                                 name: 'Player Movement Durtion Threshold (in ms)',
                                 desc: 'The duration of time the server and client positions can be out of sync (as defined by player-movement-distance-threshold)\nbefore the abnormal movement score is incremented. This value is defined in milliseconds.\nDisabled by server-authoritative-movement.',
                                 type: 'int',
                                 setting: 'server.properties.player-movement-duration-threshold-in-ms',
-                                default: 500
+                                default: 500,
+                                mcRestartRequired: true
                             },
                             {
                                 name: 'Correct Player Movement',
                                 desc: 'If true, the client position will get corrected to the server position if the movement score exceeds the threshold.',
                                 type: 'bool',
                                 setting: 'server.properties.correct-player-movement',
-                                default: false
+                                default: false,
+                                mcRestartRequired: true
                             }
                         ]
                     }

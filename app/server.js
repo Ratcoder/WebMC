@@ -189,7 +189,7 @@ function startAdminServer(){
             console.log('No path in http request!');
         }
         else if(path.startsWith('/api')){
-            api(request, responce, {mc:{plugins, stop, start}});
+            api(request, responce, {mc:{plugins, stop, start, server: mcServer}});
         }
         else{
             static(request, responce);

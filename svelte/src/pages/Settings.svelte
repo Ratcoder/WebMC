@@ -30,6 +30,12 @@
             });
         });
     }
+    let mcRestartRequired = {};
+    window.addEventListener("setting-changed", (event) => {
+        if(event.setting[1] == 'mc-restart-required'){
+            mcRestartRequired[event.setting[0]] = event.setting[2];
+        }
+    });
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
@@ -41,6 +47,9 @@
         </div>
         <div class="settings">
             <h2>{tabs[currentTab].name}</h2>
+            {#if mcRestartRequired[tabs[currentTab].prefix]}
+                <button on:click={() => {fetch(`/api/restart-mc`, {method: 'post'});}}>Restart To Apply Changes</button>
+            {/if}
             {#each tabs as tab, i}
                 {#each tab.fields as setting}
                     {#if i == currentTab}
