@@ -25,10 +25,29 @@
         tabs = [];
         pluginDisplay.filter(el => !!el.settings).forEach(element => {
             element.settings.forEach(el => {
-                el.prefix = element.prefix;
-                tabs.push(el);
+                if(el.type === 'tab'){
+                    el.prefix = element.prefix;
+                    el.fields = [];
+                    tabs.push(el);
+                }
+            });
+            element.settings.forEach(el => {
+                if(el.type !== 'tab' && el.tab){
+                    for(let i = 0; i < tabs.length; i++){
+                        if(tabs[i].id === el.tab){
+                            if(el.type === 'spread'){
+                                tabs[i].fields.push(...el.fields);
+                            }
+                            else{
+                                tabs[i].fields.push(el);
+                            }
+                            break;
+                        }
+                    }
+                }
             });
         });
+        tabs = tabs.sort((a, b) => b.priority - a.priority);
     }
     let mcRestartRequired = {};
     window.addEventListener("setting-changed", (event) => {

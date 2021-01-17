@@ -106,8 +106,8 @@ module.exports = class Backups{
     display = {
         settings: [
             {
-                name: 'Backups',
-                type: 'section',
+                tab: 'backups',
+                type: 'spread',
                 fields: [
                     {
                         name: 'Announce Backups In Chat',
@@ -126,6 +126,12 @@ module.exports = class Backups{
                         ]
                     }
                 ]
+            },
+            {
+                type: 'tab',
+                name: 'Backups',
+                id: 'backups',
+                priority: 0
             }
         ]
     }

@@ -31,8 +31,32 @@ module.exports = class MinecraftSettings{
     display = {
         settings: [
             {
-                name: 'Minecraft Settings',
-                type: 'section',
+                type: 'tab',
+                name: 'Game Settings',
+                id: 'game-settings',
+                priority: 2
+            },
+            {
+                type: 'tab',
+                name: 'General',
+                id: 'general',
+                priority: 3
+            },
+            {
+                type: 'tab',
+                name: 'Player Permissions',
+                id: 'player-permissions',
+                priority: 0
+            },
+            {
+                type: 'tab',
+                name: 'Advanced',
+                id: 'advanced',
+                priority: -1
+            },
+            {
+                type: 'spread',
+                tab: 'general',
                 fields: [
                     {
                         name: 'Server Name',
@@ -49,51 +73,12 @@ module.exports = class MinecraftSettings{
                         setting: 'server.properties.level-seed',
                         default: '',
                         mcRestartRequired: true
-                    },
-                    {
-                        name: 'Max View Distance',
-                        desc: 'The maximum allowed view distance in number of chunks.',
-                        type: 'int',
-                        range:{
-                            min: 0
-                        },
-                        setting: 'server.properties.view-distance',
-                        default: 32,
-                        mcRestartRequired: true
-                    },
-                    {
-                        name: 'Max Threads',
-                        desc: 'Maximum number of threads the server will try to use. If set to 0, it will use as many as possible.',
-                        type: 'int',
-                        range: {
-                            min: 0
-                        },
-                        setting: 'server.properties.max-threads',
-                        default: 8,
-                        mcRestartRequired: true
-                    },
-                    
-                    {
-                        name: 'Texturepack Required',
-                        desc: 'Force clients to use texture packs in the current world',
-                        type: 'bool',
-                        setting: 'server.properties.texturepack-required',
-                        default: false,
-                        mcRestartRequired: true
-                    },
-                    {
-                        name: 'Content Log File Enabled',
-                        desc: 'Enables logging content errors to a file',
-                        type: 'bool',
-                        setting: 'server.properties.content-log-file-enabled',
-                        default: false,
-                        mcRestartRequired: true
                     }
                 ]
             },
             {
-                name: 'Game Settings',
-                type: 'section',
+                type: 'spread',
+                tab: 'game-settings',
                 fields: [
                     {
                         name: 'Default Gamemode',
@@ -333,8 +318,8 @@ module.exports = class MinecraftSettings{
                 ]
             },
             {
-                name: 'Minecraft Networking',
-                type: 'section',
+                tab: 'advanced',
+                type: 'spread',
                 fields: [
                     {
                         name: 'Port',
@@ -368,12 +353,51 @@ module.exports = class MinecraftSettings{
                         },
                         setting: 'server.properties.compression-threshold',
                         default: 1
+                    },
+                    {
+                        name: 'Max View Distance',
+                        desc: 'The maximum allowed view distance in number of chunks.',
+                        type: 'int',
+                        range:{
+                            min: 0
+                        },
+                        setting: 'server.properties.view-distance',
+                        default: 32,
+                        mcRestartRequired: true
+                    },
+                    {
+                        name: 'Max Threads',
+                        desc: 'Maximum number of threads the server will try to use. If set to 0, it will use as many as possible.',
+                        type: 'int',
+                        range: {
+                            min: 0
+                        },
+                        setting: 'server.properties.max-threads',
+                        default: 8,
+                        mcRestartRequired: true
+                    },
+                    
+                    {
+                        name: 'Texturepack Required',
+                        desc: 'Force clients to use texture packs in the current world',
+                        type: 'bool',
+                        setting: 'server.properties.texturepack-required',
+                        default: false,
+                        mcRestartRequired: true
+                    },
+                    {
+                        name: 'Content Log File Enabled',
+                        desc: 'Enables logging content errors to a file',
+                        type: 'bool',
+                        setting: 'server.properties.content-log-file-enabled',
+                        default: false,
+                        mcRestartRequired: true
                     }
                 ]
             },
             {
-                name: 'Player Permissions',
-                type: 'section',
+                tab: 'player-permissions',
+                type: 'spread',
                 fields:[
                     {
                         name: 'Max Players',
