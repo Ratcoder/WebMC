@@ -111,7 +111,8 @@ module.exports = class Backups{
                     {
                         name: 'Announce Backups In Chat',
                         type: 'bool',
-                        setting: 'announceBackups'
+                        setting: 'announceBackups',
+                        default: true
                     },
                     {
                         name: 'Take Backup',
