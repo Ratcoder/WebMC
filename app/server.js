@@ -71,6 +71,10 @@ function startMcServer(){
             console.log(err)
         }
     });
+    // plugin preload
+    plugins.forEach(plugin => {
+        if(plugin.preload) plugin.preload()
+    })
     // spawn the child process
     mcServer = child_process.spawn(__dirname + '/scripts/start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
     mcServer.on('spawn', () => {

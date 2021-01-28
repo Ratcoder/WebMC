@@ -24,7 +24,7 @@ module.exports = class MinecraftSettings{
 
     needsToSaveServerProperties = false;
     savingServerProperties = false;
-    saveServerProperties = async function(){
+    saveServerProperties(){
         if(this.savingServerProperties){
             this.needsToSaveServerProperties = true;
         }
