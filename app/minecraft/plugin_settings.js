@@ -27,7 +27,7 @@ module.exports = (plugin, path) => {
                 if(setting.type == 'section'){
                     settings.push(...getDefault(setting.fields));
                 }
-                else{
+                else if(typeof setting.default !== 'undefined'){
                     settings.push([setting.setting, setting.default]);
                 }
             });
