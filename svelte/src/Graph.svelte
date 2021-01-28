@@ -96,7 +96,7 @@
                 let height = 0;
                 for (let i = 0; i < display.fields.length; i++) {
                     let hoverValue = height+graphData[Math.floor(graphData.length*mouseX/canvas.width)][display.fields[i].property];
-                    if(mouseY > canvas.height - canvas.height * hoverValue / display.limit || true){
+                    if(mouseY > canvas.height - canvas.height * hoverValue / display.limit){
                         ctx.fillStyle = "#222222";
                         // box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
                         let boxX = Math.max(62, Math.min(mouseX, canvas.width - 62));
