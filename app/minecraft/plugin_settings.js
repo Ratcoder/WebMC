@@ -37,7 +37,8 @@ module.exports = (plugin, path) => {
         _path: path
     }
     if(!fs.existsSync(plugin.settings._path)){
-        fs.writeFileSync(plugin.settings._path, JSON.stringify(getDefault(plugin.display.settings)));
+        // fs.writeFileSync(plugin.settings._path, JSON.stringify(getDefault(plugin.display.settings)));
+        fs.writeFileSync(plugin.settings._path, '[[]]');
     }
     else{
         plugin.settings._settings = new Map(JSON.parse(fs.readFileSync(plugin.settings._path)));
