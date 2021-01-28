@@ -96,20 +96,21 @@
                 let height = 0;
                 for (let i = 0; i < display.fields.length; i++) {
                     let hoverValue = height+graphData[Math.floor(graphData.length*mouseX/canvas.width)][display.fields[i].property];
-                    if(mouseY > canvas.height - canvas.height * hoverValue / display.limit){
+                    if(mouseY > canvas.height - canvas.height * hoverValue / display.limit || true){
                         ctx.fillStyle = "#222222";
                         // box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
-                        let boxX = Math.max(31, Math.min(mouseX, canvas.width - 31));
+                        let boxX = Math.max(62, Math.min(mouseX, canvas.width - 62));
+                        let boxY = Math.max(mouseY, 150);
                         ctx.beginPath();
-                        ctx.moveTo(boxX - 60, mouseY - 140);
-                        ctx.lineTo(boxX + 60, mouseY - 140);
-                        ctx.lineTo(boxX + 60, mouseY - 20);
-                        let triX = Math.max(boxX - 40, Math.min(mouseX, boxX + 40));
-                        ctx.lineTo(triX + 20, mouseY - 20);
-                        ctx.lineTo(triX, mouseY);
-                        ctx.lineTo(triX - 20, mouseY - 20);
-                        ctx.lineTo(boxX - 60, mouseY - 20);
-                        ctx.moveTo(boxX - 60, mouseY - 140);
+                        ctx.moveTo(boxX - 60, boxY - 140);
+                        ctx.lineTo(boxX + 60, boxY - 140);
+                        ctx.lineTo(boxX + 60, boxY - 20);
+                        let triX = Math.max(boxX - 31, Math.min(mouseX, boxX + 31));
+                        ctx.lineTo(triX + 20, boxY - 20);
+                        ctx.lineTo(triX, boxY);
+                        ctx.lineTo(triX - 20, boxY - 20);
+                        ctx.lineTo(boxX - 60, boxY - 20);
+                        ctx.moveTo(boxX - 60, boxY - 140);
 
                         ctx.shadowColor = "rgba(0,0,0,0.14)";
                         ctx.offsetX = 0;
@@ -130,10 +131,10 @@
                         ctx.font = '30px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
                         ctx.fillStyle = "rgba(255,255,255,0.87)";
                         ctx.textAlign = "center";
-                        ctx.fillText(display.fields[i].title, boxX, mouseY - 100);
+                        ctx.fillText(display.fields[i].title, boxX, boxY - 100);
                         ctx.fillStyle = "rgba(255,255,255,0.6)";
                         ctx.font = '24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
-                        ctx.fillText(valueToString(hoverValue - height, display.unit), boxX, mouseY - 60);
+                        ctx.fillText(valueToString(hoverValue - height, display.unit), boxX, boxY - 60);
 
                         break;
                     }
