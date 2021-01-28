@@ -1,4 +1,20 @@
 const fs = require('fs');
+function getDefault(arr){
+    let settings = [];
+    arr.forEach(setting => {
+        if(setting.type == 'section'){
+            settings.push(...getDefault(setting.fields));
+        }
+        else if(setting.type == 'section'){
+            settings.push(...getDefault(setting.fields));
+        }
+        else if(typeof setting.default !== 'undefined'){
+            settings.push([setting.setting, setting.default]);
+        }
+    });
+    return settings;
+};
+
 
 module.exports = (plugin, path) => {
     plugin.settings = {
@@ -21,18 +37,6 @@ module.exports = (plugin, path) => {
         _path: path
     }
     if(!fs.existsSync(plugin.settings._path)){
-        const getDefault = (arr) => {
-            let settings = [];
-            arr.forEach(setting => {
-                if(setting.type == 'section'){
-                    settings.push(...getDefault(setting.fields));
-                }
-                else if(typeof setting.default !== 'undefined'){
-                    settings.push([setting.setting, setting.default]);
-                }
-            });
-            return settings;
-        };
         fs.writeFileSync(plugin.settings._path, JSON.stringify(getDefault(plugin.display.settings)));
     }
     else{
