@@ -9,7 +9,7 @@ const readdir = util.promisify(fs.readdir);
 
 module.exports = class Backups{
     interval;
-    constructor(settings, referances){
+    init(referances){
         this.mcServer = referances.mcServer;
         this.stop = referances.stop;
         this.start = referances.start;
@@ -18,8 +18,7 @@ module.exports = class Backups{
         referances.mcEvents.on('quit', () => {
             this.backupJob.cancel();
         });
-    }
-    init(){
+
         this.backupJob = node_schedule.scheduleJob('0 0 * * *', () => {
             this.startBackup();
         });

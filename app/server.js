@@ -42,41 +42,42 @@ function stop(){
 startMcServer();
 function startMcServer(){
     console.log('Starting server...');
+    // Load the plugins
+    console.log('Loading plugins...');
+    plugins = [];
+    intervals = [];
+    // get the path to each one
+    let normalizedPath = require("path").join(__dirname, "./plugins");
+    fs.readdirSync(normalizedPath).forEach(function(file) {
+        try{
+            // import the plugin class
+            const pc = require("./plugins/" + file);
+            // make an instance
+            let plugin = new pc();
+            if(plugin.display) plugin.display.prefix = plugin.http.prefix;
+            // settings
+            if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
+            // add it to the array of plugins
+            plugins.push(plugin);
+            // get each of its intervals
+            if(plugin.intervals){
+                plugin.intervals.forEach(element => {
+                    // start them and save the interval id to the intervals array (so we can stop them later)
+                    intervals.push(setInterval(...element));
+                });
+            }
+        }
+        catch(err){
+            console.log(err)
+        }
+    });
     // spawn the child process
     mcServer = child_process.spawn(__dirname + '/scripts/start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
     mcServer.on('spawn', () => {
-        // Load the plugins
-        console.log('Loading plugins...');
-        plugins = [];
-        intervals = [];
-        // get the path to each one
-        let normalizedPath = require("path").join(__dirname, "./plugins");
-        fs.readdirSync(normalizedPath).forEach(function(file) {
-            try{
-                // import the plugin class
-                const pc = require("./plugins/" + file);
-                // make an instance
-                let plugin = new pc({}, {mcServer: mcServer, mcEvents: mcServerEventEmitter, start, stop});
-                if(plugin.display) plugin.display.prefix = plugin.http.prefix;
-                // settings
-                if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
-                // add it to the array of plugins
-                plugins.push(plugin);
-                // run its init function, if it has one
-                if(plugin.init) plugin.init();
-                // get each of its intervals
-                if(plugin.intervals){
-                    plugin.intervals.forEach(element => {
-                        // start them and save the interval id to the intervals array (so we can stop them later)
-                        intervals.push(setInterval(...element));
-                    });
-                }
-            }
-            catch(err){
-                console.log(err)
-            }
-            
-        });
+        plugins.forEach((plugin) => {
+            // run its init function, if it has one
+            if(plugin.init) plugin.init({mcServer: mcServer, mcEvents: mcServerEventEmitter, start, stop});
+        })
         console.log('Server started sucsessfully.');
     });
     mcServer.stdout.setEncoding('utf8');

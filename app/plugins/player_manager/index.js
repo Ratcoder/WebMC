@@ -7,8 +7,8 @@ module.exports = class PlayerManager{
     defaultPermission = 'member';
     hasChangesToSave = false;
     isSaving = false;
-
-    constructor(settings, referances){
+    
+    init(referances){
         this.referances = referances;
         const playersPath = path.join(__dirname, '../../../settings/players.json');
         if(!fs.existsSync(playersPath)){

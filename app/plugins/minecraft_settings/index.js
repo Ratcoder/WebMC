@@ -3,29 +3,46 @@ const path = require('path');
 const os = require('os');
 
 module.exports = class MinecraftSettings{
-    constructor(settings, referances){
+
+    preload = this.saveServerProperties;
+
+    init(referances){
         this.mcServer = referances.mcServer;
         this.stop = referances.stop;
         this.start = referances.start;
-    }
-    init(){
+
         this.settings.set('mc-restart-required', false);
         this.settings.onChange = (setting, value) => {
             if(setting.startsWith('server.properties.')){
-                let serverProperties = 'level-name=../../worlds/bedrock_level' + os.EOL;
-                for(const set of this.settings._settings.entries()){
-                    if(set[0].startsWith('server.properties.')){
-                        serverProperties += `${set[0].substring(18)}=${set[1]}${os.EOL}`;
-                    }
-                }
-                fs.writeFile('mc/bedrock-server/server.properties', serverProperties, (err) => {
-                    
-                });
+                this.saveServerProperties();
             }
             else if(setting.startsWith('gamerule.')){
                 this.mcServer.stdin.write(`gamerule ${setting.substring(9)} ${value}\n`);
             }
         };
+    }
+
+    needsToSaveServerProperties = false;
+    savingServerProperties = false;
+    saveServerProperties = async function(){
+        if(this.savingServerProperties){
+            this.needsToSaveServerProperties = true;
+        }
+        this.savingServerProperties = true;
+        this.needsToSaveServerProperties = false;
+
+        let serverProperties = 'level-name=../../worlds/bedrock_level' + os.EOL;
+        for(const set of this.settings._settings.entries()){
+            if(set[0].startsWith('server.properties.')){
+                serverProperties += `${set[0].substring(18)}=${set[1]}${os.EOL}`;
+            }
+        }
+        fs.writeFile('mc/bedrock-server/server.properties', serverProperties, (err) => {
+            if(this.needsToSaveServerProperties){
+                this.savingServerProperties = false;
+                this.saveServerProperties();
+            }
+        });
     }
 
     display = {

@@ -11,7 +11,7 @@ class PerformanceLogs{
     lastIdleTimestamp = Date.now()
     pids = []
 
-    constructor(settings, referances){
+    init(referances){
         this.pids.push(process.pid);
         this.pids.push(referances.mcServer.pid);
         if(process.platform == 'win32'){

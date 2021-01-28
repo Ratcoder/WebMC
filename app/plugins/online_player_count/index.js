@@ -2,7 +2,7 @@ class OnlinePlayerCount{
     graph = []
     playersOnline = 0
     
-    constructor(settings, referances){
+    init(referances){
         this.graph.push({players: this.playersOnline, _t: Date.now()});
         referances.mcEvents.on('playerConnected', () => {
             this.playersOnline++;

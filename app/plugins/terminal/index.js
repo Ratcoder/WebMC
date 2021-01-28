@@ -2,7 +2,7 @@ module.exports = class Terminal{
     terminalConnections = [];
     logs = '';
 
-    constructor(settings, referances){
+    init(referances){
         this.referances = referances;
 
         referances.mcEvents.on('log', (log) => {
