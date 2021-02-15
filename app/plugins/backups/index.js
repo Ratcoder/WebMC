@@ -60,6 +60,31 @@ module.exports = class Backups{
             this.mcServer.stdin.write(`say §lBackup taken at: ${new Date(parseInt(date)).toLocaleString()}\n`);
         }
     }
+    shutDownBackup = async function shutDownBackup(){
+        console.log('Taking a backup...');
+        await this.stop();
+
+        const date = Date.now();
+        const files = await readdir("mc/worlds/bedrock_level");
+
+        await mkdir(`mc/backups/${date}`);
+        await mkdir(`mc/backups/${date}/db`)
+
+        for(let i = 0; i < files.length; i++){
+            const file = files[i];
+            if(file == "db"){
+                const dbFiles = await readdir("mc/worlds/bedrock_level/db");
+                for(let i2 = 0; i2 < dbFiles.length; i2++){
+                    await copyFile(`mc/worlds/bedrock_level/db/${dbFiles[i2]}`, `mc/backups/${date}/db/${dbFiles[i2]}`);
+                }
+            }
+            else{
+                await copyFile(`mc/worlds/bedrock_level/${file}`, `mc/backups/${date}/${file}`);
+            }
+        }
+
+        this.start();
+    }
     startBackup(){
         if(this.settings.get('announceBackups')){
             this.mcServer.stdin.write('say §lTaking a backup...\n');
@@ -140,7 +165,7 @@ module.exports = class Backups{
         prefix: 'backups',
         post: {
             'backup': (req, res, body) => {
-                this.startBackup();
+                this.shutDownBackup();
             }
         }
     }
