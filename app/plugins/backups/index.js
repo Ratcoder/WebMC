@@ -77,7 +77,7 @@ module.exports = class Backups{
         let files = await readdir("mc/worlds/bedrock_level");
 
         await mkdir(`mc/backups/${date}`);
-        await mkdir(`mc/backups/${date}/db`)
+        await mkdir(`mc/backups/${date}/db`);
 
         for(let i = 0; i < files.length; i++){
             const file = files[i];
