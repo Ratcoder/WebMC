@@ -20,7 +20,7 @@ module.exports = class Backups{
         });
 
         this.backupJob = node_schedule.scheduleJob('0 0 * * *', () => {
-            this.startBackup();
+            this.shutDownBackup();
         });
         fs.readdir('mc/backups', (err, files) => {
             files.forEach(file => this.addRestoreButton(file));
