@@ -37,7 +37,7 @@ module.exports = class MinecraftSettings{
                 serverProperties += `${set[0].substring(18)}=${set[1]}${os.EOL}`;
             }
         }
-        fs.writeFile('mc/bedrock-server/server.properties', serverProperties, (err) => {
+        fs.writeFileSync('mc/bedrock-server/server.properties', serverProperties, (err) => {
             if(this.needsToSaveServerProperties){
                 this.savingServerProperties = false;
                 this.saveServerProperties();
