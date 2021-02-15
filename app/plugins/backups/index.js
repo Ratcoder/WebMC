@@ -65,18 +65,18 @@ module.exports = class Backups{
         await this.stop();
 
         const date = Date.now();
-        const files = await readdir("mc/worlds/bedrock_level");
+        let files = await readdir("mc/worlds/bedrock_level");
 
         await mkdir(`mc/backups/${date}`);
         await mkdir(`mc/backups/${date}/db`)
 
         for(let i = 0; i < files.length; i++){
             const file = files[i];
-            if(file == "db"){
-                const dbFiles = await readdir("mc/worlds/bedrock_level/db");
-                for(let i2 = 0; i2 < dbFiles.length; i2++){
-                    await copyFile(`mc/worlds/bedrock_level/db/${dbFiles[i2]}`, `mc/backups/${date}/db/${dbFiles[i2]}`);
-                }
+            if(fs.lstatSync(`mc/worlds/bedrock_level/${file}`).isDirectory()){
+                const subFiles = await readdir(`mc/worlds/bedrock_level/${file}`);
+                subFiles.forEach(el => {
+                    files.push(`${file}/${el}`);
+                });
             }
             else{
                 await copyFile(`mc/worlds/bedrock_level/${file}`, `mc/backups/${date}/${file}`);
