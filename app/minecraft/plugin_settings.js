@@ -15,6 +15,17 @@ function getDefault(arr){
     return settings;
 };
 
+function setDefaults(settingsArray, settings){
+    settingsArray.forEach(el => {
+        if(el.setting && el.default){
+            settings.set(el.setting, el.default);
+        }
+        if(el.fields){
+            setDefaults(el.fields, settings);
+        }
+    });
+};
+
 
 module.exports = (plugin, path) => {
     plugin.settings = {
@@ -37,8 +48,7 @@ module.exports = (plugin, path) => {
         _path: path
     }
     if(!fs.existsSync(plugin.settings._path)){
-        // fs.writeFileSync(plugin.settings._path, JSON.stringify(getDefault(plugin.display.settings)));
-        fs.writeFileSync(plugin.settings._path, '[[]]');
+        setDefaults(plugin.display.settings, plugin.settings);
     }
     else{
         plugin.settings._settings = new Map(JSON.parse(fs.readFileSync(plugin.settings._path)));
