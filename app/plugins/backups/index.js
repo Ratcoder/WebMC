@@ -62,6 +62,15 @@ module.exports = class Backups{
     }
     shutDownBackup = async function shutDownBackup(){
         console.log('Taking a backup...');
+        this.mcServer.stdin.write('say §l§cTaking a backup in 60 seconds\n');
+        await this.sleep(30000);
+        this.mcServer.stdin.write('say §l§Taking a backup in 30 seconds\n');
+        await this.sleep(20000);
+        for(let i = 10; i > 0; i--){
+            this.mcServer.stdin.write(`say §l§cTaking a backup in ${i} seconds\n`);
+            await this.sleep(1000);
+        }
+
         await this.stop();
 
         const date = Date.now();
