@@ -19,22 +19,21 @@ module.exports = class PlayerManager{
         });
 
         referances.mcEvents.on('playerConnected', (name, xuid) => {
-            let playerInList = false;
-
             let player = this.players.get(name);
+
             if(!player){
                 this.players.set(name, {name, xuid, permission: this.defaultPermission});
             }
             else if(player.ban){
                 this.connectedBannedPlayersIntervals.set(name, 
                     setInterval(() => {
-                        referances.mcServer.stdin.write(`kick ${name} You have been banned until ${element.ban.until}: ${element.ban.reason}\n`);
+                        this.referances.mcServer.stdin.write(`kick ${name} You have been banned.\n`);
                 }, 1000));
-
             }
         });
 
         referances.mcEvents.on('playerDisconnected', (name, xuid) => {
+            clearInterval(this.connectedBannedPlayersIntervals.get(name));
             this.connectedBannedPlayersIntervals.delete(name);
         });
     }
