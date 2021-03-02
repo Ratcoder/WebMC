@@ -1,7 +1,7 @@
 {
-  "name": "minecraft_bedrock_server_manager",
-  "version": "1.0.0",
-  "description": "",
+  "name": "webmc",
+  "version": "0.0.0",
+  "description": "The web-vased Minecraft Bedrock server manager",
   "main": "app/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
