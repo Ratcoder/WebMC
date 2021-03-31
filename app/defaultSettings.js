@@ -19,5 +19,10 @@ module.exports = {
     playerMovementScoreTheshold: 20,
     playerMovementDistanceTheshold: 0.3,
     playerMovementDurationTheshold: 500,
-    correctPlayerMovement: false
+    correctPlayerMovement: false,
+    maxThreads: 8,
+    tickDistance: 4,
+    defaultPlayerPermissionLevel: 'member',
+    texturepackRequired: false,
+    
 }
