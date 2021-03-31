@@ -40,6 +40,9 @@ const players = {
     }
 }
 
+if(!fs.existsSync('db/settings.json')){
+    fs.writeFileSync('db/settings.json', '{}');
+}
 const settingsJSON = JSON.parse(fs.readFileSync('db/settings.json'));
 const gameRules = [
     'commandBlocksEnabled',
