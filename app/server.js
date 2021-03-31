@@ -44,7 +44,7 @@ function startAdminServer(){
                 responce.stream.respondWithFile('svelte/public/index.html');
                 return;
             }
-            console.log(`svelte/public${path}`);
+            console.log(`${request.method} ${path}`);
             if(fs.existsSync(`svelte/public${path}`)){
                 if(path.endsWith('.svg')){
                     responce.stream.respondWithFile(`svelte/public${path}`, {
