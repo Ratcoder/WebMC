@@ -44,6 +44,29 @@ if(!fs.existsSync('db/settings.json')){
     fs.writeFileSync('db/settings.json', '{}');
 }
 const settingsJSON = JSON.parse(fs.readFileSync('db/settings.json'));
+const defaultSettings = {
+    defaultGamemode: 'survival',
+    forceGamemode: false,
+    difficulty: 'easy',
+    levelType: 'DEFAULT',
+    serverName: 'Dedicated Server',
+    maxPlayers: 10,
+    serverPort: 19132,
+    serverPortv6: 19133,
+    levelSeed: '',
+    onlineMode: true,
+    whitelist: false,
+    cheats: false,
+    maxViewDistance: 10,
+    playerIdleTimeout: 30,
+    contentLogFileEnabled: false,
+    compressionThreshold: 1,
+    serverAuthoritativeMovement: true,
+    playerMovementScoreTheshold: 20,
+    playerMovementDistanceTheshold: 0.3,
+    playerMovementDurationTheshold: 500,
+    correctPlayerMovement: false
+}
 const gameRules = [
     'commandBlocksEnabled',
     'commandBlocksEnabled',
@@ -75,14 +98,14 @@ const gameRules = [
 ]
 const serverProperties = {
     defaultGamemode: 'gamemode',
-    // 'force-gamemode',
+    forceGamemode: 'force-gamemode',
     difficulty: 'difficulty',
     serverName: 'server-name',
     maxPlayers: 'max-players',
     serverPort: 'server-port',
     serverPortv6: 'server-portv6',
-    // 'level-type',
-    // 'level-seed',
+    levelType: 'level-type',
+    levelSeed: 'level-seed',
     onlineMode: 'online-mode',
     whitelist: 'white-list',
     cheats: 'allow-cheats',
@@ -149,7 +172,7 @@ async function writeServerProperties(){
     let propertiesFile = '';
     for (const key in serverProperties) {
         if (Object.hasOwnProperty.call(serverProperties, key)) {
-            propertiesFile += `${serverProperties[key]}=${settingsJSON[key]}${os.EOL}`
+            propertiesFile += `${serverProperties[key]}=${settingsJSON[key] ?? defaultSettings[key]}${os.EOL}`
         }
     }
     propertiesFile += 'level-name=bedrock_level';
