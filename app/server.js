@@ -1,178 +1,23 @@
-const child_process = require('child_process');
-const EventEmitter = require('events');
 const fs = require('fs');
 const os = require('os');
 const http2 = require('http2');
-const pluginSettings = require('./minecraft/plugin_settings.js');
-const static = require('./website/static.js');
-const SSL = require('./website/ssl');
+// const pluginSettings = require('./minecraft/plugin_settings.js');
+// const static = require('./website/static.js');
+const SSL = require('./ssl');
+const authorize = require('./authorize');
+const authenticate = require('./authenticate');
+const bcrypt = require('bcrypt');
 
-// ----- MINECRAFT SERVER -----
-let keepMinecraftServerOn = true;
-let mcServer;
-let mcServerEventEmitter = new EventEmitter();
-let mcServerStringBuffer = '';
-let mcLogs = '';
-let plugins = [];
-let intervals = [];
+const routes = fs.readdirSync('./app/routes').map(file => require('./routes/' + file));
 
-function start(){
-    keepMinecraftServerOn = true;
-    mcServerStringBuffer = '';
-    mcLogs = '';
-    console.log('Quiting');
-    // clear all the intervals
-    intervals.forEach(element => {
-        clearInterval(element);
-    });
-    plugins = [];
-    // restart the mc server
-    startMcServer();
-}
-function stop(){
-    keepMinecraftServerOn = false;
-    return new Promise( (res, reg) => {
-        mcServer.stdin.write('stop\n');
-        mcServerEventEmitter.once('quit', () => {
-            res();
-        });
-    });
-}
 
-startMcServer();
-function startMcServer(){
-    console.log('Starting server...');
-    // Load the plugins
-    console.log('Loading plugins...');
-    plugins = [];
-    intervals = [];
-    // get the path to each one
-    let normalizedPath = require("path").join(__dirname, "./plugins");
-    fs.readdirSync(normalizedPath).forEach(function(file) {
-        try{
-            // import the plugin class
-            const pc = require("./plugins/" + file);
-            // make an instance
-            let plugin = new pc();
-            if(plugin.display) plugin.display.prefix = plugin.http.prefix;
-            // settings
-            if(plugin.display && plugin.display.settings) pluginSettings(plugin, `settings/plugins/${file}.json`)
-            // add it to the array of plugins
-            plugins.push(plugin);
-            // get each of its intervals
-            if(plugin.intervals){
-                plugin.intervals.forEach(element => {
-                    // start them and save the interval id to the intervals array (so we can stop them later)
-                    intervals.push(setInterval(...element));
-                });
-            }
-        }
-        catch(err){
-            console.log(err)
-        }
-    });
-    // plugin preload
-    plugins.forEach(plugin => {
-        if(plugin.preload) plugin.preload()
-    })
-    // spawn the child process
-    mcServer = child_process.spawn(__dirname + '/scripts/start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
-    mcServer.on('spawn', () => {
-        plugins.forEach((plugin) => {
-            // run its init function, if it has one
-            if(plugin.init) plugin.init({mcServer: mcServer, mcEvents: mcServerEventEmitter, start, stop});
-        })
-        console.log('Server started sucsessfully.');
-    });
-    mcServer.stdout.setEncoding('utf8');
-    mcServer.stdout.on('data', (data) => {
-        // add this data to the "buffer" (the ''+ is to convert it into a string)
-        mcServerStringBuffer+=''+data;
-        mcLogs+=''+data;
-        if(mcLogs.length > 500){
-            mcLogs.logs = mcLogs.substring(mcLogs.length - 500);
-        }
-        // do we have a linebreak?
-        if(mcServerStringBuffer.includes(os.EOL)){
-            // yes, so we have at least one full line
-            // split up all the lines
-            let logs = mcServerStringBuffer.split(os.EOL);
-            // loop through all the full lines (not the last)
-            for(let i = 0;i < logs.length - 1;i++){
-                processMcServerLog(logs[i]);
-            }
-            // set the buffer to be the last line (the incomplete one)
-            mcServerStringBuffer = logs[logs.length-1];
-        }
-    });
-    mcServer.on('exit', (code, signal) => {
-        // was it a crash?
-        if(code !== 0 && keepMinecraftServerOn){
-            console.log('Minecraft server crashed: ' + code);
-            // clear all the intervals
-            intervals.forEach(element => {
-                clearInterval(element);
-            });
-            plugins=[];
-            // restart the mc server
-            startMcServer();
-        }
-    });
-
-    mcServerEventEmitter = new EventEmitter();
-    mcServerEventEmitter.on('quit',()=>{
-        if(!keepMinecraftServerOn) return;
-        mcServerStringBuffer = '';
-        mcLogs = '';
-        console.log('Quiting');
-        // clear all the intervals
-        intervals.forEach(element => {
-            clearInterval(element);
-        });
-        plugins=[];
-        // restart the mc server
-        startMcServer();
-    })
-
-    mcServer.emit('spawn');
-}
-
-let nextLineIsSavedFiles = false;
-function processMcServerLog(log){
-    if(os.platform == 'win32' && (log.endsWith('cd mc/bedrock-server ') || log.endsWith('bedrock_server.exe'))){
-        return;
-    }
-    mcServerEventEmitter.emit('log', log);
-    if(nextLineIsSavedFiles){
-        mcServerEventEmitter.emit('dataSaved', log.split(', ').map(el => el.split(':')));
-        console.log(log.split(', ').map(el => el.split(':')));
-        nextLineIsSavedFiles = false;
-    }
-    else if(log.startsWith('[')){
-        //log = log.substring(27);
-        if(log.startsWith('[INFO] Player connected: ')){
-            const split = log.substring(25).split(', xuid: ');
-            mcServerEventEmitter.emit('playerConnected', split[0], split[1])
-        }
-        else if(log.startsWith('[INFO] Player disconnected: ')){
-            const split = log.substring(28).split(', xuid: ');
-            mcServerEventEmitter.emit('playerDisconnected', split[0], split[1])
-        }
-    }
-    else if(log.startsWith('Kicked ')){
-        const split = log.substring(7).split(' from the game: ');
-        mcServerEventEmitter.emit('playerKicked', split[0], split[1])
-    }
-    else if(log.startsWith('Data saved. Files are now ready to be copied.')){
-        nextLineIsSavedFiles = true;
-    }
-    else if(log == 'Quit correctly'){
-        mcServerEventEmitter.emit('quit');
-    }
-}
-
-// ----- WEBSITE -----
 if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
+
+let admins = new Map();
+const saltRounds = 10;
+bcrypt.hash('password', saltRounds, function(err, hash) {
+    admins.set('Ratcoder', hash);
+});
 
 let server;
 function startAdminServer(){
@@ -184,21 +29,112 @@ function startAdminServer(){
         cert: fs.readFileSync('cert/cert'),
         allowHTTP1: true
     });
-    const api = require('./website//api')(key);
     // log any errors
     server.on('error', (err) => console.error(err));
     // this is for responces
     server.on('request', (request, responce) => {
         const path = request.headers[':path'];
-        if(!path){
-            console.log('No path in http request!');
-        }
-        else if(path.startsWith('/api')){
-            api(request, responce, {mc:{plugins, stop, start, server: mcServer}});
-        }
-        else{
-            static(request, responce);
-        }
+        // make a buffer to hold the body of the request
+        let buffer = '';
+        responce.stream.on('data', (data) => {
+            buffer += '' + data;
+        });
+        responce.stream.on('end', () => {
+            if(path.endsWith('/')){
+                responce.stream.respondWithFile('svelte/public/index.html');
+                return;
+            }
+            console.log(`svelte/public${path}`);
+            if(fs.existsSync(`svelte/public${path}`)){
+                if(path.endsWith('.svg')){
+                    responce.stream.respondWithFile(`svelte/public${path}`, {
+                        ':status': 200,
+                        'Content-Type': 'image/svg+xml; charset=utf-8'
+                    });
+                    return;
+                }
+                else{
+                    responce.stream.respondWithFile(`svelte/public${path}`);
+                    return;
+                }
+            }
+
+            if(path == '/api/login'){
+                authenticate(buffer, key, admins)
+                    .then(token => {
+                        responce.stream.respond({
+                            'content-type': 'text/plain; charset=utf-8',
+                            'Set-Cookie': [`jwt=${token}; Secure; HttpOnly`],
+                            ':status': 200
+                        });
+                        responce.stream.end('Logged in.');
+                    })
+                    .catch(err => {
+                        responce.stream.respond({
+                            'content-type': 'text/plain; charset=utf-8',
+                            ':status': 401
+                        });
+                        responce.stream.end('Incorrect name or password.')
+                    });
+                return;
+            }
+
+            let found = false;
+            for (let i = 0; i < routes.length; i++) {
+                if(routes[i].path == path && routes[i].method == request.method){
+                    if(!routes[i].public){
+                        authorize(request.headers.cookie, key).then(result => {
+                            if(result){
+                                routes[i].handler(
+                                    {
+                                        headers: request.headers,
+                                        body: buffer
+                                    },
+                                    new Responce(responce)
+                                );
+                            }
+                            else{
+                                responce.stream.respond({
+                                    'content-type': 'text/plain; charset=utf-8',
+                                    ':status': 401
+                                });
+                                responce.stream.end('Unauthorized');
+                            }
+                        });
+                        found = true;
+                        break;
+                    }
+                    else{
+                        routes[i].handler(
+                            {
+                                headers: request.headers,
+                                body: buffer
+                            },
+                            new Responce(responce)
+                        );
+                        found = true;
+                    }
+                    break;
+                }
+            }
+            if(!found){
+                responce.stream.respond({
+                    'content-type': 'text/plain; charset=utf-8',
+                    ':status': 404
+                });
+                responce.stream.end('Not Found');
+            }
+        });
+
+        // if(!path){
+        //     console.log('No path in http request!');
+        // }
+        // else if(path.startsWith('/api')){
+        //     api(request, responce, {mc:{plugins, stop, start, server: mcServer}});
+        // }
+        // else{
+        //     static(request, responce);
+        // }
     });
     
 
@@ -208,3 +144,40 @@ function startAdminServer(){
 }
 startAdminServer();
 SSL.watch(server, startAdminServer);
+
+class Responce{
+    _status = 200;
+
+    constructor(responce){
+        this.responce = responce;
+    }
+    status(status){
+        this._status = status;
+        return this;
+    }
+    json(json){
+        this.responce.stream.respond({
+            'content-type': 'application/json; charset=utf-8',
+            ':status': this._status
+        });
+        this.responce.stream.end(JSON.stringify(json));
+    }
+    text(text){
+        this.responce.stream.respond({
+            'content-type': 'text/plain; charset=utf-8',
+            ':status': this._status
+        });
+        this.responce.stream.end(text);
+    }
+    eventstream(){
+        this.responce.stream.respond({
+            'content-type': 'text/event-stream',
+            'cache-controll': 'no-cache',
+            ':status': this._status
+        });
+        return this;
+    }
+    write(data){
+        this.responce.stream.write(data);
+    }
+}

@@ -1,84 +1,156 @@
 <script>
     import { fly } from 'svelte/transition';
-    import Setting from '../Setting.svelte';
+    import Button from '../Button.svelte';
+    import TextInput from '../TextInput.svelte';
+    import EnumInput from '../EnumInput.svelte';
+    import IntInput from '../IntInput.svelte';
+    import BoolInput from '../BoolInput.svelte';
 
-    export let pluginDisplay;
-
-    let source = new EventSource('/api/plugin-settings/');
-    let settings = new Map();
-    source.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        let e = new Event('setting-changed');
-        e.setting = data;
-        window.dispatchEvent(e);
-        settings.set(data[0] + ':' + data[1], data);
-    }
-    window.addEventListener("setting-request", (event) => {
-        if(!settings.get(event.setting)) return;
-        let e = new Event('setting-changed');
-        e.setting = settings.get(event.setting);
-        window.dispatchEvent(e);
-    });
-    let tabs;
+    const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced'];
     let currentTab = 0;
-    $: {
-        tabs = [];
-        pluginDisplay.filter(el => !!el.settings).forEach(element => {
-            element.settings.forEach(el => {
-                if(el.type === 'tab'){
-                    el.prefix = element.prefix;
-                    el.fields = [];
-                    tabs.push(el);
+    let mcRestartRequired = {};
+
+    let serverName = "Minecraft Server";
+
+    let settings = {};
+    let defaultSettings = {};
+    let unsavedChanged = false;
+    $:{
+        for (const key in settings) {
+            if (Object.hasOwnProperty.call(settings, key)) {
+                if(settings[key] !== defaultSettings[key]){
+                    unsavedChanged = true;
                 }
+            }
+        }
+    }
+
+    fetch('/api/settings')
+        .then(data => data.json())
+        .then(json => {
+            json.forEach(element => {
+                settings[element.key] = element.value;
+                defaultSettings[element.key] = element.value;
             });
-            element.settings.forEach(el => {
-                if(el.type !== 'tab' && el.tab){
-                    for(let i = 0; i < tabs.length; i++){
-                        if(tabs[i].id === el.tab){
-                            if(el.type === 'spread'){
-                                tabs[i].fields.push(...el.fields);
-                            }
-                            else{
-                                tabs[i].fields.push(el);
-                            }
-                            break;
-                        }
+        });
+    
+    function saveSettings(){
+        let body = [];
+        for (const key in settings) {
+            if (Object.hasOwnProperty.call(settings, key)) {
+                const element = settings[key];
+                body.push([key, element]);
+            }
+        }
+        fetch(`/api/settings`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
+            .then(response => {
+                for (const key in settings) {
+                    if (Object.hasOwnProperty.call(settings, key)) {
+                        defaultSettings[key] = settings[key];
+                        unsavedChanged = false;
                     }
                 }
             });
-        });
-        tabs = tabs.sort((a, b) => b.priority - a.priority);
     }
-    let mcRestartRequired = {};
-    window.addEventListener("setting-changed", (event) => {
-        if(event.setting[1] == 'mc-restart-required'){
-            mcRestartRequired[event.setting[0]] = event.setting[2];
-        }
-    });
+
+    let backups = [];
+    fetch('/api/backups')
+        .then(data => data.json())
+        .then(json => {
+            backups = json;
+        });
+
+    function backup(){
+        fetch(`/api/backup`, {cache: 'no-cache', method: 'post'})
+            .then(response => {
+
+            });
+    }
+    function revert(path){
+        fetch(`/api/revert`, {cache: 'no-cache', method: 'post', body: path})
+            .then(response => {
+
+            });
+    }
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
-    {#if pluginDisplay}
+    {#if settings}
         <div class="tabs">
             {#each tabs as tab, i}
-                <button class:selected={i == currentTab} on:click="{()=>{currentTab = i}}">{tab.name}</button>
+                <button class:selected={i == currentTab} on:click="{()=>{currentTab = i}}">{tab}</button>
             {/each}
         </div>
         <div class="settings">
-            <h2>{tabs[currentTab].name}</h2>
+            <h2>{tabs[currentTab]}</h2>
             {#if mcRestartRequired[tabs[currentTab].prefix]}
                 <button on:click={() => {fetch(`/api/restart-mc`, {method: 'post'});}}>Restart To Apply Changes</button>
             {/if}
-            {#each tabs as tab, i}
-                {#each tab.fields as setting}
-                    {#if i == currentTab}
-                        <div style=""><Setting prefix={tabs[currentTab].prefix} {setting}></Setting></div>
-                    {:else}
-                        <div style="visibility:hidden;position:absolute"><Setting prefix={tabs[currentTab].prefix} {setting}></Setting></div>
-                    {/if}
-                    
+            {#if currentTab == 0}
+                <TextInput bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
+            {:else if currentTab == 1}
+                <EnumInput bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
+                <EnumInput bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
+                <EnumInput bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
+                <IntInput bind:value={settings.simulationDistance} min=4 max=12 name="Simulation Distance"></IntInput>
+                <BoolInput bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
+                <BoolInput bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
+                <BoolInput bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
+                <BoolInput bind:value={settings.tntExplodes} name="TNT Explodes"></BoolInput>
+                <BoolInput bind:value={settings.doMobLoot} name="Mob Loot"></BoolInput>
+                <BoolInput bind:value={settings.naturalRegeneration} name="Natural Regeneration"></BoolInput>
+                <BoolInput bind:value={settings.doTileDrops} name="Tile Drops"></BoolInput>
+                <BoolInput bind:value={settings.doImmediateRespawn} name="Immediate Respawn"></BoolInput>
+                <IntInput bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
+                <h3>Cheats</h3>
+                <BoolInput bind:value={settings.cheats} name="Cheats"></BoolInput>
+                <BoolInput bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
+                <BoolInput bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
+                <BoolInput bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
+                <BoolInput bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
+                <BoolInput bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
+                <BoolInput bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
+                <BoolInput bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
+                <BoolInput bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
+                <IntInput bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
+                <BoolInput bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
+                <BoolInput bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
+                <BoolInput bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
+                <BoolInput bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
+                <BoolInput bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
+                <BoolInput bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
+                <BoolInput bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
+                <IntInput bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
+                <BoolInput bind:value={settings.showTags} name="Show Tags"></BoolInput>
+            {:else if currentTab == 2}
+                <Button on:click={backup}>Take Backup</Button>
+                <h3>Roll Back</h3>
+                {#each backups as backup}
+                    <Button on:click={() => {revert(backup)}}>{new Date(parseInt(backup)).toLocaleString()}</Button>
                 {/each}
-            {/each}
+            {:else if currentTab == 3}
+                <IntInput bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
+                <BoolInput bind:value={settings.onlineMode} name="Online Mode"></BoolInput>
+                <BoolInput bind:value={settings.whitelist} name="White List"></BoolInput>
+                <IntInput bind:value={settings.playerIdleTimeout} name="Player Idle Timeout" min=0></IntInput>
+                <h3>Server Authoritive Movement</h3>
+                <BoolInput bind:value={settings.serverAuthoritativeMovement} name="Server Authoritive Movement"></BoolInput>
+                <IntInput bind:value={settings.playerMovementScoreTheshold} name="Player Movement Score Threshold" min=0></IntInput>
+                <IntInput bind:value={settings.playerMovementDistanceTheshold} name="Player Movement Distance Threshold" min=0></IntInput>
+                <IntInput bind:value={settings.playerMovementDurationTheshold} name="Player Movement Duration Threshold (in ms)" min=0></IntInput>
+                <BoolInput bind:value={settings.correctPlayerMovement} name="Correct Player Movement"></BoolInput>
+            {:else if currentTab == 4}
+                <IntInput bind:value={settings.serverPort} name="Port" min=1 max=65535></IntInput>
+                <IntInput bind:value={settings.serverPortv6} name="IPv6 Port" min=1 max=65535></IntInput>
+                <IntInput bind:value={settings.compressionThreshold} name="Compression Threshold" min=0 max=65535></IntInput>
+                <IntInput bind:value={settings.maxViewDistance} name="Max View Distance" min=5></IntInput>
+                <IntInput bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
+                <BoolInput bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
+                <BoolInput bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
+            {/if}
+            {#if unsavedChanged}
+                <Button on:click={saveSettings}>Save Settings</Button>
+            {/if}
         </div>
     {/if}
 </div>
@@ -147,5 +219,9 @@
     button:focus{
         border: none;
         outline: none;
+    }
+    h3{
+        text-align: left;
+        color: rgba(255,255,255,0.87);
     }
 </style>

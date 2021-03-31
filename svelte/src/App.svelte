@@ -6,66 +6,76 @@
 	import Players from './pages/Players.svelte'
 	import Login from './pages/Login.svelte'
 	import Settings from './pages/Settings.svelte';
-	// import { fly, fade } from 'svelte/transition';
-	
-
-	let pluginDisplay;
-	fetch(`/api/display.json`)
-  		.then(response => {
-			if(response.status == 401){
-				if(window.location.pathname != '/login') window.location.href = '/login';
-				return response
-			}
-			else {
-				return response.json();
-			}
-		})
-		.then(data => {pluginDisplay = data})
-		.catch(reason => {console.log(reason)});
 	
 	let page = window.location.pathname;
-	// const pageTransitionTime = 300;
 
 	function changePage(url){
-		isChangingPage = true;
 		page = url;
 		history.pushState({}, "Web MC", url);
 	}
-	window.onpopstate = function(event) {
+	window.onpopstate = function() {
 		page = window.location.pathname;
-		isChangingPage = true;
 	}
 
-	let isChangingPage = true;
+	let source = new EventSource(`/api/status`);
+	let isRestarting = false;
+	let restartingReason = '';
+	let restartingTime = 0;
+	let restartingTimeInterval;
+    source.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+		if(message.type == 'restart'){
+			isRestarting = true;
+			restartingReason = message.reason;
+			restartingTime = message.time;
+			restartingTimeInterval = setInterval(() => {
+				restartingTime--;
+			}, 1000);
+		}
+		else if(message.type == 'started'){
+			clearInterval(restartingTimeInterval);
+			isRestarting = false;
+		}
+    }
+	source.onerror = event => {
+		changePage('/login/');
+	};
 </script>
 
 {#if page != "/login"}
-	<img src="/icons/webmclogo2.svg" alt="Web MC logo" width=50 height=50>
-	<nav>
-		<IconButton style="margin: 14px" src="/icons/activity.svg" on:click={()=>{changePage("/")}}></IconButton>
-		<IconButton style="margin: 14px" src="/icons/users.svg" on:click={()=>{changePage("/players")}}></IconButton>
-		<IconButton style="margin: 14px" src="/icons/settings.svg" on:click={()=>{changePage("/settings")}}></IconButton>
-		<IconButton style="margin: 14px" src="/icons/terminal.svg" on:click={()=>{changePage("/terminal")}}></IconButton>
-	</nav>
+	<div class="topbar" style="height: {60 + isRestarting * 30}px">
+		<nav>
+			<img src="/icons/webmclogo2.svg" alt="Web MC logo" width=50 height=50>
+			<IconButton style="margin: 14px" src="/icons/activity.svg" on:click={()=>{changePage("/")}}></IconButton>
+			<IconButton style="margin: 14px" src="/icons/users.svg" on:click={()=>{changePage("/players/")}}></IconButton>
+			<IconButton style="margin: 14px" src="/icons/settings.svg" on:click={()=>{changePage("/settings/")}}></IconButton>
+			<IconButton style="margin: 14px" src="/icons/terminal.svg" on:click={()=>{changePage("/terminal/")}}></IconButton>
+		</nav>
+		<div class="status">
+			{#if isRestarting}
+				{#if restartingTime > 0}
+					<p>Server restarting in {restartingTime}s for: {restartingReason}</p>
+				{:else}
+					<p>Server restarting...</p>
+				{/if}
+			{/if}
+		</div>
+	</div>
 {/if}
 
 
-<div style="height: 80px"></div>
+<div style="height: {80 + isRestarting * 30}px"></div>
 
-{#if pluginDisplay}
-	{#if page == "/"}
-		<Status {pluginDisplay}></Status>
-	{:else if page == "/players"}
-		<Players {isChangingPage}></Players>
-	{:else if page == "/settings"}
-		<Settings {pluginDisplay}></Settings>
-	{:else if page == "/terminal"}
-		<Terminal></Terminal>
-	{:else if page == "/login"}
-		<Login></Login>
-	{:else}
-		sasdasdas
-	{/if}
+{#if page == "/"}
+	<Status></Status>
+{:else if page == "/players/"}
+	<Players></Players>
+{:else if page == "/settings/"}
+	<Settings></Settings>
+{:else if page == "/terminal/"}
+	<Terminal></Terminal>
+{:else if page == "/login/"}
+	<Login></Login>
 {/if}
 
 
@@ -77,26 +87,32 @@
 		overflow-x: hidden;
 		text-align: center;
 	}
-
-	/* h1 {
-		color: rgba(255,255,255,0.87);
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-		text-align: center;
-	} */
-	nav{
+	.topbar{
 		display: block;
 		position: fixed;
 		left: 0;
 		top: 0;
-		height: 60px;
+		height: 90px;
 		width: 100%;
 		background-color: #222222;
 		margin-bottom: 20px;
 		text-align: center;
 		box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
 		z-index: 100;
+	}
+	.status{
+		display: block;
+		width: 100%;
+		height: 30px;
+		text-align: center;
+	}
+	.status p{
+		text-align: center;
+		margin: auto;
+	}
+	nav {
+		display: block;
+		width: 100%;
 	}
 	img{
 		width: 50px;
@@ -107,8 +123,7 @@
 		display: block;
 		z-index: 101;
 	}
-	/* p{
-		color: rgba(255,255,255,0.6);
-	} */
-	
+	p{
+		color: rgba(207, 102, 121, 0.87);
+	}
 </style>

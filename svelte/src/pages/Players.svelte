@@ -73,7 +73,7 @@
     });
     
     function changePermission(player, per){
-        fetch(`/api/player-managment/permission`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name, permission: per, until: 100})})
+        fetch(`/api/player-managment/permission`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid, permission: per, until: 100})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
@@ -84,7 +84,7 @@
             });
     }
     function ban(player, until, reason){
-        fetch(`/api/player-managment/ban`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name, reason, until})})
+        fetch(`/api/player-managment/ban`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid, reason, until})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
@@ -95,7 +95,7 @@
             });
     }
     function pardon(player){
-        fetch(`/api/player-managment/pardon`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name})})
+        fetch(`/api/player-managment/pardon`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
