@@ -1,0 +1,23 @@
+module.exports = {
+    defaultGamemode: 'survival',
+    forceGamemode: false,
+    difficulty: 'easy',
+    levelType: 'DEFAULT',
+    serverName: 'Dedicated Server',
+    maxPlayers: 10,
+    serverPort: 19132,
+    serverPortv6: 19133,
+    levelSeed: '',
+    onlineMode: true,
+    whitelist: false,
+    cheats: false,
+    maxViewDistance: 10,
+    playerIdleTimeout: 30,
+    contentLogFileEnabled: false,
+    compressionThreshold: 1,
+    serverAuthoritativeMovement: true,
+    playerMovementScoreTheshold: 20,
+    playerMovementDistanceTheshold: 0.3,
+    playerMovementDurationTheshold: 500,
+    correctPlayerMovement: false
+}

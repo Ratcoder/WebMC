@@ -44,29 +44,7 @@ if(!fs.existsSync('db/settings.json')){
     fs.writeFileSync('db/settings.json', '{}');
 }
 const settingsJSON = JSON.parse(fs.readFileSync('db/settings.json'));
-const defaultSettings = {
-    defaultGamemode: 'survival',
-    forceGamemode: false,
-    difficulty: 'easy',
-    levelType: 'DEFAULT',
-    serverName: 'Dedicated Server',
-    maxPlayers: 10,
-    serverPort: 19132,
-    serverPortv6: 19133,
-    levelSeed: '',
-    onlineMode: true,
-    whitelist: false,
-    cheats: false,
-    maxViewDistance: 10,
-    playerIdleTimeout: 30,
-    contentLogFileEnabled: false,
-    compressionThreshold: 1,
-    serverAuthoritativeMovement: true,
-    playerMovementScoreTheshold: 20,
-    playerMovementDistanceTheshold: 0.3,
-    playerMovementDurationTheshold: 500,
-    correctPlayerMovement: false
-}
+const defaultSettings = require('../defaultSettings');
 const gameRules = [
     'commandBlocksEnabled',
     'commandBlocksEnabled',
