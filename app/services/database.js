@@ -90,7 +90,7 @@ const serverProperties = {
     maxViewDistance: 'view-distance',
     playerIdleTimeout: 'player-idle-timeout',
     maxThreads: 'max-threads',
-    simulationDistance: 'tick-distance',
+    tickDistance: 'tick-distance',
     defaultPlayerPermissionLevel: 'default-player-permission-level',
     texturepackRequired: 'texturepack-required',
     contentLogFileEnabled: 'content-log-file-enabled',

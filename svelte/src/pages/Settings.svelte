@@ -101,7 +101,7 @@
                 <EnumInput bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
                 <EnumInput bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
                 <EnumInput bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
-                <IntInput bind:value={settings.simulationDistance} min=4 max=12 name="Simulation Distance"></IntInput>
+                <IntInput bind:value={settings.tickDistance} min=4 max=12 name="Simulation Distance"></IntInput>
                 <BoolInput bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
                 <BoolInput bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
                 <BoolInput bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
