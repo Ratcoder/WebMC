@@ -1,4 +1,5 @@
 module.exports = {
+    // server.properties
     defaultGamemode: 'survival',
     forceGamemode: false,
     difficulty: 'easy',
@@ -24,5 +25,31 @@ module.exports = {
     tickDistance: 4,
     defaultPlayerPermissionLevel: 'member',
     texturepackRequired: false,
-    
+    // gamerules
+    commandBlocksEnabled: true,
+    commandBlocksEnabled: true,
+    commandBlockOutput: true,
+    doDaylightCycle: true,
+    doEntityDrops: true,
+    doFireTick: true,
+    doInsomnia: true,
+    doImmediateRespawn: false,
+    doMobLoot: true,
+    doMobSpawning: true,
+    doTileDrops: true,
+    doWeatherCycle: true,
+    drowningDamage: true,
+    fallDamage: true,
+    fireDamage: true,
+    keepInventory: true,
+    maxCommandChainLength: 65536,
+    mobGriefing: true,
+    pvp: true,
+    randomTickSpeed: 1,
+    sendCommandFeedback: true,
+    showCoordinates: true,
+    showDeathMessages: true,
+    spawnRadius: 5,
+    tntExplodes: true,
+    showTags: true
 }
