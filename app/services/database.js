@@ -6,6 +6,8 @@ const fs = require('fs');
 const util = require('util');
 const writeFile = util.promisify(fs.writeFile);
 
+if(!fs.existsSync('db')) fs.mkdirSync('db');
+
 const playerDatabase = new Datastore({ filename: 'db/players', autoload: true });
 
 const players = {
