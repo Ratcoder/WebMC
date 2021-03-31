@@ -40,6 +40,7 @@ async function backup(){
     }
 
     backups.push(date);
+    return date;
 }
 
 function startRevert(path){
@@ -66,6 +67,8 @@ async function revert(path){
 const BackupsService = {
     backups,
     startBackup,
-    startRevert
+    startRevert,
+    backup,
+    revert
 };
 module.exports = BackupsService;

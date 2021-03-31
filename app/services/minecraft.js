@@ -64,6 +64,9 @@ function processMcServerLog(log){
         else if(log == '[INFO] Server started.'){
             Events.emit('minecraft_logs_started')
         }
+        else if(log.substring(27).startsWith('Version 1.')){
+            Events.emit('minecraft_logs_version', log.substring(35));
+        }
     }
     else if(log.startsWith('Kicked ')){
         const split = log.substring(7).split(' from the game: ');
