@@ -5,6 +5,7 @@
     import EnumInput from '../EnumInput.svelte';
     import IntInput from '../IntInput.svelte';
     import BoolInput from '../BoolInput.svelte';
+    import defaultSettings from '../../../app/defaultSettings.js';
 
     const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced'];
     let currentTab = 0;
@@ -13,12 +14,12 @@
     let serverName = "Minecraft Server";
 
     let settings = {};
-    let defaultSettings = {};
+    let savedSettings = {};
     let unsavedChanged = false;
     $:{
         for (const key in settings) {
             if (Object.hasOwnProperty.call(settings, key)) {
-                if(settings[key] !== defaultSettings[key]){
+                if(settings[key] !== savedSettings[key]){
                     unsavedChanged = true;
                 }
             }
@@ -30,8 +31,16 @@
         .then(json => {
             json.forEach(element => {
                 settings[element.key] = element.value;
-                defaultSettings[element.key] = element.value;
+                savedSettings[element.key] = element.value;
             });
+            for (const key in defaultSettings) {
+                if (Object.hasOwnProperty.call(defaultSettings, key)) {
+                    if(!settings[key]){
+                        settings[key] = defaultSettings[key];
+                        savedSettings[key] = defaultSettings[key];
+                    }
+                }
+            }
         });
     
     function saveSettings(){
@@ -46,7 +55,7 @@
             .then(response => {
                 for (const key in settings) {
                     if (Object.hasOwnProperty.call(settings, key)) {
-                        defaultSettings[key] = settings[key];
+                        savedSettings[key] = settings[key];
                         unsavedChanged = false;
                     }
                 }
