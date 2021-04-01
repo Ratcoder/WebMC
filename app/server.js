@@ -13,12 +13,6 @@ const routes = fs.readdirSync('./app/routes').map(file => require('./routes/' + 
 
 if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
 
-let admins = new Map();
-const saltRounds = 10;
-bcrypt.hash('password', saltRounds, function(err, hash) {
-    admins.set('Ratcoder', hash);
-});
-
 let server;
 function startAdminServer(){
     console.log('Starting website...');
@@ -60,7 +54,7 @@ function startAdminServer(){
             }
 
             if(path == '/api/login'){
-                authenticate(buffer, key, admins)
+                authenticate(buffer, key)
                     .then(token => {
                         responce.stream.respond({
                             'content-type': 'text/plain; charset=utf-8',

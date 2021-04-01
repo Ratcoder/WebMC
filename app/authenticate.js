@@ -1,5 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Database = require('./services/database');
+
+const saltRounds = 10;
+bcrypt.hash('password', saltRounds, function(err, hash) {
+    Database.admins.insert({name: 'Ratcoder', password: hash, level: 3});
+});
 
 /**
  * Tries to log a user in.
@@ -8,7 +14,7 @@ const bcrypt = require('bcrypt');
  * @param {Map} Admins - A map of admins with names as keys and passwords as values.
  * @returns {Promise<string>} Returns a promise that gives the JWT token on successful login. On a failed login, the promise throws an error.
  */
-module.exports = function authenticate(body, privateKey, admins){
+module.exports = function authenticate(body, privateKey){
     return new Promise((resolve, reject) => {
         let data;
         try{
@@ -17,17 +23,24 @@ module.exports = function authenticate(body, privateKey, admins){
         catch{
             reject('Invalid body.')
         }
-        
-        let passwordHash = admins.get(data.name);
-        if(!passwordHash || !data.password) reject('Name or password incorrect.')
 
-        bcrypt.compare(data.password, passwordHash, function(err, result) {
-            if(err || !result) reject('Name or password incorrect.');
+        Database.admins.get(data.name)
+            .then(admin => {
+                if(!admin || !data.password) {
+                    bcrypt.compare(data.password, 'password', () => {
+                        reject('Name or password incorrect.')
+                    });
+                    return;
+                }
 
-            jwt.sign({ name: data.name }, privateKey, { expiresIn: 1000*60*30 }, function(err, token) {
-                if(err) reject(err);
-                resolve(token);
+                bcrypt.compare(data.password, admin.password, (err, result) => {
+                    if(err || !result) reject('Name or password incorrect.');
+
+                    jwt.sign({ name: data.name, level: admin.level }, privateKey, { expiresIn: 1000*60*30 }, function(err, token) {
+                        if(err) reject(err);
+                        resolve(token);
+                    });
+                });
             });
-        });
     });
 }
