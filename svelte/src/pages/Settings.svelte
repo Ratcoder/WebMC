@@ -7,7 +7,7 @@
     import BoolInput from '../BoolInput.svelte';
     import defaultSettings from '../../../app/defaultSettings.js';
 
-    const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced'];
+    const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced', 'Admins'];
     let currentTab = 0;
     let mcRestartRequired = {};
 
@@ -81,6 +81,13 @@
 
             });
     }
+
+    let admins = [];
+    fetch('/api/admins')
+        .then(data => data.json())
+        .then(json => {
+            admins = json;
+        });
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
@@ -156,6 +163,21 @@
                 <IntInput bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
                 <BoolInput bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
                 <BoolInput bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
+            {:else if currentTab == 5}
+                {#each admins as admin}
+                    <div class='admin'>
+                        <p class='admin-name'>{admin.name}</p>
+                        <p class='admin-level'>
+                            {#if admins.level == 1}
+                                Player Manager
+                            {:else if admins.level == 2}
+                                Server Manager
+                            {:else if admin.level == 3}
+                                Owner
+                            {/if}
+                        </p>
+                    </div>
+                {/each}
             {/if}
             {#if unsavedChanged}
                 <Button on:click={saveSettings}>Save Settings</Button>
@@ -232,5 +254,16 @@
     h3{
         text-align: left;
         color: rgba(255,255,255,0.87);
+    }
+    .admin{
+        text-align: left;
+    }
+    .admin-name{
+        font-size: 20px;
+        font-weight: bold;
+    }
+    p{
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
     }
 </style>
