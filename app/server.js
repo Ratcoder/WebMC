@@ -77,7 +77,7 @@ function startAdminServer(){
             for (let i = 0; i < routes.length; i++) {
                 if(routes[i].path == path && routes[i].method == request.method){
                     if(!routes[i].public){
-                        authorize(request.headers.cookie, key).then(result => {
+                        authorize(request.headers.cookie, key, routes[i].accessLevel || 2).then(result => {
                             if(result){
                                 routes[i].handler(
                                     {
