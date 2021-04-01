@@ -59,9 +59,9 @@ const admins = {
             });
         });
     },
-    update(xuid, admin){
+    update(name, admin){
         return new Promise((resolve, reject) => {
-            adminDatabase.update({ _id: xuid }, admin, {}, function (err, numReplaced) {
+            adminDatabase.update({ _id: name }, admin, {}, function (err, numReplaced) {
                 resolve(numReplaced);
             });
         });
