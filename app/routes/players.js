@@ -11,6 +11,7 @@ Events.on('players_newPlayer', player => {
 module.exports = {
     path: '/api/player-managment/players',
     method: 'GET',
+    accessLevel: 1,
     handler: async (request, responce) => {
         connections.push(responce.status(200).eventstream());
         (await Database.players.getAll()).forEach((element) => {

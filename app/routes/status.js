@@ -22,6 +22,7 @@ Events.on('minecraft_logs_started', () => {
 module.exports = {
     path: '/api/status',
     method: 'GET',
+    accessLevel: 1,
     handler: async (request, responce) => {
         connections.push(responce.status(200).eventstream());
         if(currentRestart) responce.write(`data: ${JSON.stringify({type: 'restart', time: currentRestart.time, reason: currentRestart.reason})}\n\n`)

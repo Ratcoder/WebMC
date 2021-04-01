@@ -21,6 +21,7 @@ Events.on('graph_data_players', data => {
 module.exports = {
     path: '/api/graphs',
     method: 'GET',
+    accessLevel: 1,
     handler: async (request, responce) => {
         connections.push(responce.status(200).eventstream());
         Graphs.cpu.forEach(data => {
