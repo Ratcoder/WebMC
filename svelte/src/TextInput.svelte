@@ -1,12 +1,17 @@
 <script>
     export let value;
     export let name;
+    export let password;
 </script>
 
 <div>
     <div class="wr">
         <label for={name}><slot></slot></label>
-        <input bind:value type="text" {name} id={name}>
+        {#if password}
+            <input bind:value type="password" {name} id={name}>
+        {:else}
+            <input bind:value type="text" {name} id={name}>
+        {/if}
     </div>
 </div>
 

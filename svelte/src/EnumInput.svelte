@@ -2,13 +2,14 @@
     export let name;
     export let value;
     export let options;
+    export let optionsDisplay;
 </script>
 
 <div>
     <label for={name}>{name}</label>
     <select bind:value={value} type="text" name={name} id={name}>
-        {#each options as option}
-            <option value={option}>{option}</option>
+        {#each options as option, i}
+            <option value={option}>{optionsDisplay[i] || option}</option>
         {/each}
     </select>
 </div>

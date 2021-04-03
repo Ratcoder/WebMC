@@ -6,6 +6,7 @@
     import IntInput from '../IntInput.svelte';
     import BoolInput from '../BoolInput.svelte';
     import defaultSettings from '../../../app/defaultSettings.js';
+import IconButton from '../IconButton.svelte';
 
     const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced', 'Admins'];
     let currentTab = 0;
@@ -88,6 +89,29 @@
         .then(json => {
             admins = json;
         });
+
+    let permissionLevel = 3;
+    let isEditingAdmin = false;
+    let editingAdmin = {};
+    function editAdmin(id){
+        isEditingAdmin = true;
+        editingAdmin.id = id;
+        editingAdmin.name = admins[id].name;
+        editingAdmin.level = admins[id].level;
+    }
+    function sendEditAdmin(){
+        let body = {
+            name: editingAdmin.name,
+            level: editingAdmin.level
+        };
+        if(editingAdmin.settingPassword && editingAdmin.password == editingAdmin.confirmPassword) {
+            body.password = editingAdmin.password;
+        }
+        fetch(`/api/changeAdmin`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
+            .then(response => {
+                
+            });
+    }
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
@@ -164,20 +188,45 @@
                 <BoolInput bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
                 <BoolInput bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
             {:else if currentTab == 5}
-                {#each admins as admin}
-                    <div class='admin'>
-                        <p class='admin-name'>{admin.name}</p>
-                        <p class='admin-level'>
-                            {#if admins.level == 1}
-                                Player Manager
-                            {:else if admins.level == 2}
-                                Server Manager
-                            {:else if admin.level == 3}
-                                Owner
-                            {/if}
-                        </p>
+                {#if isEditingAdmin}
+                    <div>
+                        <p class='admin-name'>{editingAdmin.name}</p>
+                        {#if permissionLevel == 3}
+                            <EnumInput bind:value={editingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
+                        {/if}
+                        {#if editingAdmin.settingPassword}
+                            <TextInput name="password" bind:value={editingAdmin.password} password>Set Password</TextInput>
+                            <TextInput name="confirm password" bind:value={editingAdmin.confirmPassword} password>Confirm Password</TextInput>
+                        {:else}
+                            <Button on:click={() => {editingAdmin.settingPassword = true}}>Set New Password</Button>
+                        {/if}
+                        <Button>Delete Admin</Button>
+                        <div>
+                            <button on:click={sendEditAdmin} style="float: left; width:50%;">Confirm</button>
+                            <button on:click={()=>{isEditingAdmin = false}} style="float: right; width:50%;">Cancel</button>
+                        </div>
                     </div>
-                {/each}
+                {:else}
+                    {#each admins as admin, i}
+                        <div class='admin'>
+                            <div style="float: left; margin-right: 20px">
+                                <p class='admin-name'>{admin.name}</p>
+                                <p class='admin-level'>
+                                    {#if admin.level == 1}
+                                        Player Manager
+                                    {:else if admin.level == 2}
+                                        Server Manager
+                                    {:else if admin.level == 3}
+                                        Owner
+                                    {/if}
+                                </p>
+                            </div>
+                            {#if permissionLevel === 3}
+                                <IconButton style="float: right; margin-top: 10px;" src="/icons/edit.svg" on:click={() => {if(permissionLevel === 3) editAdmin(i)}}></IconButton>
+                            {/if}
+                        </div>
+                    {/each}
+                {/if}
             {/if}
             {#if unsavedChanged}
                 <Button on:click={saveSettings}>Save Settings</Button>

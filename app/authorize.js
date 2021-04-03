@@ -15,11 +15,11 @@ module.exports = function authorize(cookie, privateKey, accessLevel){
                 if(err || decoded.level < accessLevel){
                     passed = false;
                 }
-                resolve(passed);
+                resolve({passed, token: decoded});
             });
         }
         catch{
-            resolve(false);
+            resolve({passed: false});
         }
     });
 }

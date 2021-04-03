@@ -78,11 +78,12 @@ function startAdminServer(){
                 if(routes[i].path == path && routes[i].method == request.method){
                     if(!routes[i].public){
                         authorize(request.headers.cookie, key, routes[i].accessLevel || 2).then(result => {
-                            if(result){
+                            if(result.passed){
                                 routes[i].handler(
                                     {
                                         headers: request.headers,
-                                        body: buffer
+                                        body: buffer,
+                                        token: result.token
                                     },
                                     new Responce(responce)
                                 );
@@ -140,38 +141,35 @@ startAdminServer();
 SSL.watch(server, startAdminServer);
 
 class Responce{
-    _status = 200;
+    _headers = {};
 
     constructor(responce){
         this.responce = responce;
     }
     status(status){
-        this._status = status;
+        this.setHeader(':status', status);
         return this;
     }
     json(json){
-        this.responce.stream.respond({
-            'content-type': 'application/json; charset=utf-8',
-            ':status': this._status
-        });
+        this.setHeader('content-type', 'application/json; charset=utf-8');
+        this.responce.stream.respond(this._headers);
         this.responce.stream.end(JSON.stringify(json));
     }
     text(text){
-        this.responce.stream.respond({
-            'content-type': 'text/plain; charset=utf-8',
-            ':status': this._status
-        });
+        this.setHeader('content-type', 'text/plain; charset=utf-8');
+        this.responce.stream.respond(this._headers);
         this.responce.stream.end(text);
     }
     eventstream(){
-        this.responce.stream.respond({
-            'content-type': 'text/event-stream',
-            'cache-controll': 'no-cache',
-            ':status': this._status
-        });
+        this.setHeader('content-type', 'text/event-stream');
+        this.setHeader('cache-controll', 'no-cache');
+        this.responce.stream.respond(this._headers);
         return this;
     }
     write(data){
         this.responce.stream.write(data);
+    }
+    setHeader(header, value){
+        this._headers[header] = value;
     }
 }
