@@ -34,7 +34,7 @@ function startMCServer(){
     minecraftService.process.on('exit', (code, signal) => {
         // was it a crash?
         if(code !== 0){
-
+            startMCServer();
         }
     });
 }
