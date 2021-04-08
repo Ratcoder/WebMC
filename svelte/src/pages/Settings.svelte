@@ -106,9 +106,11 @@ import IconButton from '../IconButton.svelte';
     }
     function sendEditAdmin(){
         let body = {
-            name: editingAdmin.name,
-            level: editingAdmin.level
+            name: editingAdmin.name
         };
+        if(editingAdmin.level != admins[editingAdmin.id].level){
+            body.level = editingAdmin.level;
+        }
         if(editingAdmin.settingPassword && editingAdmin.password == editingAdmin.confirmPassword) {
             body.password = editingAdmin.password;
         }
