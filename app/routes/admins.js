@@ -8,7 +8,7 @@ module.exports = {
         const adminsUnfiltered = await Database.admins.getAll();
         const admins = [];
         adminsUnfiltered.forEach(element => {
-            admins.push({name: element.name, level: element.level})
+            admins.push({name: element.name, level: element.level, isYou: request.token.name == element.name})
         });
         responce.status(200).json(admins);
     }
