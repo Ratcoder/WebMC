@@ -247,8 +247,8 @@ import IconButton from '../IconButton.svelte';
                                     {/if}
                                 </p>
                             </div>
-                            {#if permissionLevel === 3}
-                                <IconButton style="float: right; margin-top: 10px;" src="/icons/edit.svg" on:click={() => {if(permissionLevel === 3) editAdmin(i)}}></IconButton>
+                            {#if permissionLevel === 3 || admin.isYou}
+                                <IconButton style="float: right; margin-top: 10px;" src="/icons/edit.svg" on:click={() => {editAdmin(i)}}></IconButton>
                             {/if}
                         </div>
                     {/each}
