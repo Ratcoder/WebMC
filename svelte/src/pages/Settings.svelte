@@ -88,9 +88,14 @@ import IconButton from '../IconButton.svelte';
         .then(data => data.json())
         .then(json => {
             admins = json;
+            admins.forEach(el => {
+                if(el.isYou){
+                    permissionLevel = el.level;
+                }
+            });
         });
 
-    let permissionLevel = 3;
+    let permissionLevel = 1;
     let isEditingAdmin = false;
     let editingAdmin = {};
     function editAdmin(id){
