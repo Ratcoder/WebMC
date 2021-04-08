@@ -72,6 +72,13 @@ const admins = {
                 resolve(docs || []);
             });
         });
+    },
+    delete(name){
+        return new Promise((resolve, reject) => {
+            adminDatabase.remove({_id: name}, (err, numRemoved) => {
+                resolve(numRemoved || []);
+            });
+        });
     }
 }
 

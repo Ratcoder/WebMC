@@ -134,6 +134,12 @@ import IconButton from '../IconButton.svelte';
                 
             });
     }
+    function deleteAdmin(name){
+        fetch(`/api/deleteAdmin`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: name})
+            .then(response => {
+                
+            });
+    }
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
@@ -219,7 +225,9 @@ import IconButton from '../IconButton.svelte';
                         {:else}
                             <Button on:click={() => {editingAdmin.settingPassword = true}}>Set New Password</Button>
                         {/if}
-                        <Button>Delete Admin</Button>
+                        {#if permissionLevel == 3}
+                            <Button on:click={() => {deleteAdmin(editingAdmin.name)}}>Delete Admin</Button>
+                        {/if}
                         <div>
                             <button on:click={sendEditAdmin} style="float: left; width:50%;">Confirm</button>
                             <button on:click={()=>{isEditingAdmin = false}} style="float: right; width:50%;">Cancel</button>
