@@ -9,7 +9,7 @@
     <label for={name}>{name}</label>
     <select bind:value={value} type="text" name={name} id={name}>
         {#each options as option, i}
-            <option value={option}>{optionsDisplay[i] || option}</option>
+            <option value={option}>{(optionsDisplay || [])[i] || option}</option>
         {/each}
     </select>
 </div>
