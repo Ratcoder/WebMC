@@ -112,6 +112,21 @@ import IconButton from '../IconButton.svelte';
                 
             });
     }
+    let isAddingAdmin = false;
+    let addingAdmin = {};
+    function addAdmin(){
+        let body = {
+            name: addingAdmin.name,
+            level: addingAdmin.level
+        };
+        if(addingAdmin.settingPassword && addingAdmin.password == addingAdmin.confirmPassword) {
+            body.password = addingAdmin.password;
+        }
+        fetch(`/api/admins`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
+            .then(response => {
+                
+            });
+    }
 </script>
 
 <div class="main" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
@@ -206,6 +221,15 @@ import IconButton from '../IconButton.svelte';
                             <button on:click={()=>{isEditingAdmin = false}} style="float: right; width:50%;">Cancel</button>
                         </div>
                     </div>
+                {:else if isAddingAdmin}
+                    <TextInput name="name" bind:value={addingAdmin.name}>Name</TextInput>
+                    <EnumInput bind:value={addingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
+                    <TextInput name="password" bind:value={addingAdmin.password} password>Password</TextInput>
+                    <TextInput name="confirm password" bind:value={addingAdmin.confirmPassword} password>Confirm Password</TextInput>
+                    <div>
+                        <button on:click={addAdmin} style="float: left; width:50%;">Confirm</button>
+                        <button on:click={()=>{isAddingAdmin = false}} style="float: right; width:50%;">Cancel</button>
+                    </div>
                 {:else}
                     {#each admins as admin, i}
                         <div class='admin'>
@@ -226,6 +250,8 @@ import IconButton from '../IconButton.svelte';
                             {/if}
                         </div>
                     {/each}
+                    <br>
+                    <Button on:click={() => isAddingAdmin = true}>Add New Admin</Button>
                 {/if}
             {/if}
             {#if unsavedChanged}
@@ -306,6 +332,11 @@ import IconButton from '../IconButton.svelte';
     }
     .admin{
         text-align: left;
+    }
+    .admin::after{
+        content:"";
+        clear: both;
+        display: block;
     }
     .admin-name{
         font-size: 20px;
