@@ -253,7 +253,9 @@ import IconButton from '../IconButton.svelte';
                         </div>
                     {/each}
                     <br>
-                    <Button on:click={() => isAddingAdmin = true}>Add New Admin</Button>
+                    {#if permissionLevel == 3}
+                        <Button on:click={() => isAddingAdmin = true}>Add New Admin</Button>
+                    {/if}
                 {/if}
             {/if}
             {#if unsavedChanged}
