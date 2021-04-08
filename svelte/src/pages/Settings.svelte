@@ -138,9 +138,6 @@ import IconButton from '../IconButton.svelte';
         </div>
         <div class="settings">
             <h2>{tabs[currentTab]}</h2>
-            {#if mcRestartRequired[tabs[currentTab].prefix]}
-                <button on:click={() => {fetch(`/api/restart-mc`, {method: 'post'});}}>Restart To Apply Changes</button>
-            {/if}
             {#if currentTab == 0}
                 <TextInput bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
             {:else if currentTab == 1}
