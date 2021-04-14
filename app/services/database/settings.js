@@ -1,92 +1,15 @@
-const Minecraft = require('./minecraft');
+const Minecraft = require('../minecraft');
 
 const os = require('os');
-const Datastore = require('nedb');
 const fs = require('fs');
 const util = require('util');
 const writeFile = util.promisify(fs.writeFile);
-
-if(!fs.existsSync('db')) fs.mkdirSync('db');
-
-const playerDatabase = new Datastore({ filename: 'db/players', autoload: true });
-
-const players = {
-    get(xuid){
-        return new Promise((resolve, reject) => {
-            playerDatabase.findOne({_id: xuid}, (err, doc) => {
-                resolve(doc);
-            });
-        });
-    },
-    insert(player){
-        return new Promise((resolve, reject) => {
-            player._id = player.xuid;
-            playerDatabase.insert(player, (err, newDoc) => {
-                resolve(newDoc);
-            });
-        });
-    },
-    update(xuid, player){
-        return new Promise((resolve, reject) => {
-            playerDatabase.update({ _id: xuid }, player, {}, function (err, numReplaced) {
-                resolve(numReplaced);
-            });
-        });
-    },
-    getAll(){
-        return new Promise((resolve, reject) => {
-            playerDatabase.find({}, (err, docs) => {
-                resolve(docs || []);
-            });
-        });
-    }
-}
-
-const adminDatabase = new Datastore({ filename: 'db/admins', autoload: true });
-const admins = {
-    get(name){
-        return new Promise((resolve, reject) => {
-            adminDatabase.findOne({_id: name}, (err, doc) => {
-                resolve(doc);
-            });
-        });
-    },
-    insert(admin){
-        return new Promise((resolve, reject) => {
-            admin._id = admin.name;
-            adminDatabase.insert(admin, (err, newDoc) => {
-                resolve(newDoc);
-            });
-        });
-    },
-    update(name, admin){
-        return new Promise((resolve, reject) => {
-            adminDatabase.update({ _id: name }, admin, {}, function (err, numReplaced) {
-                resolve(numReplaced);
-            });
-        });
-    },
-    getAll(){
-        return new Promise((resolve, reject) => {
-            adminDatabase.find({}, (err, docs) => {
-                resolve(docs || []);
-            });
-        });
-    },
-    delete(name){
-        return new Promise((resolve, reject) => {
-            adminDatabase.remove({_id: name}, (err, numRemoved) => {
-                resolve(numRemoved || []);
-            });
-        });
-    }
-}
 
 if(!fs.existsSync('db/settings.json')){
     fs.writeFileSync('db/settings.json', '{}');
 }
 const settingsJSON = JSON.parse(fs.readFileSync('db/settings.json'));
-const defaultSettings = require('../defaultSettings');
+const defaultSettings = require('../../defaultSettings');
 const gameRules = [
     'commandBlocksEnabled',
     'commandBlocksEnabled',
@@ -199,9 +122,4 @@ async function writeServerProperties(){
     await writeFile('mc/bedrock-server/server.properties', propertiesFile);
 }
 
-const Database = {
-    players,
-    settings,
-    admins
-}
-module.exports = Database;
+module.exports = settings;
