@@ -133,8 +133,8 @@ function startAdminServer(){
     });
     
 
-    // listen on the default https port (443)
-    server.listen(3000);
+    // listen on the webmc port (14142)
+    server.listen(14142);
     console.log('Website started.');
 }
 startAdminServer();
