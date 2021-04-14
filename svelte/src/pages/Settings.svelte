@@ -169,24 +169,26 @@ import IconButton from '../IconButton.svelte';
                 <IntInput bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
                 <h3>Cheats</h3>
                 <BoolInput bind:value={settings.cheats} name="Cheats"></BoolInput>
-                <BoolInput bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
-                <BoolInput bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
-                <BoolInput bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
-                <BoolInput bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
-                <BoolInput bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
-                <BoolInput bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
-                <BoolInput bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
-                <BoolInput bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
-                <IntInput bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
-                <BoolInput bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
-                <BoolInput bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
-                <BoolInput bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
-                <BoolInput bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
-                <BoolInput bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
-                <BoolInput bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
-                <BoolInput bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
-                <IntInput bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
-                <BoolInput bind:value={settings.showTags} name="Show Tags"></BoolInput>
+                {#if settings.cheats}
+                    <BoolInput bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
+                    <BoolInput bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
+                    <BoolInput bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
+                    <BoolInput bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
+                    <BoolInput bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
+                    <BoolInput bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
+                    <BoolInput bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
+                    <BoolInput bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
+                    <IntInput bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
+                    <BoolInput bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
+                    <BoolInput bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
+                    <BoolInput bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
+                    <BoolInput bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
+                    <BoolInput bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
+                    <BoolInput bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
+                    <BoolInput bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
+                    <IntInput bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
+                    <BoolInput bind:value={settings.showTags} name="Show Tags"></BoolInput>
+                {/if}
             {:else if currentTab == 2}
                 <Button on:click={backup}>Take Backup</Button>
                 <h3>Roll Back</h3>
