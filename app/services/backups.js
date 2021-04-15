@@ -21,7 +21,6 @@ function startBackup(){
 node_schedule.scheduleJob('0 0 * * *', startBackup);
 async function backup(){
     const date = Date.now();
-    let files = await readdir("mc/worlds/bedrock_level");
     await copyFolder(`mc/bedrock-server/worlds/bedrock_level`, `mc/backups/${date}`);
     backups.push(date);
     return date;
