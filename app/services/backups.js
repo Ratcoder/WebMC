@@ -25,6 +25,7 @@ async function backup(){
 
     await mkdir(`mc/backups/${date}`);
     await mkdir(`mc/backups/${date}/db`);
+    await mkdir(`mc/backups/${date}/db/lost`);
 
     for(let i = 0; i < files.length; i++){
         const file = files[i];
