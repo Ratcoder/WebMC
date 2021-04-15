@@ -22,26 +22,21 @@ node_schedule.scheduleJob('0 0 * * *', startBackup);
 async function backup(){
     const date = Date.now();
     let files = await readdir("mc/worlds/bedrock_level");
-
-    await mkdir(`mc/backups/${date}`);
-    await mkdir(`mc/backups/${date}/db`);
-    await mkdir(`mc/backups/${date}/db/lost`);
-
-    for(let i = 0; i < files.length; i++){
-        const file = files[i];
-        if(fs.lstatSync(`mc/bedrock-server/worlds/bedrock_level/${file}`).isDirectory()){
-            const subFiles = await readdir(`mc/bedrock-server/worlds/bedrock_level/${file}`);
-            subFiles.forEach(el => {
-                files.push(`${file}/${el}`);
-            });
-        }
-        else{
-            await copyFile(`mc/bedrock-server/worlds/bedrock_level/${file}`, `mc/backups/${date}/${file}`);
-        }
-    }
-
+    await copyFolder(`mc/bedrock-server/worlds/bedrock_level`, `mc/backups/${date}`);
     backups.push(date);
     return date;
+}
+async function copyFolder(source, dest){
+    await mkdir(dest);
+    const files = await readdir(source);
+    files.forEach(file => {
+        if(fs.lstatSync(`${source}/${file}`).isDirectory()){
+            copyFolder(`${source}/${file}`, `${dest}/${file}`)
+        }
+        else{
+            copyFile(`${source}/${file}`, `${dest}/${file}`);
+        }
+    });
 }
 
 function startRevert(path){
