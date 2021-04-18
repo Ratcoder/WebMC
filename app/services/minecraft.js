@@ -1,5 +1,6 @@
 const child_process = require('child_process');
 const os = require("os");
+const path = require('path');
 const Events = require("./events");
 
 const minecraftService = {
@@ -10,7 +11,13 @@ const minecraftService = {
 
 function startMCServer(){
     logStore = "";
-    minecraftService.process = child_process.spawn(__dirname + '/../scripts/start_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
+    if(process.platform == 'win32'){
+        minecraftService.process = child_process.spawn(path.resolve('mc/bedrock-server/bedrock_server.exe'));
+    }
+    else{
+        minecraftService.process = child_process.spawn(path.resolve('app/scripts/start_mc_server.sh'));
+    }
+    
     minecraftService.process.stdout.setEncoding('utf8');
     minecraftService.process.stdout.on('data', (data) => {
         // add this data to the "buffer" (the ''+ is to convert it into a string)

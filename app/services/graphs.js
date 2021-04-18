@@ -16,11 +16,10 @@ function findPids(){
     pids = [];
     pids.push(process.pid);
     pids.push(Minecraft.process.pid);
-    if(process.platform == 'win32'){
-        pids.push(parseInt(child_process.execSync('wmic PROCESS WHERE ParentProcessId=' + Minecraft.process.pid + ' GET ProcessId').toString().substring('ProcessId\r\n'.length)));
-    }
-    else{
-        console.log(Minecraft.process.pid);
+    // if(process.platform == 'win32'){
+    //     pids.push(parseInt(child_process.execSync('wmic PROCESS WHERE ParentProcessId=' + Minecraft.process.pid + ' GET ProcessId').toString().substring('ProcessId\r\n'.length)));
+    // }
+    if(process.platform != 'win32'){
         pids.push(parseInt(child_process.execSync('pgrep -P ' + Minecraft.process.pid).toString()));
     }
 }
