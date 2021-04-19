@@ -9,6 +9,24 @@ const minecraftService = {
     sceduleOffJob
 }
 
+// On linux, the minecraft server process can get orphaned when the parent dies,
+// which stops WebMC from opening it again.
+// This checks to see if the bedrock_server is already running and kills it if it is.
+if(process.platform != 'win32'){
+    try{
+        const pids = child_process.execSync('pgrep bedrock_server').toString().split('\n');
+        pids.pop();
+        pids.forEach(pid => {
+            if(child_process.execSync(`readlink -f /proc/${'' + parseInt(pid)}/exe`).toString().startsWith(path.resolve('mc/bedrock-server'))){
+                child_process.execSync(`kill ${pid}`);
+            }
+        });
+    }
+    catch (err){
+        console.log(err);
+    }
+}
+
 function startMCServer(){
     logStore = "";
     if(process.platform == 'win32'){
