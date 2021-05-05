@@ -198,7 +198,7 @@ import IconButton from '../IconButton.svelte';
             {:else if currentTab == 2}
                 <Button on:click={backup}>Take Backup</Button>
                 <h3>Roll Back</h3>
-                {#each backups as backup}
+                {#each backups.sort((a, b) => b - a) as backup}
                     <Button on:click={() => {revert(backup)}}>{new Date(parseInt(backup)).toLocaleString()}</Button>
                 {/each}
             {:else if currentTab == 3}
