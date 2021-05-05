@@ -105,6 +105,7 @@ import IconButton from '../IconButton.svelte';
         editingAdmin.level = admins[id].level;
     }
     function sendEditAdmin(){
+        isEditingAdmin = false;
         let body = {
             name: editingAdmin.name
         };
@@ -122,6 +123,7 @@ import IconButton from '../IconButton.svelte';
     let isAddingAdmin = false;
     let addingAdmin = {};
     function addAdmin(){
+        isAddingAdmin = false;
         let body = {
             name: addingAdmin.name,
             level: addingAdmin.level
@@ -135,6 +137,7 @@ import IconButton from '../IconButton.svelte';
             });
     }
     function deleteAdmin(name){
+        isEditingAdmin = false;
         fetch(`/api/deleteAdmin`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: name})
             .then(response => {
                 
