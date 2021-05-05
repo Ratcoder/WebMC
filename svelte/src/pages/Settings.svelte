@@ -84,16 +84,19 @@ import IconButton from '../IconButton.svelte';
     }
 
     let admins = [];
-    fetch('/api/admins')
-        .then(data => data.json())
-        .then(json => {
-            admins = json;
-            admins.forEach(el => {
-                if(el.isYou){
-                    permissionLevel = el.level;
-                }
+    function fetchAdmins(){
+        fetch('/api/admins')
+            .then(data => data.json())
+            .then(json => {
+                admins = json;
+                admins.forEach(el => {
+                    if(el.isYou){
+                        permissionLevel = el.level;
+                    }
+                });
             });
-        });
+    }
+    fetchAdmins();
 
     let permissionLevel = 1;
     let isEditingAdmin = false;
@@ -117,7 +120,7 @@ import IconButton from '../IconButton.svelte';
         }
         fetch(`/api/changeAdmin`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
             .then(response => {
-                
+                fetchAdmins();
             });
     }
     let isAddingAdmin = false;
@@ -133,14 +136,14 @@ import IconButton from '../IconButton.svelte';
         }
         fetch(`/api/admins`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
             .then(response => {
-                
+                fetchAdmins();
             });
     }
     function deleteAdmin(name){
         isEditingAdmin = false;
         fetch(`/api/deleteAdmin`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: name})
             .then(response => {
-                
+                fetchAdmins();
             });
     }
 </script>
