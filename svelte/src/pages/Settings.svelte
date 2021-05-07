@@ -6,7 +6,8 @@
     import IntInput from '../IntInput.svelte';
     import BoolInput from '../BoolInput.svelte';
     import defaultSettings from '../../../app/defaultSettings.js';
-import IconButton from '../IconButton.svelte';
+    import IconButton from '../IconButton.svelte';
+    import PopupButton from '../PopupButton.svelte';
 
     const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced', 'Admins'];
     let currentTab = 0;
@@ -234,7 +235,7 @@ import IconButton from '../IconButton.svelte';
                             <Button on:click={() => {editingAdmin.settingPassword = true}}>Set New Password</Button>
                         {/if}
                         {#if permissionLevel == 3}
-                            <Button on:click={() => {deleteAdmin(editingAdmin.name)}}>Delete Admin</Button>
+                            <PopupButton on:click={() => {deleteAdmin(editingAdmin.name)}} popupText="Are you sure you would like to delete this admin?">Delete Admin</PopupButton>
                         {/if}
                         <div>
                             <button on:click={sendEditAdmin} style="float: left; width:50%;">Confirm</button>
