@@ -200,7 +200,7 @@
                 <Button on:click={backup}>Take Backup</Button>
                 <h3>Roll Back</h3>
                 {#each backups.sort((a, b) => b - a) as backup}
-                    <Button on:click={() => {revert(backup)}}>{new Date(parseInt(backup)).toLocaleString()}</Button>
+                    <PopupButton on:click={() => {revert(backup)}} popupText="Are you sure you want to restore to this backup? The current world will be overwritten.">{new Date(parseInt(backup)).toLocaleString()}</PopupButton>
                 {/each}
             {:else if currentTab == 3}
                 <IntInput bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
