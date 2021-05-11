@@ -1,4 +1,5 @@
-const Minecraft = require('../minecraft');
+// const Minecraft = require('../minecraft');
+const Events = require('../events');
 
 const os = require('os');
 const fs = require('fs');
@@ -78,7 +79,7 @@ const settings = {
         }
         await writeFile('db/settings.json', JSON.stringify(settingsJSON));
         if(serverProperties[element[0]]){
-            Minecraft.sceduleOffJob(writeServerProperties, 'updating settings');
+            Events.emit('settings.serverPropertiesChanged');
         }
         return value;
     },
@@ -107,19 +108,19 @@ const settings = {
         });
         await writeFile('db/settings.json', JSON.stringify(settingsJSON));
         if(serverPropertiesNeedsUpdating){
-            Minecraft.sceduleOffJob(writeServerProperties, 'updating settings');
+            Events.emit('settings.serverPropertiesChanged');
         }
-    }
-}
-async function writeServerProperties(){
-    let propertiesFile = '';
-    for (const key in serverProperties) {
-        if (Object.hasOwnProperty.call(serverProperties, key)) {
-            propertiesFile += `${serverProperties[key]}=${settingsJSON[key] ?? defaultSettings[key]}${os.EOL}`
+    },
+    getServerProperties(){
+        let propertiesFile = '';
+        for (const key in serverProperties) {
+            if (Object.hasOwnProperty.call(serverProperties, key)) {
+                propertiesFile += `${serverProperties[key]}=${settingsJSON[key] ?? defaultSettings[key]}${os.EOL}`
+            }
         }
+        propertiesFile += 'level-name=bedrock_level';
+        return propertiesFile;
     }
-    propertiesFile += 'level-name=bedrock_level';
-    await writeFile('mc/bedrock-server/server.properties', propertiesFile);
 }
 
 module.exports = settings;

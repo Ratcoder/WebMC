@@ -2,6 +2,10 @@ const child_process = require('child_process');
 const os = require("os");
 const path = require('path');
 const Events = require("./events");
+const fs = require('fs');
+const util = require('util');
+const writeFile = util.promisify(fs.writeFile);
+const Settings = require('./database/settings');
 
 const minecraftService = {
     process,
@@ -63,7 +67,6 @@ function startMCServer(){
         }
     });
 }
-startMCServer();
 
 let nextLineIsSavedFiles = false;
 function processMcServerLog(log){
@@ -143,5 +146,12 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+Events.on('settings.serverPropertiesChanged', () => {
+    sceduleOffJob(async () => {
+        await writeFile('mc/bedrock-server/server.properties', Settings.getServerProperties());
+    }, 'changing settings');
+});
+fs.writeFileSync('mc/bedrock-server/server.properties', Settings.getServerProperties(), () => {});
 
+startMCServer();
 module.exports = minecraftService;
