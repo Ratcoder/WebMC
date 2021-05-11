@@ -1,6 +1,9 @@
 const Events = require("./events");
 const Minecraft = require("./minecraft");
 const Database = require('./database');
+const fs = require('fs');
+const util = require('util');
+const writeFile = util.promisify(fs.writeFile);
 
 const connectedBannedPlayersIntervals = new Map();
 
@@ -39,6 +42,17 @@ async function changePermission(xuid, permission){
     const player = await Database.players.get(xuid);
     player.permission = permission;
     Database.players.update(xuid, player);
+
+    const players = await Database.players.getAll();
+    const permissionsFile = players.map(el => {
+        return {
+            name: el.name,
+            xuid: el.xuid,
+            permission: el.permission
+        }
+    });
+    await writeFile('mc/bedrock-server/permissions.json', JSON.stringify(permissionsFile));
+    Minecraft.process.stdin.write('permission reload\n');
 }
 
 const PlayersService = {
