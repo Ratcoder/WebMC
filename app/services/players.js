@@ -33,6 +33,7 @@ async function ban(xuid, ban){
     const player = await Database.players.get(xuid);
     player.ban = ban;
     Database.players.update(xuid, player);
+    Minecraft.process.stdin.write(`kick ${player.name} You have been banned: ${player.ban.reason}\n`);
 }
 async function changePermission(xuid, permission){
     const player = await Database.players.get(xuid);
