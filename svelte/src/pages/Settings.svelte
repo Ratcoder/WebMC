@@ -160,6 +160,8 @@
             <h2>{tabs[currentTab]}</h2>
             {#if currentTab == 0}
                 <TextInput bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
+                <EnumInput bind:value={settings.levelType} options={['FLAT', 'LEGACY', 'DEFAULT']} optionsDisplay={['Flat', 'Old', 'Infinite']} name="World Type"></EnumInput>
+                <TextInput bind:value={settings.levelSeed} name="Seed">Seed</TextInput>
             {:else if currentTab == 1}
                 <EnumInput bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
                 <EnumInput bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
