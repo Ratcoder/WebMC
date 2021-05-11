@@ -14,7 +14,7 @@ Events.on('minecraft_logs_playerConnected', async (name, xuid) => {
     else if(player.ban){
         connectedBannedPlayersIntervals.set(name, 
             setInterval(() => {
-                Minecraft.process.stdin.write(`kick ${name} You have been banned.\n`);
+                Minecraft.process.stdin.write(`kick ${name} You have been banned: ${player.ban.reason}\n`);
         }, 1000));
     }
 });
