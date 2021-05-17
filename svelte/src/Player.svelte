@@ -42,7 +42,7 @@
 </script>
 
 <div transition:fade={{duration:600}} class:big={!ban} id="player" bind:this={container}>
-    <button on:click={() => {open = !open}}>{player.name}</button>
+    <button class:online={player.isOnline} on:click={() => {open = !open}}>{player.name}</button>
     <IconButton title="Operator" src="/icons/crown.svg" on:click={changePermission('operator')} disabled={player.permission=='operator'}></IconButton>
     <IconButton title="Member" src="/icons/star.svg" on:click={changePermission('member')} disabled={player.permission=='member'}></IconButton>
     <IconButton title="Visitor" src="/icons/hand.svg" on:click={changePermission('visitor')} disabled={player.permission=='visitor'}></IconButton>
@@ -88,12 +88,15 @@
 		font: inherit;
 		-webkit-appearance: none;
 
-		color: rgba(255,255,255,0.6);
+		color: rgba(255,255,255,0.38);
         margin: 2px;
         display: block;
         width: 100%;
         height: 32px;
 	}
+    button.online{
+        color: rgba(255,255,255,0.6);
+    }
     #player:hover{
 		background-color: #222222;
 		box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);

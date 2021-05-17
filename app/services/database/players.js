@@ -7,24 +7,24 @@ if(!fs.existsSync('db')) fs.mkdirSync('db');
 const playerDatabase = new Datastore({ filename: 'db/players', autoload: true });
 
 const players = {
-    get(xuid){
+    get(name){
         return new Promise((resolve, reject) => {
-            playerDatabase.findOne({_id: xuid}, (err, doc) => {
+            playerDatabase.findOne({_id: name}, (err, doc) => {
                 resolve(doc);
             });
         });
     },
     insert(player){
         return new Promise((resolve, reject) => {
-            player._id = player.xuid;
+            player._id = player.name;
             playerDatabase.insert(player, (err, newDoc) => {
                 resolve(newDoc);
             });
         });
     },
-    update(xuid, player){
+    update(name, player){
         return new Promise((resolve, reject) => {
-            playerDatabase.update({ _id: xuid }, player, {}, function (err, numReplaced) {
+            playerDatabase.update({ _id: name }, player, {}, function (err, numReplaced) {
                 resolve(numReplaced);
             });
         });

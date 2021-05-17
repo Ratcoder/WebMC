@@ -7,6 +7,13 @@ Events.on('players_newPlayer', player => {
         connection.write(`data: ${JSON.stringify(player)}\n\n`);
     });
 });
+Events.on('Players_isOnline_changed', async (name, isOnline) => {
+    const player = await Database.players.get(name);
+    player.isOnline = isOnline;
+    connections.forEach(connection => {
+        connection.write(`data: ${JSON.stringify(player)}\n\n`);
+    });
+});
 
 module.exports = {
     path: '/api/player-managment/players',

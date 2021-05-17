@@ -1,5 +1,8 @@
 <script>
     import Player from '../Player.svelte';
+    import Button from '../Button.svelte';
+    import TextInput from '../TextInput.svelte';
+    import EnumInput from '../EnumInput.svelte';
     import { onDestroy } from 'svelte';
     import { fade, fly } from 'svelte/transition';
 
@@ -53,7 +56,6 @@
     import { quintOut } from 'svelte/easing';
     import { crossfade } from 'svelte/transition';
     import { flip } from 'svelte/animate';
-    import { element } from 'svelte/internal';
     const [send, receive] = crossfade({
 		duration: d => Math.sqrt(d * 200),
 
@@ -73,7 +75,7 @@
     });
     
     function changePermission(player, per){
-        fetch(`/api/player-managment/permission`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid, permission: per, until: 100})})
+        fetch(`/api/player-managment/permission`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name, permission: per, until: 100})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
@@ -84,7 +86,7 @@
             });
     }
     function ban(player, until, reason){
-        fetch(`/api/player-managment/ban`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid, reason, until})})
+        fetch(`/api/player-managment/ban`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name, reason, until})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
@@ -95,7 +97,7 @@
             });
     }
     function pardon(player){
-        fetch(`/api/player-managment/pardon`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({xuid: player.xuid})})
+        fetch(`/api/player-managment/pardon`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: player.name})})
             .then(response => {
                 players.forEach(element => {
                     if(element.name == player.name){
@@ -105,44 +107,67 @@
                 players = players;
             });
     }
+
+    let isAddingPlayer = false;
+    let addingPlayerName = '';
+    let addingPlayerPermission = 'visitor';
+    function addPlayer(){
+        isAddingPlayer = false;
+        fetch(`/api/player-managment/add`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name: addingPlayerName, permission: addingPlayerPermission})})
+            .then(response => {
+                
+            });
+    }
 </script>
 
 {#if loaded}
     <div class="page" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
-        <div class="card">
-            <h2>Operators</h2>
-            {#each operators as player (player.name)}
-                <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
-                    <Player {player} changePermission={(per)=>{changePermission(player, per);}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
-                </div>
-            {/each}
+        <div class="add">
+            {#if isAddingPlayer}
+                <TextInput bind:value={addingPlayerName}>Name</TextInput>
+                <EnumInput bind:value={addingPlayerPermission} options={['visitor', 'member', 'operator']} name="Player Permission"></EnumInput>
+                <Button on:click={addPlayer}>Add</Button>
+                <Button on:click={() => {isAddingPlayer = false}}>Cancel</Button>
+            {:else}
+                <Button on:click={() => {isAddingPlayer = true}}>Add Player</Button>
+            {/if}
         </div>
+        <div class="card-container">
+            <div class="card">
+                <h2>Operators</h2>
+                {#each operators.sort((a, b) => a.isOnline - b.isOnline) as player (player.name)}
+                    <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
+                        <Player {player} changePermission={(per)=>{changePermission(player, per);}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
+                    </div>
+                {/each}
+            </div>
+        
+            <div class="card">
+                <h2>Members</h2>
+                {#each members.sort((a, b) => a.isOnline - b.isOnline) as player (player.name)}
+                    <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
+                        <Player {player} changePermission={(per)=>{changePermission(player, per)}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
+                    </div>
+                {/each}
+            </div>
+        
+            <div class="card">
+                <h2>Visitors</h2>
+                {#each visitors.sort((a, b) => a.isOnline - b.isOnline) as player (player.name)}
+                    <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
+                        <Player {player} changePermission={(per)=>{changePermission(player, per)}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
+                    </div>
+                {/each}
+            </div>
     
-        <div class="card">
-            <h2>Members</h2>
-            {#each members as player (player.name)}
-                <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
-                    <Player {player} changePermission={(per)=>{changePermission(player, per)}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
-                </div>
-            {/each}
-        </div>
-    
-        <div class="card">
-            <h2>Visitors</h2>
-            {#each visitors as player (player.name)}
-                <div in:receive="{{key: player.name }}" out:send="{{key: player.name}}" animate:flip="{{duration:600 }}">
-                    <Player {player} changePermission={(per)=>{changePermission(player, per)}} ban={(until, reason) => {ban(player, until, reason)}}></Player>
-                </div>
-            {/each}
-        </div>
-
-        <div class="card">
-            <h2>Banned</h2>
-            {#each banned as player (player.name)}
-                <div in:receive="{{key: player.name}}" out:send="{{key: player.name}}" animate:flip="{{duration: 600}}">
-                    <Player {player} changePermission={(per)=>{changePermission(player, per)}} pardon={() => {pardon(player)}}></Player>
-                </div>
-            {/each}
+            <div class="card">
+                <h2>Banned</h2>
+                {#each banned as player (player.name)}
+                    <div in:receive="{{key: player.name}}" out:send="{{key: player.name}}" animate:flip="{{duration: 600}}">
+                        <Player {player} changePermission={(per)=>{changePermission(player, per)}} pardon={() => {pardon(player)}}></Player>
+                    </div>
+                {/each}
+            </div>
         </div>
     </div>
 {/if}
@@ -161,11 +186,18 @@
         width: 310px;
         margin: 10px;
     }
-    .page{
+    .card-container{
         display: flex;
 		justify-content: space-evenly;
 		flex-wrap: wrap;
+        width: 100%;
+    }
+    .page{
         position: absolute;
         width: 100%;
+    }
+    .add{
+        width: 200px;
+        margin: auto;
     }
 </style>

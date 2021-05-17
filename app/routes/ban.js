@@ -6,7 +6,7 @@ module.exports = {
     accessLevel: 1,
     handler: (request, responce) => {
         const body = JSON.parse(request.body);
-        Players.ban(body.xuid, {
+        Players.ban(body.name, {
             reason: body.reason,
             until: body.until
         });
