@@ -25,6 +25,9 @@ module.exports = {
     accessLevel: 1,
     handler: async (request, responce) => {
         connections.push(responce.status(200).eventstream());
+        responce._responce.stream.on('end', () => {
+            connections.splice(connections.indexOf(responce));
+        });
         if(currentRestart) responce.write(`data: ${JSON.stringify({type: 'restart', time: currentRestart.time, reason: currentRestart.reason})}\n\n`)
     }
 }

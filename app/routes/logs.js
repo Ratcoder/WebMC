@@ -19,5 +19,8 @@ module.exports = {
         const newConnection = responce.status(200).eventstream();
         newConnection.write(logStore);
         connections.push(newConnection);
+        responce._responce.stream.on('end', () => {
+            connections.splice(connections.indexOf(newConnection));
+        });
     }
 }

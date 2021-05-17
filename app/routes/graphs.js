@@ -33,5 +33,8 @@ module.exports = {
         Graphs.players.forEach(data => {
             responce.write(`data: players ${JSON.stringify(data)}\n\n`);
         });
+        responce._responce.stream.on('end', () => {
+            connections.splice(connections.indexOf(responce));
+        });
     }
 }
