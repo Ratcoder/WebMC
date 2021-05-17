@@ -12,7 +12,7 @@ Events.on('minecraft_logs_playerConnected', async (name, xuid) => {
     let player = await Database.players.get(xuid);
 
     if(!player){
-        add(name, 'member');
+        add(name, await Database.settings.get('defaultPlayerPermissionLevel'));
     }
     else if(player.ban){
         connectedBannedPlayersIntervals.set(name, 
