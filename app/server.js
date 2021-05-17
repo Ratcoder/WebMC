@@ -144,7 +144,7 @@ class Responce{
     _headers = {};
 
     constructor(responce){
-        this.responce = responce;
+        this._responce = responce;
     }
     status(status){
         this.setHeader(':status', status);
@@ -152,22 +152,22 @@ class Responce{
     }
     json(json){
         this.setHeader('content-type', 'application/json; charset=utf-8');
-        this.responce.stream.respond(this._headers);
-        this.responce.stream.end(JSON.stringify(json));
+        this._responce.stream.respond(this._headers);
+        this._responce.stream.end(JSON.stringify(json));
     }
     text(text){
         this.setHeader('content-type', 'text/plain; charset=utf-8');
-        this.responce.stream.respond(this._headers);
-        this.responce.stream.end(text);
+        this._responce.stream.respond(this._headers);
+        this._responce.stream.end(text);
     }
     eventstream(){
         this.setHeader('content-type', 'text/event-stream');
         this.setHeader('cache-controll', 'no-cache');
-        this.responce.stream.respond(this._headers);
+        this._responce.stream.respond(this._headers);
         return this;
     }
     write(data){
-        this.responce.stream.write(data);
+        this._responce.stream.write(data);
     }
     setHeader(header, value){
         this._headers[header] = value;
