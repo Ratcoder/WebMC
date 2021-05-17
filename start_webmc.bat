@@ -1,1 +1,1 @@
-node/node.exe .
+node\node.exe .
