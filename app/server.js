@@ -13,6 +13,8 @@ const routes = fs.readdirSync('./app/routes').map(file => require('./routes/' + 
 
 if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
 
+const failedAttempts = new Map();
+
 let server;
 function startAdminServer(){
     console.log('Starting website...');
@@ -54,6 +56,22 @@ function startAdminServer(){
             }
 
             if(path == '/api/login'){
+                const attemptKey = `${request.socket.remoteAddress}/${JSON.parse(buffer).name}`;
+                const attempt = failedAttempts.get(attemptKey);
+                if(attempt && attempt.ban){
+                    if(attempt.ban < Date.now()){
+                        attempt.ban = false;
+                        failedAttempts.delete(attemptKey);
+                    }
+                    else{
+                        responce.stream.respond({
+                            'content-type': 'text/plain; charset=utf-8',
+                            ':status': 401
+                        });
+                        responce.stream.end(`banned:${attempt.ban - Date.now()}`);
+                        return;
+                    }
+                }
                 authenticate(buffer, key)
                     .then(token => {
                         responce.stream.respond({
@@ -68,7 +86,13 @@ function startAdminServer(){
                             'content-type': 'text/plain; charset=utf-8',
                             ':status': 401
                         });
-                        responce.stream.end('Incorrect name or password.')
+                        responce.stream.end('Incorrect name or password.');
+                        const attempt = failedAttempts.get(attemptKey) || { fails: 0 };
+                        attempt.fails ++;
+                        if(attempt.fails % 3 == 0){
+                            attempt.ban = Date.now() + 60000 * Math.pow(2, attempt.fails / 3);
+                        }
+                        failedAttempts.set(attemptKey, attempt);
                     });
                 return;
             }

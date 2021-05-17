@@ -15,14 +15,22 @@
             }
             return;
         }
-        fetch(`/api/login`, {method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name, password})}).
-            then((response) => {
+        fetch(`/api/login`, {method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify({name, password})})
+            .then(async (response) => {
                 if(response.status == 200){
                     window.location.replace("/");
                 }
                 else{
-                    if(error == "Incorrect name or password."){
-                        error += ' ';
+                    error = '';
+                    const text = await response.text();
+                    if(text.startsWith('banned:')){
+                        const ban = Math.round(parseInt(text.split(':')[1]) / 1000);
+                        if(ban / 60 > 1){
+                            error = `Too many failed login attempts; try again in ${Math.round(ban / 60)} minutes.`;
+                        }
+                        else{
+                            error = `Too many failed login attempts; try again in ${ban} seconds.`;
+                        }
                     }
                     else{
                         error = "Incorrect name or password."
@@ -62,7 +70,7 @@
     form{
         display:block;
         width: 310px;
-        height: 280px;
+        height: 300px;
         padding: 20px;
         margin: auto;
         
