@@ -10,7 +10,11 @@ const Settings = require('./database/settings');
 const minecraftService = {
     process,
     buffer:'',
-    sceduleOffJob
+    sceduleOffJob,
+    status:'offline',
+    start,
+    stop,
+    stopDelayed
 }
 
 // On linux, the minecraft server process can get orphaned when the parent dies,
@@ -32,6 +36,7 @@ if(process.platform != 'win32'){
 }
 
 function startMCServer(){
+    setStatus('starting');
     logStore = "";
     if(process.platform == 'win32'){
         minecraftService.process = child_process.spawn(path.resolve('mc/bedrock-server/bedrock_server.exe'));
@@ -61,6 +66,7 @@ function startMCServer(){
     });
 
     minecraftService.process.on('exit', (code, signal) => {
+       setStatus('offline');
         // was it a crash?
         if(code !== 0){
             startMCServer();
@@ -90,7 +96,8 @@ function processMcServerLog(log){
             Events.emit('minecraft_logs_playerDisconnected', split[0], split[1])
         }
         else if(log == '[INFO] Server started.'){
-            Events.emit('minecraft_logs_started')
+            setStatus('online');
+            Events.emit('minecraft_logs_started');
         }
         else if(log.substring(27).startsWith('Version 1.')){
             Events.emit('minecraft_logs_version', log.substring(35));
@@ -109,15 +116,16 @@ function processMcServerLog(log){
 }
 
 let offJobs = [];
-let shuttingDown = false;
+let isRestarting = false;
 function sceduleOffJob(job, reason){
     offJobs.push(job);
-    if(!shuttingDown){
-        shuttingDown = true;
-        shutDown(reason);
+    if(!isRestarting){
+        isRestarting = true;
+        restart(reason);
     }
 }
-async function shutDown(reason){
+async function restart(reason){
+    setStatus("restarting");
     Events.emit('minecraft_restarting', {reason, time: 60});
     minecraftService.process.stdin.write(`say Server restarting in 60 seconds for: ${reason}\n`);
     await sleep(30 * 1000);
@@ -129,21 +137,64 @@ async function shutDown(reason){
         minecraftService.process.stdin.write(`say Server restarting in ${i} seconds\n`);
         await sleep(1000);
     }
-    minecraftService.process.stdin.write('stop\n');
-    await (new Promise((resolve, reject) => {
-        minecraftService.process.once('exit', () => {
-            resolve();
-        })
-    }));
+    if(isRestarting){
+        minecraftService.process.stdin.write('stop\n');
+        await (new Promise((resolve, reject) => {
+            minecraftService.process.once('exit', () => {
+                resolve();
+            })
+        }));
+        await doOffJobs();
+        isRestarting = false;
+        startMCServer();
+    }
+}
+async function doOffJobs(){
     while(offJobs.length > 0){
         await offJobs[0]();
         offJobs.splice(0, 1);
     }
-    shuttingDown = false;
-    startMCServer();
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+function setStatus(status){
+    minecraftService.status = status;
+    Events.emit('minecraft_status', minecraftService.status);
+}
+function start(){
+    if(minecraftService.status == 'offline'){
+        startMCServer();
+    }
+}
+async function stop(){
+    if(minecraftService.status == 'online' || minecraftService.status == 'restarting' || minecraftService.status == 'shutting-down'){
+        minecraftService.process.stdin.write('stop\n');
+        isRestarting = false;
+        await (new Promise((resolve, reject) => {
+            minecraftService.process.once('exit', () => {
+                resolve();
+            })
+        }));
+        await doOffJobs();
+    }
+}
+async function stopDelayed(){
+    if(minecraftService.status == 'online' || minecraftService.status == 'restarting'){
+        setStatus('shutting-down');
+        Events.emit('minecraft_stopping', { time: 60 });
+        minecraftService.process.stdin.write(`say Server shutting down in 60 seconds\n`);
+        await sleep(30 * 1000);
+        minecraftService.process.stdin.write('say Server shutting down in 30 seconds\n');
+        await sleep(15 * 1000);
+        minecraftService.process.stdin.write('say Server shutting down in 15 seconds\n');
+        await sleep(5 * 1000);
+        for(let i = 10; i > 0; i--){
+            minecraftService.process.stdin.write(`say Server shutting down in ${i} seconds\n`);
+            await sleep(1000);
+        }
+        await stop();
+    }
 }
 
 Events.on('settings.serverPropertiesChanged', () => {

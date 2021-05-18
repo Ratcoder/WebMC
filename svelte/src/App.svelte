@@ -22,9 +22,14 @@
 	let restartingReason = '';
 	let restartingTime = 0;
 	let restartingTimeInterval;
+	let status;
+
+	let stoppingTime = 0;
+	let stoppingTimeInterval;
     source.onmessage = (event) => {
         const message = JSON.parse(event.data);
 		if(message.type == 'restart'){
+			status = "restarting";
 			isRestarting = true;
 			restartingReason = message.reason;
 			restartingTime = message.time;
@@ -32,7 +37,21 @@
 				restartingTime--;
 			}, 1000);
 		}
+		else if(message.type == 'stop'){
+			status = 'shutting-down';
+			stoppingTime = message.time;
+			stoppingTimeInterval = setInterval(() => {
+				stoppingTime--;
+			}, 1000);
+		}
+		else if(message.type == 'status'){
+			status = message.status;
+			if(status == 'offline'){
+				clearInterval(stoppingTimeInterval);
+			}
+		}
 		else if(message.type == 'started'){
+			status = "online";
 			clearInterval(restartingTimeInterval);
 			isRestarting = false;
 		}
@@ -58,6 +77,12 @@
 				{:else}
 					<p>Server restarting...</p>
 				{/if}
+			{:else if status == 'shutting-down'}
+				{#if stoppingTime > 0}
+					<p>Server shutting down in {stoppingTime}s</p>
+				{:else}
+					<p>Server shutting down...</p>
+				{/if}
 			{/if}
 		</div>
 	</div>
@@ -67,7 +92,7 @@
 <div style="height: {80 + isRestarting * 30}px"></div>
 
 {#if page == "/"}
-	<Status></Status>
+	<Status {status}></Status>
 {:else if page == "/players/"}
 	<Players></Players>
 {:else if page == "/settings/"}
