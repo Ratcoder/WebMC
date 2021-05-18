@@ -15,6 +15,8 @@ if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
 
 const failedAttempts = new Map();
 
+const public = (process.argv[2] == 'dev') ? 'svelte/public' : 'public';
+
 let server;
 function startAdminServer(){
     console.log('Starting website...');
@@ -37,20 +39,20 @@ function startAdminServer(){
         });
         responce.stream.on('end', () => {
             if(path.endsWith('/')){
-                responce.stream.respondWithFile('svelte/public/index.html');
+                responce.stream.respondWithFile(`${public}/index.html`);
                 return;
             }
             console.log(`${request.method} ${path}`);
-            if(fs.existsSync(`svelte/public${path}`)){
+            if(fs.existsSync(`${public}/${path}`)){
                 if(path.endsWith('.svg')){
-                    responce.stream.respondWithFile(`svelte/public${path}`, {
+                    responce.stream.respondWithFile(`${public}/${path}`, {
                         ':status': 200,
                         'Content-Type': 'image/svg+xml; charset=utf-8'
                     });
                     return;
                 }
                 else{
-                    responce.stream.respondWithFile(`svelte/public${path}`);
+                    responce.stream.respondWithFile(`${public}/${path}`);
                     return;
                 }
             }
