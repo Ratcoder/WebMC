@@ -19,4 +19,4 @@ powershell.exe -NoP -NonI -Command "Expand-Archive -Force './build/nodetemp.zip'
 move ".\build\nodetemp\node-v14.16.1-win-x64" ".\build\node"
 rmdir build\nodetemp
 del build\nodetemp.zip
-powershell.exe -NoP -NonI -Command "Compress-Archive -Force './build/' './build/dist.zip'"
+powershell.exe -NoP -NonI -Command "Compress-Archive -Force './build/*' './build/dist.zip'"
