@@ -5,3 +5,6 @@ settings
 db
 node
 build
+installers/gui-installer/__pycache__
+installers/gui-installer/dist
+installers/gui-installer/installer.spec
