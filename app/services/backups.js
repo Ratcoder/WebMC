@@ -10,9 +10,14 @@ const readdir = util.promisify(fs.readdir);
 
 let backups = [];
 fs.readdir('mc/backups', (err, files) => {
-    files.forEach(file => {
-        backups.push(file)
-    });
+    if(err){
+        fs.mkdirSync('mc/backups');
+    }
+    else{
+        files.forEach(file => {
+            backups.push(file);
+        });
+    }
 });
 
 function startBackup(){
