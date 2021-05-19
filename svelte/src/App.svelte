@@ -59,6 +59,17 @@
 	source.onerror = event => {
 		changePage('/login/');
 	};
+
+	let user;
+	fetch('/api/admins')
+		.then(res => res.json())
+		.then(admins => {
+			admins.forEach(el => {
+				if(el.isYou){
+					user = el;
+				}
+			});
+		});
 </script>
 
 {#if page != "/login"}
@@ -92,15 +103,15 @@
 <div style="height: {80 + isRestarting * 30}px"></div>
 
 {#if page == "/"}
-	<Status {status}></Status>
+	<Status {user} {status}></Status>
 {:else if page == "/players/"}
-	<Players></Players>
+	<Players {user}></Players>
 {:else if page == "/settings/"}
-	<Settings></Settings>
+	<Settings {user}></Settings>
 {:else if page == "/terminal/"}
-	<Terminal></Terminal>
+	<Terminal {user}></Terminal>
 {:else if page == "/login/"}
-	<Login></Login>
+	<Login {user}></Login>
 {/if}
 
 

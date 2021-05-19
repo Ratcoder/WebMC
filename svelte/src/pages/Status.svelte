@@ -1,5 +1,6 @@
 <script>
     import { fly } from 'svelte/transition';
+    export let user;
 
     import Graph from '../Graph.svelte';
 
@@ -46,18 +47,20 @@
 <div id="page" in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">
     <div id="management">
         <h3>Status - {status}</h3>
-        {#if status == 'online'}
-            <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
-            <button on:click={() => {startStopServer('stop', true)}}>Shut Down in 60s</button>
-            <button on:click={() => {startStopServer('restart', false)}}>Restart</button>
-            <button on:click={() => {startStopServer('restart', true)}}>Restart in 60s</button>
-        {:else if status == 'restarting'}
-            <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
-            <button on:click={() => {startStopServer('restart', false)}}>Restart</button>
-        {:else if status == 'shutting-down'}
-            <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
-        {:else if status == 'offline'}
-            <button on:click={() => {startStopServer('start', false)}}>Start</button>
+        {#if user?.level >= 2}
+            {#if status == 'online'}
+                <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
+                <button on:click={() => {startStopServer('stop', true)}}>Shut Down in 60s</button>
+                <button on:click={() => {startStopServer('restart', false)}}>Restart</button>
+                <button on:click={() => {startStopServer('restart', true)}}>Restart in 60s</button>
+            {:else if status == 'restarting'}
+                <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
+                <button on:click={() => {startStopServer('restart', false)}}>Restart</button>
+            {:else if status == 'shutting-down'}
+                <button on:click={() => {startStopServer('stop', false)}}>Shut Down</button>
+            {:else if status == 'offline'}
+                <button on:click={() => {startStopServer('start', false)}}>Start</button>
+            {/if}
         {/if}
     </div>
     <Graph title="CPU Usage" data={cpuData} labels={['Server','Other']} unit="percent" limit=100></Graph>

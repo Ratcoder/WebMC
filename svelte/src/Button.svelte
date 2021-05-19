@@ -1,5 +1,9 @@
+<script>
+    export let disabled;
+</script>
+
 <div>
-    <button on:click>
+    <button {disabled} on:click>
         <slot></slot>
     </button>
 </div>
@@ -29,7 +33,10 @@
         transition: all 300ms;
         width: 200px;
     }
-    button:hover{
+    button:disabled{
+        color: rgba(255,255,255,0.38);
+    }
+    button:hover:not(:disabled){
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }

@@ -8,6 +8,8 @@
     import defaultSettings from '../../../app/defaultSettings.js';
     import IconButton from '../IconButton.svelte';
     import PopupButton from '../PopupButton.svelte';
+    export let user;
+    $: disabled = user?.level < 2;
 
     const tabs = ['General', 'Game Settings', 'Backups', 'Player Permissions', 'Advanced', 'Admins'];
     let currentTab = 0;
@@ -132,13 +134,13 @@
             name: addingAdmin.name,
             level: addingAdmin.level
         };
-        if(addingAdmin.settingPassword && addingAdmin.password == addingAdmin.confirmPassword) {
+        if(addingAdmin.password == addingAdmin.confirmPassword) {
             body.password = addingAdmin.password;
+            fetch(`/api/admins`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
+                .then(response => {
+                    fetchAdmins();
+                });
         }
-        fetch(`/api/admins`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/json'}, body: JSON.stringify(body)})
-            .then(response => {
-                fetchAdmins();
-            });
     }
     function deleteAdmin(name){
         isEditingAdmin = false;
@@ -159,70 +161,70 @@
         <div class="settings">
             <h2>{tabs[currentTab]}</h2>
             {#if currentTab == 0}
-                <TextInput bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
-                <EnumInput bind:value={settings.levelType} options={['FLAT', 'LEGACY', 'DEFAULT']} optionsDisplay={['Flat', 'Old', 'Infinite']} name="World Type"></EnumInput>
-                <TextInput bind:value={settings.levelSeed} name="Seed">Seed</TextInput>
+                <TextInput {disabled} bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
+                <EnumInput {disabled} bind:value={settings.levelType} options={['FLAT', 'LEGACY', 'DEFAULT']} optionsDisplay={['Flat', 'Old', 'Infinite']} name="World Type"></EnumInput>
+                <TextInput {disabled} bind:value={settings.levelSeed} name="Seed">Seed</TextInput>
             {:else if currentTab == 1}
-                <EnumInput bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
-                <EnumInput bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
-                <EnumInput bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
-                <IntInput bind:value={settings.tickDistance} min=4 max=12 name="Simulation Distance"></IntInput>
-                <BoolInput bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
-                <BoolInput bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
-                <BoolInput bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
-                <BoolInput bind:value={settings.tntExplodes} name="TNT Explodes"></BoolInput>
-                <BoolInput bind:value={settings.doMobLoot} name="Mob Loot"></BoolInput>
-                <BoolInput bind:value={settings.naturalRegeneration} name="Natural Regeneration"></BoolInput>
-                <BoolInput bind:value={settings.doTileDrops} name="Tile Drops"></BoolInput>
-                <BoolInput bind:value={settings.doImmediateRespawn} name="Immediate Respawn"></BoolInput>
-                <IntInput bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
+                <EnumInput {disabled} bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
+                <EnumInput {disabled} bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
+                <EnumInput {disabled} bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
+                <IntInput {disabled} bind:value={settings.tickDistance} min=4 max=12 name="Simulation Distance"></IntInput>
+                <BoolInput {disabled} bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.tntExplodes} name="TNT Explodes"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doMobLoot} name="Mob Loot"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.naturalRegeneration} name="Natural Regeneration"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doTileDrops} name="Tile Drops"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doImmediateRespawn} name="Immediate Respawn"></BoolInput>
+                <IntInput {disabled} bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
                 <h3>Cheats</h3>
-                <BoolInput bind:value={settings.cheats} name="Cheats"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.cheats} name="Cheats"></BoolInput>
                 {#if settings.cheats}
-                    <BoolInput bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
-                    <BoolInput bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
-                    <BoolInput bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
-                    <BoolInput bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
-                    <BoolInput bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
-                    <BoolInput bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
-                    <BoolInput bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
-                    <BoolInput bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
-                    <IntInput bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
-                    <BoolInput bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
-                    <BoolInput bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
-                    <BoolInput bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
-                    <BoolInput bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
-                    <BoolInput bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
-                    <BoolInput bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
-                    <BoolInput bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
-                    <IntInput bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
-                    <BoolInput bind:value={settings.showTags} name="Show Tags"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
+                    <IntInput {disabled} bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
+                    <BoolInput {disabled} bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
+                    <IntInput {disabled} bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
+                    <BoolInput {disabled} bind:value={settings.showTags} name="Show Tags"></BoolInput>
                 {/if}
             {:else if currentTab == 2}
-                <Button on:click={backup}>Take Backup</Button>
+                <Button {disabled} on:click={backup}>Take Backup</Button>
                 <h3>Roll Back</h3>
                 {#each backups.sort((a, b) => b - a) as backup}
-                    <PopupButton on:click={() => {revert(backup)}} popupText="Are you sure you want to restore to this backup? The current world will be overwritten.">{new Date(parseInt(backup)).toLocaleString()}</PopupButton>
+                    <PopupButton {disabled} on:click={() => {revert(backup)}} popupText="Are you sure you want to restore to this backup? The current world will be overwritten.">{new Date(parseInt(backup)).toLocaleString()}</PopupButton>
                 {/each}
             {:else if currentTab == 3}
-                <IntInput bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
-                <BoolInput bind:value={settings.onlineMode} name="Online Mode"></BoolInput>
-                <BoolInput bind:value={settings.whitelist} name="White List"></BoolInput>
-                <IntInput bind:value={settings.playerIdleTimeout} name="Player Idle Timeout" min=0></IntInput>
+                <IntInput {disabled} bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.onlineMode} name="Online Mode"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.whitelist} name="White List"></BoolInput>
+                <IntInput {disabled} bind:value={settings.playerIdleTimeout} name="Player Idle Timeout" min=0></IntInput>
                 <h3>Server Authoritive Movement</h3>
-                <BoolInput bind:value={settings.serverAuthoritativeMovement} name="Server Authoritive Movement"></BoolInput>
-                <IntInput bind:value={settings.playerMovementScoreTheshold} name="Player Movement Score Threshold" min=0></IntInput>
-                <IntInput bind:value={settings.playerMovementDistanceTheshold} name="Player Movement Distance Threshold" min=0></IntInput>
-                <IntInput bind:value={settings.playerMovementDurationTheshold} name="Player Movement Duration Threshold (in ms)" min=0></IntInput>
-                <BoolInput bind:value={settings.correctPlayerMovement} name="Correct Player Movement"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.serverAuthoritativeMovement} name="Server Authoritive Movement"></BoolInput>
+                <IntInput {disabled} bind:value={settings.playerMovementScoreTheshold} name="Player Movement Score Threshold" min=0></IntInput>
+                <IntInput {disabled} bind:value={settings.playerMovementDistanceTheshold} name="Player Movement Distance Threshold" min=0></IntInput>
+                <IntInput {disabled} bind:value={settings.playerMovementDurationTheshold} name="Player Movement Duration Threshold (in ms)" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.correctPlayerMovement} name="Correct Player Movement"></BoolInput>
             {:else if currentTab == 4}
-                <IntInput bind:value={settings.serverPort} name="Port" min=1 max=65535></IntInput>
-                <IntInput bind:value={settings.serverPortv6} name="IPv6 Port" min=1 max=65535></IntInput>
-                <IntInput bind:value={settings.compressionThreshold} name="Compression Threshold" min=0 max=65535></IntInput>
-                <IntInput bind:value={settings.maxViewDistance} name="Max View Distance" min=5></IntInput>
-                <IntInput bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
-                <BoolInput bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
-                <BoolInput bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
+                <IntInput {disabled} bind:value={settings.serverPort} name="Port" min=1 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.serverPortv6} name="IPv6 Port" min=1 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.compressionThreshold} name="Compression Threshold" min=0 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.maxViewDistance} name="Max View Distance" min=5></IntInput>
+                <IntInput {disabled} bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
             {:else if currentTab == 5}
                 {#if isEditingAdmin}
                     <div>
@@ -279,7 +281,7 @@
                     {/if}
                 {/if}
             {/if}
-            {#if unsavedChanged}
+            {#if unsavedChanged && !disabled}
                 <Button on:click={saveSettings}>Save Settings</Button>
             {/if}
         </div>

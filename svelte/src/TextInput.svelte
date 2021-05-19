@@ -2,15 +2,16 @@
     export let value;
     export let name;
     export let password;
+    export let disabled;
 </script>
 
 <div>
     <div class="wr">
         <label for={name}><slot></slot></label>
         {#if password}
-            <input bind:value type="password" {name} id={name}>
+            <input {disabled} bind:value type="password" {name} id={name}>
         {:else}
-            <input bind:value type="text" {name} id={name}>
+            <input {disabled} bind:value type="text" {name} id={name}>
         {/if}
     </div>
 </div>
@@ -39,7 +40,10 @@
         transition: all 300ms;
         width: 200px;
     }
-    input:hover{
+    input:disabled{
+        color: rgba(255,255,255,0.38);
+    }
+    input:hover:not(:disabled){
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }

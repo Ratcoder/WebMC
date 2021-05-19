@@ -2,35 +2,36 @@
     import Button from './Button.svelte';
     import { createEventDispatcher } from 'svelte';
     import App from './App.svelte';
+    export let disabled;
 
     export let popupText;
 
-    let disabled = true;
+    let popupDisabled = true;
 
     const dispatch = createEventDispatcher();
     function click(event){
-        disabled = true;
+        popupDisabled = true;
         dispatch('click', event.detail);
     }
 
     let container;
     window.addEventListener('click', function(e){   
         if (!container.contains(e.target)){
-            disabled = true;
+            popupDisabled = true;
         }
     });
 </script>
 
 <div bind:this={container}>
-    <Button on:click={() => {disabled = false}}><slot></slot></Button>
+    <Button {disabled} on:click={() => {popupDisabled = false}}><slot></slot></Button>
 
-    {#if !disabled}
+    {#if !popupDisabled}
         <div class=popup>
             <p>{popupText}</p>
             <br>
             <div style="width: 100%; display:flex">
                 <button on:click={click}>Confirm</button>
-                <button on:click={() => {disabled = true}}>Cancel</button>
+                <button on:click={() => {popupDisabled = true}}>Cancel</button>
             </div>
         </div>
     {/if}

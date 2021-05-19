@@ -1,11 +1,12 @@
 <script>
     export let value;
     export let name;
+    export let disabled;
 </script>
 
 <div>
     <div class="wr">
-        <input bind:checked={value} type="checkbox" name={name} id={name}>
+        <input {disabled} bind:checked={value} type="checkbox" name={name} id={name}>
         <label for={name} style="display: inline-block; vertical-align:middle;">{name}</label>
     </div>
 </div>
@@ -60,7 +61,10 @@
         color: transparent;
         text-align: center;
     }
-    input:hover{
+    input:disabled{
+        color: rgba(255,255,255,0.38);
+    }
+    input:hover:not(:disabled){
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }

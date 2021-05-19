@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { onDestroy } from 'svelte';
     import { fly } from 'svelte/transition'
+    export let user;
 
 
     let logs = '';
@@ -24,9 +25,11 @@
 
 <code in:fly="{{ x: 200, duration: 600 }}" out:fly="{{ x: -200, duration: 600 }}">{logs}</code>
 
-<form transition:fly="{{ y: 200, duration: 600 }}" onsubmit="return false;" on:submit="{command}">
-    <input type="text" placeholder="Enter command..." bind:value={cmd} spellcheck="false"/>
-</form>
+{#if user?.level >= 2}
+    <form transition:fly="{{ y: 200, duration: 600 }}" onsubmit="return false;" on:submit="{command}">
+        <input type="text" placeholder="Enter command..." bind:value={cmd} spellcheck="false"/>
+    </form>
+{/if}
 
 <style>
     code{

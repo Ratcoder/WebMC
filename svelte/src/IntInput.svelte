@@ -3,11 +3,12 @@
     export let name;
     export let min;
     export let max;
+    export let disabled;
 </script>
 
 <div>
     <label for={name}>{name}</label>
-    <input bind:value={value} type="number" name={name} id={name} {min} {max}>
+    <input {disabled} bind:value={value} type="number" name={name} id={name} {min} {max}>
 </div>
 
 
@@ -35,7 +36,10 @@
         transition: all 300ms;
         width: 200px;
     }
-    input:hover{
+    input:disabled{
+        color: rgba(255,255,255,0.38);
+    }
+    input:hover:not(:disabled){
         background-color: #222222;
         box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.20);
     }
