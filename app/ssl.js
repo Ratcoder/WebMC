@@ -13,13 +13,13 @@ function generateSSLCert(){
         extensions: [{ name: 'basicConstraints', cA: true }], // certificate extensions array
         pkcs7: true, // include PKCS#7 as part of the output (default: false)
     });
-    fs.writeFileSync('cert/private', pems.private, ()=>{
+    fs.writeFileSync('db/cert/private', pems.private, ()=>{
 
     });
-    fs.writeFileSync('cert/cert', pems.cert, ()=>{
+    fs.writeFileSync('db/cert/cert', pems.cert, ()=>{
 
     });
-    fs.writeFileSync('cert/date', Date.now().toString(), ()=>{
+    fs.writeFileSync('db/cert/date', Date.now().toString(), ()=>{
 
     });
 }
@@ -35,7 +35,7 @@ module.exports.watch = function(server, startAdminServer){
     // do we need to renew it right away?
     try{
         // has it been more than a month since the last time we made it?
-        if (Date.now() - fs.readFileSync('cert/date') > 1000 * 60 * 60 * 24 * 30){
+        if (Date.now() - fs.readFileSync('db/cert/date') > 1000 * 60 * 60 * 24 * 30){
             // then yes
             generateSSLCert();
         }
