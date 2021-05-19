@@ -11,7 +11,10 @@ const bcrypt = require('bcrypt');
 const routes = fs.readdirSync('./app/routes').map(file => require('./routes/' + file));
 
 
-if(!fs.existsSync('cert/private')) SSL.generateSSLCert()
+if(!fs.existsSync('db/cert/private')){
+    if(!fs.existsSync('db/cert')) fs.mkdirSync('db/cert');
+    SSL.generateSSLCert();
+}
 
 const failedAttempts = new Map();
 
@@ -21,10 +24,10 @@ let server;
 function startAdminServer(){
     console.log('Starting website...');
     // make the server
-    const key = fs.readFileSync('cert/private');
+    const key = fs.readFileSync('db/cert/private');
     server = http2.createSecureServer({
         key: key,
-        cert: fs.readFileSync('cert/cert'),
+        cert: fs.readFileSync('db/cert/cert'),
         allowHTTP1: true
     });
     // log any errors

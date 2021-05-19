@@ -1,7 +1,6 @@
 node_modules
 svelte/public/build
 mc
-cert
 settings
 db
 node
