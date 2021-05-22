@@ -6,7 +6,7 @@
 
 <p>WebMC is a tool designed to make managing your own Minecraft Bedrock server easy. WebMC lets you manage your server through an easy to use web dashboard. That means no messing with terminals or configuration files, let WebMC do that for you.</p>
 
-<h3>Features</h3>
+<h2>Features</h2>
 <ul>
   <li>An easy to use web dashboard</li>
   <li>Player bans and management</li>
