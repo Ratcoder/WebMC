@@ -1,1 +1,1 @@
-./node/node .
+./node/bin/node .
