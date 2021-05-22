@@ -79,19 +79,6 @@ def cancel():
     sys.exit(0)
 cancel_button = Button(root, text="Cancel", width=10, command=cancel)
 cancel_button.pack(side=RIGHT, padx=20, pady=10)
-async def run(cmd):
-    proc = await asyncio.create_subprocess_shell(
-        cmd,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE)
-
-    stdout, stderr = await proc.communicate()
-
-    print(f'[{cmd!r} exited with {proc.returncode}]')
-    if stdout:
-        print(f'[stdout]\n{stdout.decode()}')
-    if stderr:
-        print(f'[stderr]\n{stderr.decode()}')
 import subprocess
 def install():
     print('installing')
@@ -110,8 +97,11 @@ def install():
     if platform.system() == 'Windows':
         subprocess.run([path.join(folder, 'node/node.exe'), 'app/scripts/install.js', username_text.get(), password_text.get()], cwd=folder)
         subprocess.run(path.join(folder, 'app/scripts/update_mc_server.bat'), cwd=folder)
+        subprocess.run(['start', 'start_webmc.bat'], cwd=folder, shell=True)
     else:
         subprocess.run([path.join(bundle_dir, 'install.sh'), username_text.get(), password_text.get()], cwd=folder, shell=True)
+        os.startfile(path.join(folder, 'start_webmc.sh'))
+    os._exit(0)
 def next():
     global current_page
     if current_page == len(pages) - 1:
@@ -121,7 +111,7 @@ def next():
         cancel_button.pack_forget()
         next_button.pack_forget()
 
-        label = Label(top_frame, text="Downloading WebMC")
+        label = Label(top_frame, text="Installing WebMC")
         label.grid(sticky=W, padx=30, pady=30)
         progressbar = Progressbar(top_frame)
         progressbar.grid(sticky=W, padx=30, ipadx=150)
