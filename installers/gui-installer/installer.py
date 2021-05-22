@@ -6,12 +6,15 @@ from os.path import expanduser
 import os
 import platform
 import sys
-from os import path
+from os import path, popen
 import asyncio
 import threading
+import platform
 
 bundle_dir = path.abspath(path.dirname(__file__))
 path_to_dist = path.join(bundle_dir, 'dist.zip')
+if(platform.system() == 'Linux'):
+    path_to_dist = path.join(bundle_dir, 'dist.tar.xz')
 
 root = Tk()
 root.title("WebMC Installer")
@@ -35,7 +38,7 @@ label.grid(sticky=W, padx=30)
 containing_folder_text = StringVar()
 containing_folder = Entry(pages[1], textvariable=containing_folder_text, width=30)
 containing_folder.grid(sticky=W, padx=30)
-containing_folder_text.set(expanduser("~\Documents"))
+containing_folder_text.set(path.abspath(expanduser("~\Documents")))
 
 label = Label(pages[1], text="Application folder:")
 label.grid(sticky=W, padx=30)
@@ -91,15 +94,24 @@ async def run(cmd):
         print(f'[stderr]\n{stderr.decode()}')
 import subprocess
 def install():
+    print('installing')
     folder = path.join(containing_folder_text.get(), folder_text.get())
-    import zipfile
-    with zipfile.ZipFile(path_to_dist, 'r') as zip_ref:
-        zip_ref.extractall(folder)
+    if platform.system() == 'Windows':
+        import zipfile
+        with zipfile.ZipFile(path_to_dist, 'r') as zip_ref:
+            zip_ref.extractall(folder)
+    else:
+        print(folder)
+        os.mkdir(folder)
+        subprocess.run(['tar', 'xf', path_to_dist, '-C', folder], cwd=folder)
     
-    subprocess.run(['mkdir', path.join(folder, 'mc')], shell=True)
-    subprocess.run(['mkdir', path.join(folder, 'mc/bedrock-server')], shell=True)
-    subprocess.run([path.join(folder, 'node/node.exe'), 'app/scripts/install.js', username_text.get(), password_text.get()], cwd=folder)
-    subprocess.run(path.join(folder, 'app/scripts/update_mc_server.bat'), cwd=folder)
+    os.mkdir(path.join(folder, 'mc'))
+    os.mkdir(path.join(folder, 'mc/bedrock-server'))
+    if platform.system() == 'Windows':
+        subprocess.run([path.join(folder, 'node/node.exe'), 'app/scripts/install.js', username_text.get(), password_text.get()], cwd=folder)
+        subprocess.run(path.join(folder, 'app/scripts/update_mc_server.bat'), cwd=folder)
+    else:
+        subprocess.run([path.join(bundle_dir, 'install.sh'), username_text.get(), password_text.get()], cwd=folder, shell=True)
 def next():
     global current_page
     if current_page == len(pages) - 1:
@@ -114,11 +126,7 @@ def next():
         progressbar = Progressbar(top_frame)
         progressbar.grid(sticky=W, padx=30, ipadx=150)
         progressbar.start()
-        if platform.system() == 'Windows':
-            threading.Thread(target=install).start()
-            # import subprocess
-            # subprocess.Popen(['python', path.join(bundle_dir, 'sub.py'), path.join(containing_folder_text.get(), folder_text.get()), username_text.get(), password_text.get()])
-            # subprocess.Popen(['powershell.exe', '-NoP', '-NonI', '-Command', f"Expand-Archive -Force \'{path_to_dist}\' \'{path.join(containing_folder_text.get(), folder_text.get())}/\'"])
+        threading.Thread(target=install).start()
     else:
         pages[current_page].pack_forget()
         current_page += 1
