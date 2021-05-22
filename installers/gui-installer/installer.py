@@ -38,7 +38,7 @@ label.grid(sticky=W, padx=30)
 containing_folder_text = StringVar()
 containing_folder = Entry(pages[1], textvariable=containing_folder_text, width=30)
 containing_folder.grid(sticky=W, padx=30)
-containing_folder_text.set(path.abspath(expanduser("~\Documents")))
+containing_folder_text.set(path.join(expanduser('~'), 'Documents'))
 
 label = Label(pages[1], text="Application folder:")
 label.grid(sticky=W, padx=30)
