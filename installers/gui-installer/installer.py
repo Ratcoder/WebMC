@@ -100,7 +100,6 @@ def install():
         subprocess.run(['start', 'start_webmc.bat'], cwd=folder, shell=True)
     else:
         subprocess.run([path.join(bundle_dir, 'install.sh'), username_text.get(), password_text.get()], cwd=folder, shell=True)
-        os.startfile(path.join(folder, 'start_webmc.sh'))
     os._exit(0)
 def next():
     global current_page
