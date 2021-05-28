@@ -73,6 +73,9 @@ confirm_password_text = StringVar()
 confirm_password = Entry(pages[2], textvariable=confirm_password_text, width=30, show="*")
 confirm_password.grid(sticky=W, padx=30, pady=3)
 
+password_error = Label(pages[2], text="")
+password_error.grid(sticky=W, padx=30)
+
 pages[0].pack(fill=BOTH, expand=True)
 
 def cancel():
@@ -104,18 +107,25 @@ def install():
 def next():
     global current_page
     if current_page == len(pages) - 1:
-        # install WebMC
-        pages[len(pages) - 1].pack_forget()
-        back_button.pack_forget()
-        cancel_button.pack_forget()
-        next_button.pack_forget()
+        if password_text.get() != confirm_password_text.get():
+            password_error['text'] = 'Password and confirm password do not match.'
+        elif not username_text.get() or not password_text.get():
+            password_error['text'] = 'You must fill out all fields.'
+        elif ' ' in username_text.get() or ' ' in password_text.get():
+            password_error['text'] = 'Fields may not contain spaces.'
+        else:
+            # install WebMC
+            pages[len(pages) - 1].pack_forget()
+            back_button.pack_forget()
+            cancel_button.pack_forget()
+            next_button.pack_forget()
 
-        label = Label(top_frame, text="Installing WebMC")
-        label.grid(sticky=W, padx=30, pady=30)
-        progressbar = Progressbar(top_frame)
-        progressbar.grid(sticky=W, padx=30, ipadx=150)
-        progressbar.start()
-        threading.Thread(target=install).start()
+            label = Label(top_frame, text="Installing WebMC")
+            label.grid(sticky=W, padx=30, pady=30)
+            progressbar = Progressbar(top_frame)
+            progressbar.grid(sticky=W, padx=30, ipadx=150)
+            progressbar.start()
+            threading.Thread(target=install).start()
     else:
         pages[current_page].pack_forget()
         current_page += 1
