@@ -102,7 +102,8 @@ def install():
         subprocess.run(path.join(folder, 'app/scripts/update_mc_server.bat'), cwd=folder)
         subprocess.run(['start', 'start_webmc.bat'], cwd=folder, shell=True)
     else:
-        subprocess.run([path.join(bundle_dir, 'install.sh'), username_text.get(), password_text.get()], cwd=folder, shell=True)
+        subprocess.run([path.join(folder, 'node/bin/node'), 'app/scripts/install.js', username_text.get(), password_text.get()], cwd=folder)
+        subprocess.run([path.join(bundle_dir, 'install.sh')], cwd=folder, shell=True)
     os._exit(0)
 def next():
     global current_page
