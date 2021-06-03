@@ -48,9 +48,14 @@ folder.grid(sticky=W, padx=30, pady=3)
 folder_text.set("WebMC")
 
 def change():
-    containing_folder_text.set(tkinter.filedialog.askdirectory(mustexist=True))
+    cf = tkinter.filedialog.askdirectory(mustexist=True)
+    if cf:
+        containing_folder_text.set(cf)
 change_button = Button(pages[1], text="Change", width=10, command=change)
 change_button.grid(sticky=W, padx=30)
+
+folder_error = Label(pages[1], text="")
+folder_error.grid(sticky=W, padx=30)
 # page 2
 label = Label(pages[2], text="Choose a username and password for WebMC.\nYou will use them to manage your minecraft server.", justify=LEFT)
 label.grid(sticky=W, padx=30, pady=30)
@@ -92,7 +97,8 @@ def install():
             zip_ref.extractall(folder)
     else:
         print(folder)
-        os.mkdir(folder)
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
         subprocess.run(['tar', 'xf', path_to_dist, '-C', folder], cwd=folder)
     
     os.mkdir(path.join(folder, 'mc'))
@@ -107,6 +113,13 @@ def install():
     os._exit(0)
 def next():
     global current_page
+    if current_page == 1:
+        if not os.path.isdir(containing_folder_text.get()):
+            folder_error['text'] = 'Containing folder does not exist.'
+            return
+        elif len(os.listdir(path.join(containing_folder_text.get(), folder_text.get()))) > 0:
+            folder_error['text'] = 'Folder is not empty.'
+            return
     if current_page == len(pages) - 1:
         if password_text.get() != confirm_password_text.get():
             password_error['text'] = 'Password and confirm password do not match.'
