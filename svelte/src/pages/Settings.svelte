@@ -21,10 +21,12 @@
     let savedSettings = {};
     let unsavedChanged = false;
     $:{
+        unsavedChanged = false;
         for (const key in settings) {
             if (Object.hasOwnProperty.call(settings, key)) {
                 if(settings[key] !== savedSettings[key]){
                     unsavedChanged = true;
+                    break;
                 }
             }
         }
@@ -39,7 +41,7 @@
             });
             for (const key in defaultSettings) {
                 if (Object.hasOwnProperty.call(defaultSettings, key)) {
-                    if(!settings[key]){
+                    if(settings[key] == null){
                         settings[key] = defaultSettings[key];
                         savedSettings[key] = defaultSettings[key];
                     }
