@@ -27,7 +27,7 @@ function updateDisplay(status) {
     );
 }
 
-if (process.argv[2] != 'dev') {
+if (!process.argv.find('--dev')) {
     updateDisplay('offline');
     const Events = require('./services/events')
     Events.on('minecraft_status', status => {
