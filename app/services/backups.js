@@ -50,18 +50,7 @@ function startRevert(path){
 }
 async function revert(path){
     await rmdir('mc/bedrock-server/worlds/bedrock_level', {recursive: true});
-    await mkdir('mc/bedrock-server/worlds/bedrock_level');
-    await mkdir('mc/bedrock-server/worlds/bedrock_level/db');
-    const topFiles = await readdir(`mc/backups/${path}`);
-    const dbFiles = await readdir(`mc/backups/${path}/db`);
-    for (let i = 0; i < topFiles.length; i++) {
-        if(!fs.lstatSync(`mc/backups/${path}/${topFiles[i]}`).isDirectory()){
-            await copyFile(`mc/backups/${path}/${topFiles[i]}`, `mc/bedrock-server/worlds/bedrock_level/${topFiles[i]}`);
-        }
-    }
-    for (let i = 0; i < dbFiles.length; i++) {
-        await copyFile(`mc/backups/${path}/db/${dbFiles[i]}`, `mc/bedrock-server/worlds/bedrock_level/db/${dbFiles[i]}`);
-    }
+    await copyFolder(`mc/backups/${path}`, 'mc/bedrock-server/worlds/bedrock_level');
 }
 
 const BackupsService = {
