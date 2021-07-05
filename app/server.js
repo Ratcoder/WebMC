@@ -18,7 +18,7 @@ if(!fs.existsSync('db/cert/private')){
 
 const failedAttempts = new Map();
 
-const public = (process.argv[2] == 'dev') ? 'svelte/public' : 'public';
+const public = process.argv.find(el => el == '--dev') ? 'svelte/public' : 'public';
 
 let server;
 function startAdminServer(){
@@ -42,7 +42,7 @@ function startAdminServer(){
         });
         responce.stream.on('end', () => {
             if(path.endsWith('/')){
-                responce.stream.respondWithFile(`${public}/index.html`);
+                responce.stream.respondWithFile(`${public}/index.html`, {}, {onError: (err)=>{console.log(err)}});
                 return;
             }
             console.log(`${request.method} ${path}`);
