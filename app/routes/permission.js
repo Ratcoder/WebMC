@@ -4,9 +4,9 @@ module.exports = {
     path: '/api/player-managment/permission',
     method: 'POST',
     accessLevel: 1,
-    handler: (request, responce) => {
+    handler: (request, response) => {
         const player = JSON.parse(request.body);
         Players.changePermission(player.name, player.permission);
-        responce.status(200).text('Permissions changed');
+        response.status(200).text('Permissions changed');
     }
 }

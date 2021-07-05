@@ -19,13 +19,13 @@ module.exports = {
     path: '/api/player-managment/players',
     method: 'GET',
     accessLevel: 1,
-    handler: async (request, responce) => {
-        connections.push(responce.status(200).eventstream());
-        responce._responce.stream.on('end', () => {
-            connections.splice(connections.indexOf(responce));
+    handler: async (request, response) => {
+        connections.push(response.status(200).eventstream());
+        response._response.stream.on('end', () => {
+            connections.splice(connections.indexOf(response));
         });
         (await Database.players.getAll()).forEach((element) => {
-            responce.write(`data: ${JSON.stringify(element)}\n\n`);
+            response.write(`data: ${JSON.stringify(element)}\n\n`);
         });
     }
 }

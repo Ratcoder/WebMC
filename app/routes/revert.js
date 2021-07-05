@@ -3,8 +3,8 @@ const Backups = require('../services/backups');
 module.exports = {
     path: '/api/revert',
     method: 'POST',
-    handler: (request, responce) => {
+    handler: (request, response) => {
         Backups.startRevert(request.body);
-        responce.status(200).text('Revert Started!');
+        response.status(200).text('Revert Started!');
     }
 }

@@ -15,11 +15,11 @@ module.exports = {
     path: '/api/terminal/logs',
     method: 'GET',
     accessLevel: 1,
-    handler: async (request, responce) => {
-        const newConnection = responce.status(200).eventstream();
+    handler: async (request, response) => {
+        const newConnection = response.status(200).eventstream();
         newConnection.write(logStore);
         connections.push(newConnection);
-        responce._responce.stream.on('end', () => {
+        response._response.stream.on('end', () => {
             connections.splice(connections.indexOf(newConnection));
         });
     }

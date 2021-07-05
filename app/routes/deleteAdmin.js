@@ -4,8 +4,8 @@ module.exports = {
     path: '/api/deleteAdmin',
     method: 'POST',
     accessLevel: 3,
-    handler: async (request, responce) => {
+    handler: async (request, response) => {
         await Database.admins.delete(request.body);
-        responce.status(200).text('Admin removed.');
+        response.status(200).text('Admin removed.');
     }
 }

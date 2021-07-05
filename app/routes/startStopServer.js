@@ -3,7 +3,7 @@ const Minecraft = require('../services/minecraft');
 module.exports = {
     path: '/api/status',
     method: 'POST',
-    handler: async (request, responce) => {
+    handler: async (request, response) => {
         const body = JSON.parse(request.body);
         if(body.type == 'start'){
             Minecraft.start();
@@ -25,6 +25,6 @@ module.exports = {
                 Minecraft.start();
             }
         }
-        responce.status(200).text('');
+        response.status(200).text('');
     }
 }

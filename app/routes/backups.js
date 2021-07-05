@@ -4,7 +4,7 @@ module.exports = {
     path: '/api/backups',
     method: 'GET',
     accessLevel: 1,
-    handler: (request, responce) => {
-        responce.status(200).json(Backups.backups);
+    handler: (request, response) => {
+        response.status(200).json(Backups.backups);
     }
 }

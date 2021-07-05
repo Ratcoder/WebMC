@@ -32,30 +32,30 @@ function startAdminServer(){
     });
     // log any errors
     server.on('error', (err) => console.error(err));
-    // this is for responces
-    server.on('request', (request, responce) => {
+    // this is for responses
+    server.on('request', (request, response) => {
         const path = request.headers[':path'];
         // make a buffer to hold the body of the request
         let buffer = '';
-        responce.stream.on('data', (data) => {
+        response.stream.on('data', (data) => {
             buffer += '' + data;
         });
-        responce.stream.on('end', () => {
+        response.stream.on('end', () => {
             if(path.endsWith('/')){
-                responce.stream.respondWithFile(`${public}/index.html`, {}, {onError: (err)=>{console.log(err)}});
+                response.stream.respondWithFile(`${public}/index.html`, {}, {onError: (err)=>{console.log(err)}});
                 return;
             }
             console.log(`${request.method} ${path}`);
             if(fs.existsSync(`${public}/${path}`)){
                 if(path.endsWith('.svg')){
-                    responce.stream.respondWithFile(`${public}/${path}`, {
+                    response.stream.respondWithFile(`${public}/${path}`, {
                         ':status': 200,
                         'Content-Type': 'image/svg+xml; charset=utf-8'
                     });
                     return;
                 }
                 else{
-                    responce.stream.respondWithFile(`${public}/${path}`);
+                    response.stream.respondWithFile(`${public}/${path}`);
                     return;
                 }
             }
@@ -69,29 +69,29 @@ function startAdminServer(){
                         failedAttempts.delete(attemptKey);
                     }
                     else{
-                        responce.stream.respond({
+                        response.stream.respond({
                             'content-type': 'text/plain; charset=utf-8',
                             ':status': 401
                         });
-                        responce.stream.end(`banned:${attempt.ban - Date.now()}`);
+                        response.stream.end(`banned:${attempt.ban - Date.now()}`);
                         return;
                     }
                 }
                 authenticate(buffer, key)
                     .then(token => {
-                        responce.stream.respond({
+                        response.stream.respond({
                             'content-type': 'text/plain; charset=utf-8',
                             'Set-Cookie': [`jwt=${token}; Secure; HttpOnly`],
                             ':status': 200
                         });
-                        responce.stream.end('Logged in.');
+                        response.stream.end('Logged in.');
                     })
                     .catch(err => {
-                        responce.stream.respond({
+                        response.stream.respond({
                             'content-type': 'text/plain; charset=utf-8',
                             ':status': 401
                         });
-                        responce.stream.end('Incorrect name or password.');
+                        response.stream.end('Incorrect name or password.');
                         const attempt = failedAttempts.get(attemptKey) || { fails: 0 };
                         attempt.fails ++;
                         if(attempt.fails % 3 == 0){
@@ -114,15 +114,15 @@ function startAdminServer(){
                                         body: buffer,
                                         token: result.token
                                     },
-                                    new Responce(responce)
+                                    new Response(response)
                                 );
                             }
                             else{
-                                responce.stream.respond({
+                                response.stream.respond({
                                     'content-type': 'text/plain; charset=utf-8',
                                     ':status': 401
                                 });
-                                responce.stream.end('Unauthorized');
+                                response.stream.end('Unauthorized');
                             }
                         });
                         found = true;
@@ -134,7 +134,7 @@ function startAdminServer(){
                                 headers: request.headers,
                                 body: buffer
                             },
-                            new Responce(responce)
+                            new Response(response)
                         );
                         found = true;
                     }
@@ -142,11 +142,11 @@ function startAdminServer(){
                 }
             }
             if(!found){
-                responce.stream.respond({
+                response.stream.respond({
                     'content-type': 'text/plain; charset=utf-8',
                     ':status': 404
                 });
-                responce.stream.end('Not Found');
+                response.stream.end('Not Found');
             }
         });
 
@@ -154,10 +154,10 @@ function startAdminServer(){
         //     console.log('No path in http request!');
         // }
         // else if(path.startsWith('/api')){
-        //     api(request, responce, {mc:{plugins, stop, start, server: mcServer}});
+        //     api(request, response, {mc:{plugins, stop, start, server: mcServer}});
         // }
         // else{
-        //     static(request, responce);
+        //     static(request, response);
         // }
     });
     
@@ -169,11 +169,11 @@ function startAdminServer(){
 startAdminServer();
 SSL.watch(server, startAdminServer);
 
-class Responce{
+class Response{
     _headers = {};
 
-    constructor(responce){
-        this._responce = responce;
+    constructor(response){
+        this._response = response;
     }
     status(status){
         this.setHeader(':status', status);
@@ -181,22 +181,22 @@ class Responce{
     }
     json(json){
         this.setHeader('content-type', 'application/json; charset=utf-8');
-        this._responce.stream.respond(this._headers);
-        this._responce.stream.end(JSON.stringify(json));
+        this._response.stream.respond(this._headers);
+        this._response.stream.end(JSON.stringify(json));
     }
     text(text){
         this.setHeader('content-type', 'text/plain; charset=utf-8');
-        this._responce.stream.respond(this._headers);
-        this._responce.stream.end(text);
+        this._response.stream.respond(this._headers);
+        this._response.stream.end(text);
     }
     eventstream(){
         this.setHeader('content-type', 'text/event-stream');
-        this.setHeader('cache-controll', 'no-cache');
-        this._responce.stream.respond(this._headers);
+        this.setHeader('cache-control', 'no-cache');
+        this._response.stream.respond(this._headers);
         return this;
     }
     write(data){
-        this._responce.stream.write(data);
+        this._response.stream.write(data);
     }
     setHeader(header, value){
         this._headers[header] = value;

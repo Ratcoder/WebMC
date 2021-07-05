@@ -22,19 +22,19 @@ module.exports = {
     path: '/api/graphs',
     method: 'GET',
     accessLevel: 1,
-    handler: async (request, responce) => {
-        connections.push(responce.status(200).eventstream());
+    handler: async (request, response) => {
+        connections.push(response.status(200).eventstream());
         Graphs.cpu.forEach(data => {
-            responce.write(`data: cpu ${JSON.stringify(data)}\n\n`);
+            response.write(`data: cpu ${JSON.stringify(data)}\n\n`);
         });
         Graphs.ram.forEach(data => {
-            responce.write(`data: ram ${JSON.stringify(data)}\n\n`);
+            response.write(`data: ram ${JSON.stringify(data)}\n\n`);
         });
         Graphs.players.forEach(data => {
-            responce.write(`data: players ${JSON.stringify(data)}\n\n`);
+            response.write(`data: players ${JSON.stringify(data)}\n\n`);
         });
-        responce._responce.stream.on('end', () => {
-            connections.splice(connections.indexOf(responce));
+        response._response.stream.on('end', () => {
+            connections.splice(connections.indexOf(response));
         });
     }
 }

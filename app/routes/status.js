@@ -38,13 +38,13 @@ module.exports = {
     path: '/api/status',
     method: 'GET',
     accessLevel: 1,
-    handler: async (request, responce) => {
-        connections.push(responce.status(200).eventstream());
-        responce._responce.stream.on('end', () => {
-            connections.splice(connections.indexOf(responce));
+    handler: async (request, response) => {
+        connections.push(response.status(200).eventstream());
+        response._response.stream.on('end', () => {
+            connections.splice(connections.indexOf(response));
         });
-        if(currentRestart) responce.write(`data: ${JSON.stringify({type: 'restart', time: currentRestart.time, reason: currentRestart.reason})}\n\n`)
-        if(currentStop) responce.write(`data: ${JSON.stringify({type: 'stop', time: currentStop.time})}\n\n`)
-        responce.write(`data: ${JSON.stringify({type: 'status', status})}\n\n`);
+        if(currentRestart) response.write(`data: ${JSON.stringify({type: 'restart', time: currentRestart.time, reason: currentRestart.reason})}\n\n`)
+        if(currentStop) response.write(`data: ${JSON.stringify({type: 'stop', time: currentStop.time})}\n\n`)
+        response.write(`data: ${JSON.stringify({type: 'status', status})}\n\n`);
     }
 }

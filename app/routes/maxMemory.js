@@ -5,7 +5,7 @@ module.exports = {
     path: '/api/max-memory',
     method: 'GET',
     accessLevel: 1,
-    handler: (request, responce) => {
-        responce.status(200).text(max);
+    handler: (request, response) => {
+        response.status(200).text(max);
     }
 }

@@ -3,8 +3,8 @@ const Backups = require('../services/backups');
 module.exports = {
     path: '/api/backup',
     method: 'POST',
-    handler: (request, responce) => {
+    handler: (request, response) => {
         Backups.startBackup();
-        responce.status(200).text('Backup Started!');
+        response.status(200).text('Backup Started!');
     }
 }

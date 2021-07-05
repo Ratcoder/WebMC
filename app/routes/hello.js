@@ -2,7 +2,7 @@ const Minecraft = require('../services/minecraft');
 
 module.exports = {
     path: '/',
-    handler: (request, responce) => {
-        responce.status(200).text(Minecraft.process.pid.toString());
+    handler: (request, response) => {
+        response.status(200).text(Minecraft.process.pid.toString());
     }
 }

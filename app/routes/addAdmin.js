@@ -6,12 +6,12 @@ module.exports = {
     path: '/api/admins',
     method: 'POST',
     accessLevel: 3,
-    handler: async (request, responce) => {
+    handler: async (request, response) => {
         const json = await JSON.parse(request.body);
         bcrypt.hash(json.password, saltRounds, async (err, hash) => {
             json.password = hash;
             await Database.admins.insert(json);
-            responce.status(200).text('Admin added.')
+            response.status(200).text('Admin added.')
         });
     }
 }
