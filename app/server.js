@@ -54,6 +54,13 @@ function startAdminServer(){
                     });
                     return;
                 }
+                else if (path.endsWith('.css')) {
+                    response.stream.respondWithFile(`${public}/${path}`, {
+                        ':status': 200,
+                        'Content-Type': 'text/css; charset=utf-8'
+                    });
+                    return;
+                }
                 else{
                     response.stream.respondWithFile(`${public}/${path}`);
                     return;
