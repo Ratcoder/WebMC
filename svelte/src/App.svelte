@@ -70,16 +70,18 @@
 				}
 			});
 		});
+	
+	const underline = "border-bottom: 1.9px solid rgba(255, 255, 255, 0.6)";
 </script>
 
 {#if page != "/login"}
 	<div class="topbar" style="height: {60 + isRestarting * 30}px">
 		<nav>
 			<img src="/icons/webmclogo2.svg" alt="Web MC logo" width=50 height=50>
-			<IconButton style="margin: 14px" src="/icons/activity.svg" on:click={()=>{changePage("/")}}></IconButton>
-			<IconButton style="margin: 14px" src="/icons/users.svg" on:click={()=>{changePage("/players/")}}></IconButton>
-			<IconButton style="margin: 14px" src="/icons/settings.svg" on:click={()=>{changePage("/settings/")}}></IconButton>
-			<IconButton style="margin: 14px" src="/icons/terminal.svg" on:click={()=>{changePage("/terminal/")}}></IconButton>
+			<IconButton style="margin: 14px;{page == "/" ? underline : ""}" src="/icons/activity.svg" on:click={()=>{changePage("/")}}></IconButton>
+			<IconButton style="margin: 14px;{page == "/players/" ? underline : ""}" src="/icons/users.svg" on:click={()=>{changePage("/players/")}}></IconButton>
+			<IconButton style="margin: 14px;{page == "/settings/" ? underline : ""}" src="/icons/settings.svg" on:click={()=>{changePage("/settings/")}}></IconButton>
+			<IconButton style="margin: 14px;{page == "/terminal/" ? underline : ""}" src="/icons/terminal.svg" on:click={()=>{changePage("/terminal/")}}></IconButton>
 		</nav>
 		<div class="status">
 			{#if isRestarting}

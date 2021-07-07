@@ -23,7 +23,7 @@
 	button:hover:not(:disabled){
 		transform: scale(1.2);
 	}
-	button:focus:not(:disabled), button:active:not(:disabled){
+	button:active:not(:disabled){
 		border: none;
 		outline: none;
 		transform: scale(0.9);
