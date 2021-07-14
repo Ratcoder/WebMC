@@ -1,5 +1,5 @@
 <script>
-    import { fly, fade } from 'svelte/transition';
+    import { fly } from 'svelte/transition';
     import Button from '../Button.svelte';
     import TextInput from '../TextInput.svelte';
     import EnumInput from '../EnumInput.svelte';
@@ -163,137 +163,125 @@
         <div class="settings">
             <h2>{tabs[currentTab]}</h2>
             {#if currentTab == 0}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    <TextInput {disabled} bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
-                    <EnumInput {disabled} bind:value={settings.levelType} options={['FLAT', 'LEGACY', 'DEFAULT']} optionsDisplay={['Flat', 'Old', 'Infinite']} name="World Type"></EnumInput>
-                    <TextInput {disabled} bind:value={settings.levelSeed} name="Seed">Seed</TextInput>
-                </div>
+                <TextInput {disabled} bind:value={settings.serverName} name="Server Name">Server Name</TextInput>
+                <EnumInput {disabled} bind:value={settings.levelType} options={['FLAT', 'LEGACY', 'DEFAULT']} optionsDisplay={['Flat', 'Old', 'Infinite']} name="World Type"></EnumInput>
+                <TextInput {disabled} bind:value={settings.levelSeed} name="Seed">Seed</TextInput>
             {:else if currentTab == 1}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    <EnumInput {disabled} bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
-                    <EnumInput {disabled} bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
-                    <EnumInput {disabled} bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
-                    <IntInput {disabled} bind:value={settings.tickDistance} min=4 max=12 name="Simulation Distance"></IntInput>
-                    <BoolInput {disabled} bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.tntExplodes} name="TNT Explodes"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.doMobLoot} name="Mob Loot"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.naturalRegeneration} name="Natural Regeneration"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.doTileDrops} name="Tile Drops"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.doImmediateRespawn} name="Immediate Respawn"></BoolInput>
-                    <IntInput {disabled} bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
-                    <h3>Cheats</h3>
-                    <BoolInput {disabled} bind:value={settings.cheats} name="Cheats"></BoolInput>
-                    {#if settings.cheats}
-                        <BoolInput {disabled} bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
-                        <IntInput {disabled} bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
-                        <BoolInput {disabled} bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
-                        <BoolInput {disabled} bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
-                        <IntInput {disabled} bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
-                        <BoolInput {disabled} bind:value={settings.showTags} name="Show Tags"></BoolInput>
-                    {/if}
-                </div>
+                <EnumInput {disabled} bind:value={settings.defaultGamemode} options={['survival', 'creative', 'adventure']} name="Default Gamemode"></EnumInput>
+                <EnumInput {disabled} bind:value={settings.difficulty} options={['peaceful', 'easy', 'normal', 'hard']} name="Difficulty"></EnumInput>
+                <EnumInput {disabled} bind:value={settings.defaultPlayerPermissionLevel} options={['visitor', 'member', 'operator']} name="Default Player Permission Level"></EnumInput>
+                <IntInput {disabled} bind:value={settings.tickDistance} min=4 max=12 name="Simulation Distance"></IntInput>
+                <BoolInput {disabled} bind:value={settings.pvp} name="Friendly Fire"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.showCoordinates} name="Show Coordinates"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doFireTick} name="Fire Spreads"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.tntExplodes} name="TNT Explodes"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doMobLoot} name="Mob Loot"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.naturalRegeneration} name="Natural Regeneration"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doTileDrops} name="Tile Drops"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.doImmediateRespawn} name="Immediate Respawn"></BoolInput>
+                <IntInput {disabled} bind:value={settings.spawnRadius} name="Respawn Radius"></IntInput>
+                <h3>Cheats</h3>
+                <BoolInput {disabled} bind:value={settings.cheats} name="Cheats"></BoolInput>
+                {#if settings.cheats}
+                    <BoolInput {disabled} bind:value={settings.doDaylightCycle} name="Do Daylight Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doWeatherCycle} name="Do Weather Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.keepInventory} name="Keep Inventory"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doMobSpawning} name="Mob Spawning"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.mobGriefing} name="Mob Griefing"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.doEntityDrops} name="Do Entity Drops"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.weatherCycle} name="Weather Cycle"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.commandBlocksEnabled} name="Command Blocks Enabled"></BoolInput>
+                    <IntInput {disabled} bind:value={settings.randomTickSpeed} name="Random Tick Speed"></IntInput>
+                    <BoolInput {disabled} bind:value={settings.doInsomnia} name="Insomnia"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.drowningDamage} name="Drowning Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.fallDamage} name="Fall Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.fireDamage} name="Fire Damage"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.showDeathMessages} name="Show Death Messages"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.sendCommandFeedback} name="Send Command Feedback"></BoolInput>
+                    <BoolInput {disabled} bind:value={settings.commandBlockOutput} name="Command Block Output"></BoolInput>
+                    <IntInput {disabled} bind:value={settings.maxCommandChainLength} name="Max Command Chain Length"></IntInput>
+                    <BoolInput {disabled} bind:value={settings.showTags} name="Show Tags"></BoolInput>
+                {/if}
             {:else if currentTab == 2}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    <Button {disabled} on:click={backup}>Take Backup</Button>
-                    <h3>Roll Back</h3>
-                    {#each backups.sort((a, b) => b - a) as backup}
-                        <PopupButton {disabled} on:click={() => {revert(backup)}} popupText="Are you sure you want to restore to this backup? The current world will be overwritten.">{new Date(parseInt(backup)).toLocaleString()}</PopupButton>
-                    {/each}
-                </div>
+                <Button {disabled} on:click={backup}>Take Backup</Button>
+                <h3>Roll Back</h3>
+                {#each backups.sort((a, b) => b - a) as backup}
+                    <PopupButton {disabled} on:click={() => {revert(backup)}} popupText="Are you sure you want to restore to this backup? The current world will be overwritten.">{new Date(parseInt(backup)).toLocaleString()}</PopupButton>
+                {/each}
             {:else if currentTab == 3}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    <IntInput {disabled} bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
-                    <BoolInput {disabled} bind:value={settings.onlineMode} name="Online Mode"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.whitelist} name="White List"></BoolInput>
-                    <IntInput {disabled} bind:value={settings.playerIdleTimeout} name="Player Idle Timeout" min=0></IntInput>
-                    <h3>Server Authoritive Movement</h3>
-                    <BoolInput {disabled} bind:value={settings.serverAuthoritativeMovement} name="Server Authoritive Movement"></BoolInput>
-                    <IntInput {disabled} bind:value={settings.playerMovementScoreTheshold} name="Player Movement Score Threshold" min=0></IntInput>
-                    <IntInput {disabled} bind:value={settings.playerMovementDistanceTheshold} name="Player Movement Distance Threshold" min=0></IntInput>
-                    <IntInput {disabled} bind:value={settings.playerMovementDurationTheshold} name="Player Movement Duration Threshold (in ms)" min=0></IntInput>
-                    <BoolInput {disabled} bind:value={settings.correctPlayerMovement} name="Correct Player Movement"></BoolInput>
-                </div>
+                <IntInput {disabled} bind:value={settings.maxPlayers} name="Max Players" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.onlineMode} name="Online Mode"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.whitelist} name="White List"></BoolInput>
+                <IntInput {disabled} bind:value={settings.playerIdleTimeout} name="Player Idle Timeout" min=0></IntInput>
+                <h3>Server Authoritive Movement</h3>
+                <BoolInput {disabled} bind:value={settings.serverAuthoritativeMovement} name="Server Authoritive Movement"></BoolInput>
+                <IntInput {disabled} bind:value={settings.playerMovementScoreTheshold} name="Player Movement Score Threshold" min=0></IntInput>
+                <IntInput {disabled} bind:value={settings.playerMovementDistanceTheshold} name="Player Movement Distance Threshold" min=0></IntInput>
+                <IntInput {disabled} bind:value={settings.playerMovementDurationTheshold} name="Player Movement Duration Threshold (in ms)" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.correctPlayerMovement} name="Correct Player Movement"></BoolInput>
             {:else if currentTab == 4}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    <IntInput {disabled} bind:value={settings.serverPort} name="Port" min=1 max=65535></IntInput>
-                    <IntInput {disabled} bind:value={settings.serverPortv6} name="IPv6 Port" min=1 max=65535></IntInput>
-                    <IntInput {disabled} bind:value={settings.compressionThreshold} name="Compression Threshold" min=0 max=65535></IntInput>
-                    <IntInput {disabled} bind:value={settings.maxViewDistance} name="Max View Distance" min=5></IntInput>
-                    <IntInput {disabled} bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
-                    <BoolInput {disabled} bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
-                    <BoolInput {disabled} bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
-                </div>
+                <IntInput {disabled} bind:value={settings.serverPort} name="Port" min=1 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.serverPortv6} name="IPv6 Port" min=1 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.compressionThreshold} name="Compression Threshold" min=0 max=65535></IntInput>
+                <IntInput {disabled} bind:value={settings.maxViewDistance} name="Max View Distance" min=5></IntInput>
+                <IntInput {disabled} bind:value={settings.maxThreads} name="Max Threads" min=0></IntInput>
+                <BoolInput {disabled} bind:value={settings.texturepackRequired} name="Texturepack Required"></BoolInput>
+                <BoolInput {disabled} bind:value={settings.contentLogFileEnabled} name="Content Log File Enabled"></BoolInput>
             {:else if currentTab == 5}
-                <div class="tab" in:fly="{{ x: 100, duration: 500 }}" out:fly="{{ x: -100, duration: 500 }}">
-                    {#if isEditingAdmin}
-                        <div>
-                            <p class='admin-name'>{editingAdmin.name}</p>
-                            {#if permissionLevel == 3}
-                                <EnumInput bind:value={editingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
-                            {/if}
-                            {#if editingAdmin.settingPassword}
-                                <TextInput name="password" bind:value={editingAdmin.password} password>Set Password</TextInput>
-                                <TextInput name="confirm password" bind:value={editingAdmin.confirmPassword} password>Confirm Password</TextInput>
-                            {:else}
-                                <Button on:click={() => {editingAdmin.settingPassword = true}}>Set New Password</Button>
-                            {/if}
-                            {#if permissionLevel == 3}
-                                <PopupButton on:click={() => {deleteAdmin(editingAdmin.name)}} popupText="Are you sure you would like to delete this admin?">Delete Admin</PopupButton>
-                            {/if}
-                            <div>
-                                <button on:click={sendEditAdmin} style="float: left; width:50%;">Confirm</button>
-                                <button on:click={()=>{isEditingAdmin = false}} style="float: right; width:50%;">Cancel</button>
-                            </div>
-                        </div>
-                    {:else if isAddingAdmin}
-                        <TextInput name="name" bind:value={addingAdmin.name}>Name</TextInput>
-                        <EnumInput bind:value={addingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
-                        <TextInput name="password" bind:value={addingAdmin.password} password>Password</TextInput>
-                        <TextInput name="confirm password" bind:value={addingAdmin.confirmPassword} password>Confirm Password</TextInput>
-                        <div>
-                            <button on:click={addAdmin} style="float: left; width:50%;">Confirm</button>
-                            <button on:click={()=>{isAddingAdmin = false}} style="float: right; width:50%;">Cancel</button>
-                        </div>
-                    {:else}
-                        {#each admins as admin, i}
-                            <div class='admin'>
-                                <div style="float: left; margin-right: 20px">
-                                    <p class='admin-name'>{admin.name}</p>
-                                    <p class='admin-level'>
-                                        {#if admin.level == 1}
-                                            Player Manager
-                                        {:else if admin.level == 2}
-                                            Server Manager
-                                        {:else if admin.level == 3}
-                                            Owner
-                                        {/if}
-                                    </p>
-                                </div>
-                                {#if permissionLevel === 3 || admin.isYou}
-                                    <IconButton style="float: right; margin-top: 10px;" src="/icons/edit.svg" on:click={() => {editAdmin(i)}}></IconButton>
-                                {/if}
-                            </div>
-                        {/each}
-                        <br>
+                {#if isEditingAdmin}
+                    <div>
+                        <p class='admin-name'>{editingAdmin.name}</p>
                         {#if permissionLevel == 3}
-                            <Button on:click={() => isAddingAdmin = true}>Add New Admin</Button>
+                            <EnumInput bind:value={editingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
                         {/if}
+                        {#if editingAdmin.settingPassword}
+                            <TextInput name="password" bind:value={editingAdmin.password} password>Set Password</TextInput>
+                            <TextInput name="confirm password" bind:value={editingAdmin.confirmPassword} password>Confirm Password</TextInput>
+                        {:else}
+                            <Button on:click={() => {editingAdmin.settingPassword = true}}>Set New Password</Button>
+                        {/if}
+                        {#if permissionLevel == 3}
+                            <PopupButton on:click={() => {deleteAdmin(editingAdmin.name)}} popupText="Are you sure you would like to delete this admin?">Delete Admin</PopupButton>
+                        {/if}
+                        <div>
+                            <button on:click={sendEditAdmin} style="float: left; width:50%;">Confirm</button>
+                            <button on:click={()=>{isEditingAdmin = false}} style="float: right; width:50%;">Cancel</button>
+                        </div>
+                    </div>
+                {:else if isAddingAdmin}
+                    <TextInput name="name" bind:value={addingAdmin.name}>Name</TextInput>
+                    <EnumInput bind:value={addingAdmin.level} name="Role" options={[1, 2, 3]} optionsDisplay={['Player Manager', 'Server Manager', 'Owner']}></EnumInput>
+                    <TextInput name="password" bind:value={addingAdmin.password} password>Password</TextInput>
+                    <TextInput name="confirm password" bind:value={addingAdmin.confirmPassword} password>Confirm Password</TextInput>
+                    <div>
+                        <button on:click={addAdmin} style="float: left; width:50%;">Confirm</button>
+                        <button on:click={()=>{isAddingAdmin = false}} style="float: right; width:50%;">Cancel</button>
+                    </div>
+                {:else}
+                    {#each admins as admin, i}
+                        <div class='admin'>
+                            <div style="float: left; margin-right: 20px">
+                                <p class='admin-name'>{admin.name}</p>
+                                <p class='admin-level'>
+                                    {#if admin.level == 1}
+                                        Player Manager
+                                    {:else if admin.level == 2}
+                                        Server Manager
+                                    {:else if admin.level == 3}
+                                        Owner
+                                    {/if}
+                                </p>
+                            </div>
+                            {#if permissionLevel === 3 || admin.isYou}
+                                <IconButton style="float: right; margin-top: 10px;" src="/icons/edit.svg" on:click={() => {editAdmin(i)}}></IconButton>
+                            {/if}
+                        </div>
+                    {/each}
+                    <br>
+                    {#if permissionLevel == 3}
+                        <Button on:click={() => isAddingAdmin = true}>Add New Admin</Button>
                     {/if}
-                </div>
+                {/if}
             {/if}
             {#if unsavedChanged && !disabled}
                 <Button on:click={saveSettings}>Save Settings</Button>
@@ -386,9 +374,5 @@
     p{
         color: rgba(255, 255, 255, 0.6);
         margin: 0;
-    }
-    .tab{
-        position: absolute;
-        width: 200px;
     }
 </style>
