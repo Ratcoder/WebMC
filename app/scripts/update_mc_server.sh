@@ -1,4 +1,4 @@
-curl --output ./mc/bedrock-server.zip $(./app/scripts/get_mc_dl_url.sh)
+curl --output ./mc/bedrock-server.zip "https://minecraft.azureedge.net/bin-linux/bedrock-server-$(curl --silent https://webmc.ratcoder.com/minecraft_version.txt).zip"
 rm -r mc/bedrock-server/
 mkdir mc/bedrock-server/
 unzip -o ./mc/bedrock-server.zip -d ./mc/bedrock-server/

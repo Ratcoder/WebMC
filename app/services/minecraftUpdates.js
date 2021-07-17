@@ -23,10 +23,9 @@ Events.on('minecraft_logs_version', (version) => {
 node_schedule.scheduleJob('0 0 * * *', checkForUpdate);
 
 async function getLatestVersion(){
-    const res = await fetch('https://www.minecraft.net/en-us/download/server/bedrock');
+    const res = await fetch('https://webmc.ratcoder.com/minecraft_version.txt');
     const text = await res.text();
-    const url = text.split('https://minecraft.azureedge.net/bin-linux/bedrock-server-')[1].split('.zip')[0];
-    return url;
+    return text;
 }
 
 async function update(){
