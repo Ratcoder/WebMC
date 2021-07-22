@@ -2,11 +2,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Database = require('./services/database');
 
-const saltRounds = 10;
-bcrypt.hash('password', saltRounds, function(err, hash) {
-    Database.admins.insert({name: 'Ratcoder', password: hash, level: 3});
-});
-
 /**
  * Tries to log a user in.
  * @param {string} body - The body of the http request that was sent.
