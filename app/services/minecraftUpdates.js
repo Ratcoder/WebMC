@@ -23,7 +23,7 @@ Events.on('minecraft_logs_version', (version) => {
 node_schedule.scheduleJob('0 0 * * *', checkForUpdate);
 
 async function getLatestVersion(){
-    const res = await fetch('https://webmc.ratcoder.com/minecraft_version.txt');
+    const res = await fetch('https://webmc.ratcoder.com/nim/minecraft_version.txt');
     const text = await res.text();
     return text;
 }
