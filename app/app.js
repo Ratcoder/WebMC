@@ -27,6 +27,10 @@ function updateDisplay(status) {
     );
 }
 
+if (fs.existsSync('./.uninstalled')) {
+    require('./setup');
+    return;
+}
 if (!process.argv.find(el => el == '--dev')) {
     updateDisplay('offline');
     const Events = require('./services/events')

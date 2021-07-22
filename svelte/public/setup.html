@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width,initial-scale=1'>
+
+	<title>WebMC</title>
+
+	<link rel='icon' type='image/png' href='/favicon.png'>
+	<link rel='stylesheet' href='/global.css'>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            text-align: center;
+	        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            /* display: flex;
+            justify-content: center;
+            align-items: center; */
+        }
+        h1, h2, p, label, a {
+            color: rgba(255, 255, 255, 0.87);
+        }
+        p, label {
+            font-size: 16px;
+        }
+        h2 {
+            color: rgba(255, 255, 255, 0.87);
+        }
+        input, button {
+            appearance: none;
+            -webkit-appearance: none;
+            -webkit-border-radius: 0;
+            display: block;
+            box-sizing: border-box;
+            background-color: #1e1e1e;
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,0.14), 0 2px 1px -1px rgba(0,0,0,0.12), 0 1px 3px 0 rgba(0,0,0,0.20);
+            border: none;
+            border-radius: 0;
+            width: 200px;
+            margin: auto;
+            margin-bottom: 5px;
+            height: 40px;
+
+            color: rgba(255,255,255,0.87);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            font-size: 16px;
+            transition: all 300ms;
+        }
+        label {
+            text-align: left;
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        }
+        form span {
+            color: rgba(207, 102, 121, 0.87);
+            margin-top: 5px;
+            display: block;
+        }
+        form span.shake {
+            visibility: visible;
+            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        input:hover, button:hover{
+            background-color: #242424;
+            box-shadow: 0 3px 4px 0 rgba(0,0,0,0.14), 0 3px 3px -2px rgba(0,0,0,0.12), 0 1px 8px 0 rgba(0,0,0,0.20);
+        }
+        input:focus{
+            border: none;
+            outline: none;
+        }
+        input[type=submit]{
+            cursor: pointer;
+        }
+        .page {
+            padding: 10px;
+            padding-top: 33vh;
+        }
+        @keyframes shake {
+            from, to {
+                -webkit-transform: translate(0, 0);
+                transform: translate(0, 0);
+            }
+            20%, 60% {
+                -webkit-transform: translate(-4px, 0);
+                transform: translate(-4px, 0);
+            }
+            40%, 80% {
+                -webkit-transform: translate(4px, 0);
+                transform: translate(4px, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class=page id=page1>
+        <h1>Welcome to WebMC!</h1>
+        <p>This guide will lead you through installing WebMC. First, enter your one time code below:</p>
+        <form onsubmit="return testCode()">
+            <input type="text" id="code">
+            <span id=code-form-feedback></span>
+        </form>
+    </div>
+    <div class=page id=page2 style="display: none;">
+        <h1>Choose your username and password:</h1>
+        <form onsubmit="return setPassword()">
+            <label>Username</label>
+            <input type="text" id="username">
+            <label>Password</label>
+            <input type="password" id="password">
+            <label>Confirm Password</label>
+            <input type="password" id="confirm-password">
+            <input type="submit" value="Submit">
+            <span id=cred-form-feedback></span>
+        </form>
+    </div>
+    <div class=page id=page3 style="display: none;">
+        <h2>WebMC will download the Minecraft Bedrock server software on your behalf. In order to use it, you must agree to the <a href="https://minecraft.net/terms">Minecraft EULA</a> and <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy Policy</a></h2>
+        <button onclick="agree()">Agree & Continue</button>
+    </div>
+    <div class=page id=page4 style="display: none;">
+        <h2 id="loading-text">Downloading server software...</h2>
+    </div>
+    <script>
+        const pages = [
+            document.getElementById('page1'),
+            document.getElementById('page2'),
+            document.getElementById('page3'),
+            document.getElementById('page4'),
+        ];
+        let currentPage = 0;
+        function nextPage() {
+            pages[currentPage].style = 'display: none;'
+            currentPage++;
+            pages[currentPage].style = '';
+        }
+        function testCode() {
+            document.getElementById('code-form-feedback').innerHTML = '';
+            document.getElementById('code-form-feedback').classList.remove('shake');
+            fetch(`/test-code`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: document.getElementById('code').value})
+                .then(response => {
+                    if (response.status == 200) {
+                        // test passed
+                        nextPage();
+                    }
+                    else {
+                        // test failed
+                        document.getElementById('code-form-feedback').classList.add('shake');
+                        document.getElementById('code-form-feedback').innerText = 'Incorrect Code.';
+                    }
+                });
+            return false;
+        }
+        function setPassword() {
+            const formFeedback = document.getElementById('cred-form-feedback');
+            formFeedback.innerHTML = '';
+            formFeedback.classList.remove('shake');
+            if (document.getElementById('password').value != document.getElementById('confirm-password').value) {
+                formFeedback.classList.add('shake');
+                formFeedback.innerText = 'Passwords don\'t match.';
+                return false;
+            }
+            if (document.getElementById('password').value == '') {
+                formFeedback.classList.add('shake');
+                formFeedback.innerText = 'Password field is required.';
+                return false;
+            }
+            if (document.getElementById('username').value == '') {
+                formFeedback.classList.add('shake');
+                formFeedback.innerText = 'Username field is required.';
+                return false;
+            }
+            const body = JSON.stringify({
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                code: document.getElementById('code').value
+            });
+
+            fetch(`/set-login`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body})
+                .then(response => {
+                    if (response.status == 200) {
+                        nextPage();
+                    }
+                    else {
+                        formFeedback.classList.add('shake');
+                        formFeedback.innerText = 'Couldn\'t connect to server.';
+                    }
+                });
+            return false;
+        }
+        function agree() {
+            fetch(`/agreed-to-eula`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: document.getElementById('code').value})
+                .then(response => {
+                    if (response.status == 200) {
+                        nextPage();
+                        const animationEl = document.getElementById('loading-text');
+                        setInterval(() => {
+                            animationEl.innerText += '.';
+                            if (animationEl.innerText.length > "Downloading server software...".length) {
+                                animationEl.innerText = "Downloading server software";
+                            }
+                        }, 500);
+                        const ping = () => {
+                            fetch(`/setup-ping`, {cache: 'no-cache', method: 'get'})
+                                .then(response => {
+                                    if (response.status == 404) {
+                                        location.reload();
+                                    }
+                                    else {
+                                        setTimeout(ping, 1000);
+                                    }
+                                });
+                        };
+                        ping();
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
