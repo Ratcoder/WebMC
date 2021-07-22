@@ -45,22 +45,19 @@ async function copyFolder(source, dest) {
         }
     });
 }
-async function checksumFolder(folder, baseFolder = '') {
-    const checksums = [];
+async function checksumFolder(folder) {
+    const tree = {};
     const files = await readdir(folder);
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (fs.lstatSync(`${folder}/${file}`).isDirectory()) {
-            checksums.push(...await checksumFolder(`${folder}/${file}`, `${baseFolder}/${file}`));
+            tree[file] = await checksumFolder(`${folder}/${file}`);
         }
         else {
             const fileData = await readFile(`${folder}/${file}`);
             const md5 = crypto.createHash('md5').update(fileData).digest('hex');
-            checksums.push({
-                file: `${baseFolder}/${file}`,
-                hash: md5
-            });
+            tree[file] = md5;
         }
     }
-    return checksums;
+    return tree;
 }
