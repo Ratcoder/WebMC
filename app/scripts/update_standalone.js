@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 (async () => {
     const currentManifest = JSON.parse(await fs.readFile('manifest.json'));
-    const newManifest = await (await fetch('https://webmc.ratcoder.com/bin/latest/manifest.json')).json();
+    const newManifest = await (await fetch('https://webmc.ratcoder.com/bin/latest-win/manifest.json')).json();
     async function diff(newFolder, oldFolder, rootPath = '', downloadFolder = false) {
         for (const key in newFolder) {
             if (Object.hasOwnProperty.call(newFolder, key)) {
@@ -23,7 +23,7 @@ const fetch = require('node-fetch');
                 else if (downloadFolder || !oldFolder[key] || oldFolder[key] != newFolder[key]) {
                     // download new file
                     console.log(`${rootPath}/${key}`);
-                    await fs.writeFile(`${process.cwd()}${rootPath}/${key}`, await (await fetch(`https://webmc.ratcoder.com/bin/latest${rootPath}/${key}`)).text());
+                    await fs.writeFile(`${process.cwd()}${rootPath}/${key}`, await (await fetch(`https://webmc.ratcoder.com/bin/latest-win${rootPath}/${key}`)).text());
                     console.log(`${rootPath}/${key}`);
                 }
             }
