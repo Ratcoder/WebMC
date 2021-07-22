@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "buildsite": "cd svelte ; npm run build",
-    "devsite": "cd svelte ; npm run dev"
+    "devsite": "cd svelte ; npm run dev",
+    "build": "node scripts/build.js"
   },
   "author": "Pierce Gray",
   "license": "ISC",
