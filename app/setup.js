@@ -2,10 +2,12 @@ const http2 = require('http2');
 const fs = require('fs');
 const child_process = require('child_process');
 const util = require('util');
+const os = require('os');
 const exec = util.promisify(child_process.exec);
 const SSL = require('./ssl');
 const Admins = require('./services/database/admins');
 const bcrypt = require('bcrypt');
+const fetch = require('node-fetch');
 const saltRounds = 10;
 function generateOneTimeCode() {
     const chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
@@ -56,6 +58,9 @@ server.on('connection', (socket) => {
     })
 });
 
+let step = fs.readFileSync('.uninstalled') || '0';
+if (parseInt(step) > 1) require('./services/minecraft');
+
 const isDev = process.argv.find(el => el == '--dev');
 const public = isDev ? 'svelte/public' : 'public';
 server.on('request', (request, response) => {
@@ -84,7 +89,7 @@ server.on('request', (request, response) => {
                     'content-type': 'text/plain; charset=utf-8',
                     ':status': 200
                 });
-                response.stream.end('Correct Code');
+                response.stream.end(step);
                 return;
             }
             else {
@@ -96,7 +101,36 @@ server.on('request', (request, response) => {
                 return;
             }
         }
-        else if (path == '/set-login') {
+        else if (path == '/ip-info') {
+            if (buffer == oneTimeCode) {
+                if (os.platform() == 'win32') {
+                    child_process.exec('ipconfig', async (error, stdout, stderr) => {
+                        response.stream.respond({
+                            'content-type': 'application/json; charset=utf-8',
+                            ':status': 200
+                        });
+                        response.stream.end(JSON.stringify({
+                            gateway: stdout.split('Default Gateway . . . . . . . . . : ')[1].split(os.EOL)[0],
+                            localip: stdout.split('IPv4 Address. . . . . . . . . . . : ')[1].split(os.EOL)[0],
+                            publicip: await (await fetch('https://api.ipify.org')).text(),
+                        }));
+                    });
+                }
+                else {
+
+                }
+                return;
+            }
+            else {
+                response.stream.respond({
+                    'content-type': 'text/plain; charset=utf-8',
+                    ':status': 403
+                });
+                response.stream.end('Incorrect Code');
+                return;
+            }
+        }
+        else if (path == '/set-login' && step == '0') {
             try {
                 let req = JSON.parse(buffer);
                 if (req.code != oneTimeCode) {
@@ -126,6 +160,8 @@ server.on('request', (request, response) => {
                             ':status': 200
                         });
                         response.stream.end('OK');
+                        step = '1';
+                        fs.writeFileSync('.uninstalled', '1');
                     });
                 });
                 return;
@@ -139,7 +175,7 @@ server.on('request', (request, response) => {
                 return;
             }
         }
-        else if (path == '/agreed-to-eula') {
+        else if (path == '/agreed-to-eula' && step == '1') {
             if (buffer != oneTimeCode) {
                 response.stream.respond({
                     'content-type': 'text/plain; charset=utf-8',
@@ -156,6 +192,28 @@ server.on('request', (request, response) => {
             (async () => {
                 if (!fs.existsSync('mc')) fs.mkdirSync('mc');
                 await exec(__dirname + '/scripts/update_mc_server.' + ((process.platform == 'win32') ? 'bat' : 'sh'));
+                require('./services/minecraft');
+                step = '2';
+                await fs.promises.writeFile('.uninstalled', '2');
+            })();
+            return;
+        }
+        else if (path == '/finish' && step == '2') {
+            if (buffer != oneTimeCode) {
+                response.stream.respond({
+                    'content-type': 'text/plain; charset=utf-8',
+                    ':status': 403
+                });
+                response.stream.end('Incorrect Code');
+                return;
+            }
+            response.stream.respond({
+                'content-type': 'text/plain; charset=utf-8',
+                ':status': 200
+            });
+            response.stream.end('');
+            (async () => {
+                await require('./services/minecraft').stop();
                 fs.unlinkSync('.uninstalled');
                 server.close();
                 sockets.forEach(s => s.destroy());

@@ -23,7 +23,7 @@
             color: rgba(255, 255, 255, 0.87);
         }
         p, label {
-            font-size: 16px;
+            font-size: 18px;
         }
         h2 {
             color: rgba(255, 255, 255, 0.87);
@@ -45,7 +45,7 @@
 
             color: rgba(255,255,255,0.87);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-            font-size: 16px;
+            font-size: 18px;
             transition: all 300ms;
         }
         label {
@@ -93,6 +93,26 @@
                 transform: translate(4px, 0);
             }
         }
+        #page5, #page6, #page7 {
+            margin: auto;
+            max-width: 800px;
+        }
+        #page5 p, #page6 p, #page7 p {
+            text-align: left;
+        }
+        code {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+        .side-by-side {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        .side-by-side button {
+            margin: 0px 10px;
+        }
     </style>
 </head>
 
@@ -125,27 +145,72 @@
     <div class=page id=page4 style="display: none;">
         <h2 id="loading-text">Downloading server software...</h2>
     </div>
+    <div class=page id=page5 style="display: none;">
+        <h2>Server software downloaded!</h2>
+        <p>You can now join your Minecraft server, but only from the device that WebMC is running on. If you want other people to be able to join your server, you need to set something up called port forwarding.</p>
+        <p>Port forwarding might sound complicated at first, but it actually isn't. Port forwarding makes specific applications on your computer accessible to other devices in the internet. It isn't something that is configured on your computer; it is configured on your router. Your router lies between your computer and the rest of the internet. When someone else wants to connect to your server, they need to go through your router. When they try to connect, your router needs to know which device to connect them to. Port forwarding is just telling your router: if anyone tries to connect on this port, send them to my computer.</p>
+        <button onclick="nextPage()">Next</button>
+    </div>
+    <div class=page id=page6 style="display: none;">
+        <h2>How to setup port forwarding</h2>
+        <p>Since port forwarding isn't something that's configured on your computer, WebMC can't do it for you. The process varies depending on the kind of router you have, but this will lead you through the general process.</p>
+        <p>There are two port forwarding rules you want to add. The first is for the Minecraft server. Select the UDP protocol and the port <code>19132</code>. The other is for the WebMC web interface. You only need to to add this one if you want to be able to manage your server from different devices. Set the protocol to TCP and the port to <code>14142</code>. For both, set the ip address to the computer that WebMC is running on, which is: <code id='localip'></code>.</p>
+        <p><a id="gateway" target="_blank" rel="noopener">Here</a> is a link to your router's web interface. First, check <a href="https://portforward.com/router.htm" target="_blank" rel="noopener">this website</a>; they have tutorials for hundreds of different router models. If your model isn't listed, the general process is to find the port forwarding section. It might also be called virtual server. This section might be a sub-section under networking or NAT. Once you find that section, you can add the port forwarding entries.</p>
+        <div class="side-by-side">
+            <button onclick="prevPage()">Back</button>
+            <button onclick="nextPage()">Next</button>
+        </div>
+    </div>
+    <div class=page id=page7 style="display: none;">
+        <h2>Testing if it works</h2>
+        <p>Let's check to see if the port forwarding rules you added are working. If the rule for WebMC's dashboard is working, you should be able to see it <a id="webmc-dashboard-link" target="_blank" rel="noopener">here</a>. If the rule for the Minecraft server is working, you should be able to connect to it on this ip: <code id="publicip"></code> and this port: <code>19132</code>.</p>
+        <p>Once everything is working, press finish to restart WebMC. Your new Minecraft server awaits!</p>
+        <div class="side-by-side">
+            <button onclick="prevPage()">Back</button>
+            <button onclick="finish()">Finish</button>
+        </div>
+    </div>
     <script>
         const pages = [
             document.getElementById('page1'),
             document.getElementById('page2'),
             document.getElementById('page3'),
             document.getElementById('page4'),
+            document.getElementById('page5'),
+            document.getElementById('page6'),
+            document.getElementById('page7'),
         ];
         let currentPage = 0;
-        function nextPage() {
+        let ipInfo;
+        function nextPage(page = null) {
             pages[currentPage].style = 'display: none;'
-            currentPage++;
+            if (page) currentPage = page;
+            else currentPage++;
             pages[currentPage].style = '';
+        }
+        function prevPage() {
+            nextPage(currentPage - 1);
         }
         function testCode() {
             document.getElementById('code-form-feedback').innerHTML = '';
             document.getElementById('code-form-feedback').classList.remove('shake');
             fetch(`/test-code`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: document.getElementById('code').value})
-                .then(response => {
+                .then(async response => {
                     if (response.status == 200) {
                         // test passed
-                        nextPage();
+                        const step = await response.text();
+                        if (step == '1') nextPage(2);
+                        else if (step == '2') nextPage(4);
+                        else nextPage()
+                        fetch(`/ip-info`, {cache: 'no-cache', method: 'post', headers: {'Content-Type': 'text/plain'}, body: document.getElementById('code').value})
+                            .then(res => res.json())
+                            .then(json => {
+                                ipInfo = json;
+                                document.getElementById('publicip').innerText = json.publicip;
+                                document.getElementById('webmc-dashboard-link').href = `https://${json.publicip}:14142`;
+                                document.getElementById('gateway').href = 'http://' + json.gateway;
+                                document.getElementById('localip').innerText = json.localip;
+                            });
                     }
                     else {
                         // test failed
@@ -205,10 +270,30 @@
                             }
                         }, 500);
                         const ping = () => {
+                            fetch(`/test-code`, {cache: 'no-cache', method: 'post', body: document.getElementById('code').value})
+                                .then(res => res.text())
+                                .then(text => {
+                                    if (text == '2') {
+                                        nextPage();
+                                    }
+                                    else {
+                                        setTimeout(ping, 1000);
+                                    }
+                                });
+                        };
+                        ping();
+                    }
+                });
+        }
+        function finish() {
+            fetch(`/finish`, {cache: 'no-cache', method: 'post', body: document.getElementById('code').value})
+                .then(response => {
+                    if (response.status == 200) {
+                        const ping = () => {
                             fetch(`/setup-ping`, {cache: 'no-cache', method: 'get'})
                                 .then(response => {
                                     if (response.status == 404) {
-                                        location.reload();
+                                        window.location.replace(`https://${ipInfo.publicip}:14142`);
                                     }
                                     else {
                                         setTimeout(ping, 1000);
