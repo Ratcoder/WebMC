@@ -117,7 +117,19 @@ server.on('request', (request, response) => {
                     });
                 }
                 else {
-
+                    child_process.exec('hostname -I', (error, stdout_ip, stderr) => {
+                        child_process.exec('ip route | grep "default"', async (error, stdout_gateway, stderr) => {
+                            response.stream.respond({
+                                'content-type': 'application/json; charset=utf-8',
+                                ':status': 200
+                            });
+                            response.stream.end(JSON.stringify({
+                                gateway: stdout_gateway.split(' ')[2],
+                                localip: stdout_ip,
+                                publicip: await (await fetch('https://api.ipify.org')).text(),
+                            }));
+                        });
+                    });
                 }
                 return;
             }
