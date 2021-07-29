@@ -21,7 +21,7 @@ fs.readdir('mc/backups', (err, files) => {
 });
 
 function startBackup(){
-    Minecraft.sceduleOffJob(backup, 'a backup');
+    Minecraft.scheduleOffJob(backup, 'a backup');
 }
 node_schedule.scheduleJob('0 0 * * *', startBackup);
 async function backup(){
@@ -44,7 +44,7 @@ async function copyFolder(source, dest){
 }
 
 function startRevert(path){
-    Minecraft.sceduleOffJob(async () => {
+    Minecraft.scheduleOffJob(async () => {
         await revert(path);
     }, 'reverting to a backup');
 }

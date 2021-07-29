@@ -10,7 +10,7 @@ const Settings = require('./database/settings');
 const minecraftService = {
     process,
     buffer:'',
-    sceduleOffJob,
+    scheduleOffJob: scheduleOffJob,
     status:'offline',
     start,
     stop,
@@ -117,7 +117,7 @@ function processMcServerLog(log){
 
 let offJobs = [];
 let isRestarting = false;
-function sceduleOffJob(job, reason){
+function scheduleOffJob(job, reason){
     offJobs.push(job);
     if(!isRestarting){
         isRestarting = true;

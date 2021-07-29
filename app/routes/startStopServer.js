@@ -18,7 +18,7 @@ module.exports = {
         }
         else if(body.type == 'restart'){
             if(body.delay){
-                Minecraft.sceduleOffJob(async () => {}, '');
+                Minecraft.scheduleOffJob(async () => {}, '');
             }
             else{
                 await Minecraft.stop();

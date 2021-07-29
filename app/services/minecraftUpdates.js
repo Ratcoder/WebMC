@@ -45,7 +45,7 @@ async function update(){
 async function checkForUpdate(){
     if(runningVersion != await getLatestVersion()){
         console.log('Minecraft Server outdated!');
-        Minecraft.sceduleOffJob(update, 'updating server');
+        Minecraft.scheduleOffJob(update, 'updating server');
     }
 }
 

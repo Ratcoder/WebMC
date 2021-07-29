@@ -16,7 +16,7 @@ node_schedule.scheduleJob('0 0 * * *', checkForUpdates); // Every day at midnigh
 
 function checkForUpdates() {
     if (getLatestVersion() != currentVersion) {
-        Minecraft.sceduleOffJob(async () => {
+        Minecraft.scheduleOffJob(async () => {
             fs.mkdirSync('temp');
             fs.copyFileSync('app/scripts/update_standalone.js', 'temp/update_standalone.js');
             if (os.platform() == 'win32') {
