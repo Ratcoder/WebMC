@@ -5,7 +5,7 @@ const path = require('path');
 const node_schedule = require('node-schedule');
 const fetch = require('node-fetch');
 const Minecraft = require('./minecraft');
-const currentVersion = '0.1.1';
+const currentVersion = '0.1.2';
 
 if (process.argv.find(el => el == '--dev')) {
     return;
