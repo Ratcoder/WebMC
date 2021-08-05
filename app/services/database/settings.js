@@ -1,4 +1,3 @@
-// const Minecraft = require('../minecraft');
 const Events = require('../events');
 
 const os = require('os');
@@ -75,7 +74,7 @@ const settings = {
         settingsJSON[key] = value;
 
         if(gameRules.find((el) => el == element[0])){
-            Minecraft.process.stdin.write(`gamerule ${key} ${value}`)
+            Events.emit('settings.gameruleChanged', key, value);
         }
         await writeFile('db/settings.json', JSON.stringify(settingsJSON));
         if(serverProperties[element[0]]){
@@ -99,7 +98,7 @@ const settings = {
             if(settingsJSON[element[0]] != element[1]){
                 settingsJSON[element[0]] = element[1];
                 if(gameRules.find((el) => el == element[0])){
-                    Minecraft.process.stdin.write(`gamerule ${element[0]} ${element[1]}\n`)
+                    Events.emit('settings.gameruleChanged', element[0], element[1]);
                 }
                 if(serverProperties[element[0]]){
                     serverPropertiesNeedsUpdating = true;

@@ -198,9 +198,12 @@ async function stopDelayed(){
 }
 
 Events.on('settings.serverPropertiesChanged', () => {
-    sceduleOffJob(async () => {
+    scheduleOffJob(async () => {
         await writeFile('mc/bedrock-server/server.properties', Settings.getServerProperties());
     }, 'changing settings');
+});
+Events.on('settings.gameruleChanged', (key, value) => {
+    minecraftService.process.stdin.write(`gamerule ${key} ${value}\n`)
 });
 fs.writeFileSync('mc/bedrock-server/server.properties', Settings.getServerProperties(), () => {});
 
