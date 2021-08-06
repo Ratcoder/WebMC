@@ -14,8 +14,8 @@ if (process.argv.find(el => el == '--dev')) {
 checkForUpdates();
 node_schedule.scheduleJob('0 0 * * *', checkForUpdates); // Every day at midnight
 
-function checkForUpdates() {
-    if (getLatestVersion() != currentVersion) {
+async function checkForUpdates() {
+    if (await getLatestVersion() != currentVersion) {
         Minecraft.scheduleOffJob(async () => {
             fs.mkdirSync('temp');
             fs.copyFileSync('app/scripts/update_standalone.js', 'temp/update_standalone.js');
