@@ -4,7 +4,7 @@
 
 <h2 align="center">The Web-Based Minecraft Bedrock Server Manager.</h2>
 
-<p>WebMC is a tool designed to make managing your own Minecraft Bedrock server easy. WebMC lets you manage your server through an easy to use web dashboard. That means no messing with terminals or configuration files, let WebMC do that for you.</p>
+<p>WebMC is a cross-platform (Windows and Linux) Minecraft Bedrock server manager. It makes running your own Minecraft server from home easy. It takes care of updates and backups, and it presents you with a web dashboard to manage your server from anywhere.</p>
 
 <h2>Features</h2>
 <ul>
@@ -15,3 +15,6 @@
   <li>Live statistics</li>
   <li>Free and open source</li>
 </ul>
+
+<h2>Installing</h2>
+<p>Extract the zip file and run the file named "start_webmc.bat" for <a href="https://webmc.ratcoder.com/bin/webmc-win-0.1.3.zip">Windows</a> and "start_webmc.sh" for <a href="https://webmc.ratcoder.com/bin/webmc-linux-0.1.3.zip">Linux</a>.</p>
