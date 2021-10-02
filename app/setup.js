@@ -229,7 +229,6 @@ server.on('request', (request, response) => {
                 fs.unlinkSync('.uninstalled');
                 server.close();
                 sockets.forEach(s => s.destroy());
-                child_process.spawn(__dirname + '/../start_webmc.' + ((process.platform == 'win32') ? 'bat' : 'sh'), isDev ? ['--dev'] : [], { detached: true });
                 process.exit();
             })();
             return;
