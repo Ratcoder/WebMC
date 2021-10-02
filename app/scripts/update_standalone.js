@@ -34,6 +34,5 @@ const fetch = require('node-fetch');
     await diff(newManifest.files, currentManifest.files);
     await fs.writeFile('manifest.json', JSON.stringify(newManifest));
     await fs.rmdir('temp', { recursive: true });
-    child_process.spawn(process.cwd() + '/start_webmc.' + ((process.platform == 'win32') ? 'bat' : 'sh'), [], { detached: true });
     process.exit();
 })()
