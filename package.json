@@ -4,6 +4,7 @@
   "description": "The web-based Minecraft Bedrock server manager",
   "main": "app/app.js",
   "scripts": {
+    "dev-setup": "node scripts/dev-setup.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
     "buildsite": "cd svelte ; npm run build",
