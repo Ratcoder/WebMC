@@ -1,4 +1,4 @@
 :loop
-@node\node.exe .
+@node\node.exe . %1
 @echo "WebMC crashed!"
 goto loop
