@@ -1,12 +1,12 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
-	"database/sql"
 )
 
 type createServerRequest struct {

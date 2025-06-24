@@ -33,7 +33,7 @@ const (
 
 // Loads an existing Minecraft server from a folder
 func loadServer(dir string) (*Server, error) {
-	_, err := os.Stat(dir+"/server/bedrock_server")
+	_, err := os.Stat(dir + "/server/bedrock_server")
 	if err == nil {
 		return &Server{dir: dir, state: Stopped}, nil
 	} else if os.IsNotExist(err) {
@@ -126,7 +126,6 @@ func (m *Server) Install() error {
 		return errors.New("minecraft server already installed")
 	}
 
-	
 	err := os.Mkdir(m.dir, 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
 		return err
