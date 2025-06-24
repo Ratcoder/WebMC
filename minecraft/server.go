@@ -31,30 +31,16 @@ const (
 	Restoring
 )
 
-func createServer(dir string) (*Server, error) {
-	err := os.Mkdir(dir, 0700) // Read/write/execute for owner only
-	if err != nil {
-		return nil, err
-	}
-	err = os.Mkdir(dir+"/server", 0700) // Read/write/execute for owner only
-	if err != nil {
-		return nil, err
-	}
-	err = os.Mkdir(dir+"/logs", 0700) // Read/write/execute for owner only
-	if err != nil {
-		return nil, err
-	}
-	err = os.Mkdir(dir+"/backups", 0700) // Read/write/execute for owner only
-	if err != nil {
-		return nil, err
-	}
-
-	return &Server{dir: dir, state: Empty}, nil
-}
-
 // Loads an existing Minecraft server from a folder
 func loadServer(dir string) (*Server, error) {
-	return &Server{dir: dir, state: Stopped}, nil
+	_, err := os.Stat(dir+"/server/bedrock_server")
+	if err == nil {
+		return &Server{dir: dir, state: Stopped}, nil
+	} else if os.IsNotExist(err) {
+		return &Server{dir: dir, state: Empty}, nil
+	}
+
+	return nil, err
 }
 
 func (m *Server) Start() error {
@@ -65,7 +51,7 @@ func (m *Server) Start() error {
 		return errors.New("server cannot be started in this state")
 	}
 
-	logName := time.Now().Format("2006-01-02-15:04:05") + ".log"
+	logName := time.Now().Format("2006-01-02-15-04-05") + ".log"
 	file, err := os.Create(m.dir + "/logs/" + logName)
 	if err != nil {
 		return err
@@ -138,6 +124,24 @@ func (m *Server) Install() error {
 
 	if m.state != Empty {
 		return errors.New("minecraft server already installed")
+	}
+
+	
+	err := os.Mkdir(m.dir, 0700) // Read/write/execute for owner only
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+	err = os.Mkdir(m.dir+"/server", 0700) // Read/write/execute for owner only
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+	err = os.Mkdir(m.dir+"/logs", 0700) // Read/write/execute for owner only
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+	err = os.Mkdir(m.dir+"/backups", 0700) // Read/write/execute for owner only
+	if err != nil && !os.IsExist(err) {
+		return err
 	}
 
 	uri, err := GetLinuxDownload()

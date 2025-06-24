@@ -51,11 +51,12 @@ func (api *API) Start() error {
 	// TODO: Change password
 	http.HandleFunc("POST /api/servers", api.createServer)
 	// TODO: DELETE /api/servers/{id}
-	// TODO: POST   /api/servers/{id}/stop
-	// TODO: POST   /api/servers/{id}/start
-	// TODO: POST   /api/servers/{id}/command
+	http.HandleFunc("POST /api/servers/{id}/start", api.startServer)
+	http.HandleFunc("POST /api/servers/{id}/stop", api.stopServer)
+	http.HandleFunc("POST /api/servers/{id}/install", api.installServer)
+	http.HandleFunc("POST /api/servers/{id}/backup", api.backupServer)
+	http.HandleFunc("POST /api/servers/{id}/command", api.commandServer)
 	// TODO: POST   /api/servers/{id}/update
-	// TODO: POST   /api/servers/{id}/backup
 	// TODO: GET    /api/servers/{id}/backups
 	// TODO: GET    /api/servers/{id}/backups/{backup}
 	// TODO: POST   /api/servers/{id}/backups/{backup}/restore

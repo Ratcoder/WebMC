@@ -6,7 +6,7 @@ import (
 )
 
 type Manager struct {
-	servers map[int64]*Server
+	Servers map[int64]*Server
 	root    string
 }
 
@@ -18,8 +18,8 @@ func NewManager(db *sql.DB) (*Manager, error) {
 	}
 
 	manager := Manager{
-		servers: make(map[int64]*Server),
-		root: "/etc/webmc/servers",
+		Servers: make(map[int64]*Server),
+		root:    "/etc/webmc/servers",
 	}
 
 	for rows.Next() {
@@ -34,7 +34,7 @@ func NewManager(db *sql.DB) (*Manager, error) {
 			return nil, err
 		}
 
-		manager.servers[id] = server
+		manager.Servers[id] = server
 	}
 	if rows.Err() != nil {
 		return nil, err
@@ -44,18 +44,18 @@ func NewManager(db *sql.DB) (*Manager, error) {
 }
 
 func (m *Manager) Run() {
-	for _, server := range m.servers {
+	for _, server := range m.Servers {
 		server.Start()
 	}
 }
 
 func (m *Manager) AddServer(id int64) error {
-	server, err := createServer(serverPath(m.root, id))
+	server, err := loadServer(serverPath(m.root, id))
 	if err != nil {
 		return err
 	}
 
-	m.servers[id] = server
+	m.Servers[id] = server
 	return nil
 }
 
