@@ -1,0 +1,173 @@
+:root {
+    --color-background: #131314;
+    --color-foreground: rgba(255, 255, 255, 0.9);
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-accent: #00bfa6;
+    --font-body: 'Open Sans', monospace;
+    --font-mono: 'Noto Sans Mono', monospace;
+    --font-size: 14px;
+
+    font-size: var(--font-size);
+}
+
+/* TEXT STYLES */
+
+h2 {
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    padding: 5px;
+    font-size: 2em;
+    margin: 0;
+}
+
+p, input, svg, li {
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-size: var(--font-size);
+}
+
+pre {
+    color: var(--color-foreground);
+    font-family: var(--font-mono);
+    font-size: var(--font-size);
+    margin: 0;
+    text-wrap: wrap;
+    word-break: break-all;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:hover svg {
+    color: var(--color-accent);
+}
+
+/* HOME */
+body {
+    display: grid;
+    grid-template-columns: 50px 2fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-areas:
+        "sidebar terminal graph1"
+        "sidebar terminal graph2"
+        "sidebar terminal graph3";
+    height: 100vh;
+    margin: 0;
+    grid-gap: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    background-color: #1b1b1b;
+}
+
+#sidebar {
+    grid-area: sidebar;
+}
+
+nav ul {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    gap: 1rem;
+    padding-top: 1rem;
+    list-style: none;
+    text-align: center;
+}
+
+#terminal {
+    grid-area: terminal;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: scroll;
+    /* border: 1px solid var(--color-border); */
+    padding: 1rem;
+    background-color: var(--color-background);
+    border-radius: 1rem;
+}
+
+#terminal input {
+    background-color: var(--color-background);
+    font-size: var(--font-size);
+    font-family: var(--font-mono);
+    border: none;
+}
+
+#terminal input:focus {
+    outline: none;
+    /* border-bottom: 1px solid var(--color-foreground); */
+}
+
+#player-graph { grid-area: graph1; }
+#cpu-graph { grid-area: graph2; }
+#ram-graph { grid-area: graph3; }
+
+#player-graph, #cpu-graph, #ram-graph {
+    /* border: 1px solid var(--color-border); */
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: var(--color-background);
+}
+
+nav {
+    /* border: 1px solid var(--color-border); */
+    border-radius: 1rem;
+    background-color: var(--color-background);
+}
+
+#files {
+    grid-area: terminal;
+    border-radius: 1rem;
+    background-color: var(--color-background);
+}
+
+#files ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#files li {
+    color: var(--color-foreground);
+    font-family: var(--font-mono);
+    display: grid;
+    grid-template-areas: "pre-icon file-name icon1 icon2 icon3";
+    grid-template-columns: 24px 1fr 24px 24px 24px;
+    gap: 1rem;
+    margin: 1rem;
+    align-items: center;
+}
+
+#files span {
+    grid-area: file-name;
+}
+
+.file-type {
+    grid-area: pre-icon;
+    display: flex;
+    justify-content: center;
+}
+
+.edit-file {
+    grid-area: icon1;
+    display: flex;
+    justify-content: center;
+}
+
+.download-file {
+    grid-area: icon2;
+    display: flex;
+    justify-content: center;
+}
+
+.delete-file {
+    grid-area: icon3;
+    display: flex;
+    justify-content: center;
+}

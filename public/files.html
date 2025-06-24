@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <title>WebMC</title>
+</head>
+<body>
+    <nav id="sidebar">
+        <ul>
+            <li>
+                <a href="/">
+                    <i data-feather="activity"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/files.html">
+                    <i data-feather="folder"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/backups">
+                    <i data-feather="archive"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/settings">
+                    <i data-feather="settings"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div id="files">
+        <ul>
+            <li>
+                <div class="file-type">
+                    <i data-feather="folder"></i>
+                </div>
+                <span><a href="?path=worlds">worlds</a></span>
+            </li>
+            <li>
+                <div class="file-type">
+                    <i data-feather="file"></i>
+                </div>
+                <span>server.properties</span>
+                <div class="edit-file">
+                    <i data-feather="edit"></i>
+                </div>
+                <div class="download-file">
+                    <i data-feather="download"></i>
+                </div>
+                <div class="delete-file">
+                    <i data-feather="trash"></i>
+                </div>
+            </li>
+        </ul>
+        <input type="file">
+    </div>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>
