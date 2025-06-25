@@ -20,7 +20,7 @@ h2 {
     margin: 0;
 }
 
-p, input, svg, li {
+p, input, svg, li, label {
     color: var(--color-foreground);
     font-family: var(--font-body);
     font-size: var(--font-size);
@@ -46,6 +46,37 @@ a:hover {
 
 a:hover svg {
     color: var(--color-accent);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+input {
+    /* background-color: #090909; */
+    background-color: var(--color-background);
+    border: 1px solid var(--color-foreground);
+    border-radius: 1rem;
+    height: 3rem;
+    padding: 0 1rem;
+}
+
+input:focus {
+    border: 1px solid var(--color-accent);
+    outline: none;
+}
+
+input[type=submit] {
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    transition: color 200ms;
+}
+
+input[type=submit]:hover, input[type=submit]:focus {
+    color: white;
+    outline: none;
 }
 
 /* HOME */
@@ -170,4 +201,22 @@ nav {
     grid-area: icon3;
     display: flex;
     justify-content: center;
+}
+
+/* LOGIN */
+
+#login {
+    display: flex;
+    justify-content: center;
+    background-color: var(--color-background);
+}
+
+#login div {
+    border-radius: 1rem;
+    padding: 1rem;
+    width: 40ch;
+}
+
+#login form h2 {
+    text-align: center;
 }

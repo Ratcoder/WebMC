@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <title>WebMC | Login</title>
+</head>
+<body id="login">
+    <div>
+        <form id="login-form">
+            <h2>Login</h2>
+            <input type="text" name="username" id="username" placeholder="Username">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="submit" value="Login">
+            <p id="error" style="text-align: center;"></p>
+        </form>
+    </div>
+    <script>
+        feather.replace();
+    </script>
+    <script>
+        const form = document.getElementById("login-form");
+        const error = document.getElementById("error");
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const username = form.elements.username.value;
+            const password = form.elements.password.value;
+
+            const responce = await fetch("/api/login", {
+                method: "POST",
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            });
+
+            if (!responce.ok) {
+                if (responce.status == 401) {
+                    error.innerText = "Incorrect username or password.";
+                } else {
+                    error.innerText = "Internal server error."
+                }
+                form.appendChild(error);
+                throw new Error(`http error ${responce.status}`)
+            }
+
+            window.location.href = "/";
+        });
+    </script>
+</body>
+</html>
