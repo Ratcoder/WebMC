@@ -59,6 +59,53 @@ func (api *API) createServer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Created")
 }
 
+type Server struct {
+	ServerId int    `json:"serverId"`
+	OwnerId  int    `json:"ownerId"`
+	Name     string `json:"name"`
+}
+
+func (api *API) getServers(w http.ResponseWriter, r *http.Request) {
+	token, err := api.getAccessToken(r)
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	rows, err := api.db.Query("SELECT server_id, owner_id, name FROM servers WHERE owner_id = (?)", token.userId)
+	if err != nil {
+		http.Error(w, "Internal server error1", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var response []Server
+
+	for rows.Next() {
+		var server Server
+		err = rows.Scan(&server.ServerId, &server.OwnerId, &server.Name)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		response = append(response, server)
+	}
+	if err = rows.Err(); err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	buffer, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "JSON encoding error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(buffer)
+}
+
 // canUserManageServer checks if the user is authenticated and allowed to manager the server.
 // If the user can, it returns the server id and true.
 // Otherwise, it returns 0 and false.
@@ -180,7 +227,7 @@ func (api *API) commandServer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Success")
 }
 
-func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request)  {
+func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request) {
 	id, ok := canUserManageServer(api, w, r)
 	if !ok {
 		return

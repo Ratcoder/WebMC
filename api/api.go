@@ -50,6 +50,7 @@ func (api *API) Start() error {
 	// TODO: DELETE /api/users/{id}
 	// TODO: Change password
 	http.HandleFunc("POST /api/servers", api.createServer)
+	http.HandleFunc("GET /api/servers", api.getServers)
 	// TODO: DELETE /api/servers/{id}
 	http.HandleFunc("POST /api/servers/{id}/start", api.startServer)
 	http.HandleFunc("POST /api/servers/{id}/stop", api.stopServer)
