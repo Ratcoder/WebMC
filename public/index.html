@@ -34,35 +34,7 @@
     </nav>
     <div id="terminal">
         <pre>$ <input type="text" id="terminal-input" placeholder=""/></pre>
-        <pre id="terminal-output">
-NO LOG FILE! - setting up server logging...
-[2025-04-22 16:46:02:185 INFO] Starting Server
-[2025-04-22 16:46:02:185 INFO] Version: 1.21.62.01
-[2025-04-22 16:46:02:185 INFO] Session ID: 306be4f3-a3f7-4f45-b300-cc8707623299
-[2025-04-22 16:46:02:185 INFO] Build ID: 31303358
-[2025-04-22 16:46:02:185 INFO] Branch: r/21_u6
-[2025-04-22 16:46:02:185 INFO] Commit ID: 3844ee11290e274b54bb8fc9008ac3fb4ea34be3
-[2025-04-22 16:46:02:185 INFO] Configuration: Publish
-[2025-04-22 16:46:02:186 INFO] Level Name: Bedrock level
-[2025-04-22 16:46:02:187 INFO] No CDN config file found for dedicated server
-[2025-04-22 16:46:02:188 INFO] Game mode: 0 Survival
-[2025-04-22 16:46:02:188 INFO] Difficulty: 1 EASY
-[2025-04-22 16:46:02:189 INFO] Content logging to console is enabled.
-[2025-04-22 16:46:02:571 INFO] Opening level 'worlds/Bedrock level/db'
-[2025-04-22 16:46:02:623 INFO] [SERVER] Pack Stack - None
-[2025-04-22 16:46:03:164 INFO] IPv4 supported, port: 19132: Used for gameplay and LAN discovery
-[2025-04-22 16:46:03:164 INFO] IPv6 supported, port: 19133: Used for gameplay
-[2025-04-22 16:46:03:173 INFO] server-authoritative-movement value from server.properties: server-auth
-[2025-04-22 16:46:03:173 INFO] Level Movement Flight: client-auth-flight
-[2025-04-22 16:46:03:173 INFO] Final Level Movement Authority: server-auth
-[2025-04-22 16:46:03:174 INFO] Server started.
-[2025-04-22 16:46:03:174 INFO] ================ TELEMETRY MESSAGE ===================
-[2025-04-22 16:46:03:174 INFO] Server Telemetry is currently not enabled.
-[2025-04-22 16:46:03:174 INFO] Enabling this telemetry helps us improve the game.
-[2025-04-22 16:46:03:174 INFO]
-[2025-04-22 16:46:03:174 INFO] To enable this feature, add the line 'emit-server-telemetry=true'
-[2025-04-22 16:46:03:174 INFO] to the server.properties file in the handheld/src-server directory
-[2025-04-22 16:46:03:174 INFO] ======================================================</pre>
+        <pre id="terminal-output"></pre>
     </div>
     <div class="graph" id="player-graph">
         <h2>Players</h2>
@@ -75,6 +47,30 @@ NO LOG FILE! - setting up server logging...
     </div>
     <script>
         feather.replace();
+
+        let serverId = 1;
+
+        const terminalOutput = document.getElementById("terminal-output");
+
+        function updateTerminal() {
+            fetch(`/api/servers/${serverId}/logs`)
+                .then(r => r.text())
+                .then(t => terminalOutput.innerText = t)
+                .catch(e => console.error("Failed to fetch server logs: ", e));
+        }
+        setInterval(updateTerminal, 1000);
+        
+        const terminalInput = document.getElementById("terminal-input");
+        terminalInput.addEventListener("keydown", e => {
+            if (e.key != "Enter") return;
+
+            fetch(`/api/servers/${serverId}/command`, {
+                body: terminalInput.value,
+                method: "POST"
+            }).catch(e => console.error("Failed to send command: ", e));
+
+            terminalInput.value = "";
+        });
     </script>
 </body>
 </html>
