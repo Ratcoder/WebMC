@@ -60,9 +60,10 @@ func (api *API) createServer(w http.ResponseWriter, r *http.Request) {
 }
 
 type Server struct {
-	ServerId int    `json:"serverId"`
-	OwnerId  int    `json:"ownerId"`
+	ServerId int64  `json:"serverId"`
+	OwnerId  int64  `json:"ownerId"`
 	Name     string `json:"name"`
+	State    string `json:"state"`
 }
 
 func (api *API) getServers(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +89,7 @@ func (api *API) getServers(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+		server.State = api.serverManager.Servers[server.ServerId].GetState().ToString()
 
 		response = append(response, server)
 	}

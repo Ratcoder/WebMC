@@ -251,3 +251,24 @@ func GetLinuxDownload() (string, error) {
 
 	return "", errors.New("could not find the download link")
 }
+
+func (m *Server) GetState() State {
+	return m.state
+}
+
+func (s State) ToString() string {
+	switch s {
+	case Stopped:
+		return "stopped"
+	case Empty:
+		return "empty"
+	case Running:
+		return "running"
+	case BackingUp:
+		return "backingUp"
+	case Restoring:
+		return "restoring"
+	default:
+		panic("no string for minecraft server state")
+	}
+}
