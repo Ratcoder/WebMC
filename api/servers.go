@@ -179,3 +179,12 @@ func (api *API) commandServer(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, "Success")
 }
+
+func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request)  {
+	id, ok := canUserManageServer(api, w, r)
+	if !ok {
+		return
+	}
+
+	http.ServeFile(w, r, api.serverManager.Servers[id].LogFile)
+}

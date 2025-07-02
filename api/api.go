@@ -56,6 +56,7 @@ func (api *API) Start() error {
 	http.HandleFunc("POST /api/servers/{id}/install", api.installServer)
 	http.HandleFunc("POST /api/servers/{id}/backup", api.backupServer)
 	http.HandleFunc("POST /api/servers/{id}/command", api.commandServer)
+	http.HandleFunc("GET /api/servers/{id}/logs", api.getServerLogs)
 	// TODO: POST   /api/servers/{id}/update
 	// TODO: GET    /api/servers/{id}/backups
 	// TODO: GET    /api/servers/{id}/backups/{backup}

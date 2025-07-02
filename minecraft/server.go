@@ -18,6 +18,7 @@ type Server struct {
 	cmd       *exec.Cmd
 	stdinPipe io.WriteCloser
 	mutex     sync.Mutex
+	LogFile   string
 }
 
 type State int
@@ -56,6 +57,7 @@ func (m *Server) Start() error {
 	if err != nil {
 		return err
 	}
+	m.LogFile = m.dir + "/logs/" + logName
 
 	m.cmd = exec.Command("./bedrock_server")
 	m.cmd.Dir = m.dir + "/server"
