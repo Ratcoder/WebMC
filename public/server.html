@@ -48,7 +48,8 @@
     <script>
         feather.replace();
 
-        let serverId = 1;
+        const urlParams = new URLSearchParams(window.location.search);
+        const serverId = urlParams.get('id');
 
         const terminalOutput = document.getElementById("terminal-output");
 
