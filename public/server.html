@@ -6,6 +6,29 @@
     <link rel="stylesheet" href="main.css">
     <script src="https://unpkg.com/feather-icons"></script>
     <title>WebMC</title>
+    <style>
+        body {
+            display: grid;
+            grid-template-columns: 50px 2fr 1fr;
+            grid-template-rows: 5rem 1fr 1fr 1fr;
+            grid-template-areas:
+                "sidebar terminal controls"
+                "sidebar terminal graph1"
+                "sidebar terminal graph2"
+                "sidebar terminal graph3";
+            grid-gap: 1rem;
+            padding: 1rem;
+        }
+        #server-controls {
+            grid-area: controls;
+            border-radius: 1rem;
+            padding: 1rem;
+            background-color: var(--color-background);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+    </style>
 </head>
 <body>
     <nav id="sidebar">
@@ -36,6 +59,12 @@
         <pre>$ <input type="text" id="terminal-input" placeholder=""/></pre>
         <pre id="terminal-output"></pre>
     </div>
+    <div id="server-controls">
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>
+        <button id="backup-button">Backup</button>
+        <button id="update-button">Update</button>
+    </div>
     <div class="graph" id="player-graph">
         <h2>Players</h2>
     </div>
@@ -50,7 +79,8 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const serverId = urlParams.get('id');
-
+        
+        // --- TERMINAL
         const terminalOutput = document.getElementById("terminal-output");
 
         function updateTerminal() {
@@ -72,6 +102,26 @@
 
             terminalInput.value = "";
         });
+
+        // --- SERVER CONTROLS
+        const startButton = document.getElementById("start-button");
+        const stopButton = document.getElementById("stop-button");
+        const backupButton = document.getElementById("backup-button");
+        const updateButton = document.getElementById("update-button");
+
+        [
+            [startButton, "start"],
+            [stopButton, "stop"],
+            [backupButton, "backup"],
+            [updateButton, "update"]
+        ].map(t => {
+            const [button, command] = t;
+            button.addEventListener("click", () => {
+                fetch(`/api/servers/${serverId}/${command}`, { method: "POST"})
+                    .catch(e => console.error(`Failed to ${command} server: `, e));
+            });
+        });
+
     </script>
 </body>
 </html>
