@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <title>WebMC</title>
+    <style>
+        #servers a {
+            text-decoration: none;
+            display: block;
+            background-color: var(--color-background);
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <ul>
+            <li>
+                <a href="/">
+                    <i data-feather="activity"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/files.html">
+                    <i data-feather="folder"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/backups">
+                    <i data-feather="archive"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/settings">
+                    <i data-feather="settings"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div id="servers">
+    </div>
+
+    <script>
+        feather.replace();
+
+        const serverContainer = document.getElementById("servers");
+
+        fetch(`/api/servers`)
+            .then(r => r.json())
+            .then(servers => {
+                servers.forEach(server => {
+                    let serverEl = document.createElement("a");
+                    serverEl.className = "server";
+                    serverEl.href = `/server.html?id=${server.serverId}`;
+
+                    let header = document.createElement("h2");
+                    header.innerText = server.name;
+                    serverEl.appendChild(header);
+
+                    let state = document.createElement("span");
+                    state.innerText = server.state;
+                    serverEl.appendChild(state);
+
+                    serverContainer.appendChild(serverEl);
+                });
+            })
+            .catch(e => console.error("Failed to fetch servers: ", e));
+    </script>
+</body>
+</html>
