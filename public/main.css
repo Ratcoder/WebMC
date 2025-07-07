@@ -54,29 +54,32 @@ form {
     gap: 1rem;
 }
 
-input {
+input, button {
     /* background-color: #090909; */
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-size: var(--font-size);
     background-color: var(--color-background);
     border: 1px solid var(--color-foreground);
     border-radius: 1rem;
     height: 3rem;
     padding: 0 1rem;
+    transition: color 200ms, border 200ms, background-color 200ms;
 }
 
-input:focus {
+input:focus, button:focus {
     border: 1px solid var(--color-accent);
     outline: none;
 }
 
-input[type=submit] {
-    border: 1px solid var(--color-accent);
+input[type=submit]:hover, input[type=submit]:focus, button:hover, button:focus {
     color: var(--color-accent);
-    transition: color 200ms;
+    border: 1px solid var(--color-accent);
+    outline: none;
 }
 
-input[type=submit]:hover, input[type=submit]:focus {
-    color: white;
-    outline: none;
+input[type=submit]:active, button:active {
+    background-color: var(--color-accent);
 }
 
 /* HOME */
