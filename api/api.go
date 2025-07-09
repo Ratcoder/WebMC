@@ -61,7 +61,7 @@ func (api *API) Start() error {
 	// TODO: POST   /api/servers/{id}/update
 	http.HandleFunc("GET /api/servers/{id}/backups", api.getServerBackups)
 	http.HandleFunc("GET /api/servers/{id}/backups/{backup}", api.getServerBackup)
-	// TODO: POST   /api/servers/{id}/backups/{backup}/restore
+	http.HandleFunc("POST /api/servers/{id}/backups/{backup}/restore", api.restoreServerBackup)
 	// TODO: Edit/upload/delete server files
 
 	return http.ListenAndServe(":8080", nil)

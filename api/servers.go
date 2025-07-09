@@ -310,3 +310,41 @@ func (api *API) getServerBackup(w http.ResponseWriter, r *http.Request) {
 
 	http.ServeFile(w, r, api.serverManager.Servers[id].GetDir()+"/backups/"+backup)
 }
+
+func (api *API) restoreServerBackup(w http.ResponseWriter, r *http.Request) {
+	id, ok := canUserManageServer(api, w, r)
+	if !ok {
+		return
+	}
+
+	backup := r.PathValue("backup")
+	if len(backup) == 0 {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	// backup must be sanitized
+	for _, r := range backup {
+		if unicode.IsDigit(r) || unicode.IsLower(r) || r == '-' || r == '.' || r == ':' {
+			// Only these characters are allowed
+		} else {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+	}
+
+	// Make sure backup exists
+	_, err := os.Stat(api.serverManager.Servers[id].GetDir() + "/backups/" + backup)
+	if os.IsNotExist(err) {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+
+	err = api.serverManager.Servers[id].Restore(backup)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, "Success")
+}
