@@ -256,6 +256,10 @@ func (m *Server) GetState() State {
 	return m.state
 }
 
+func (m *Server) GetDir() string {
+	return m.dir
+}
+
 func (s State) ToString() string {
 	switch s {
 	case Stopped:
