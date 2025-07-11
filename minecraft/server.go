@@ -132,27 +132,34 @@ func (m *Server) Install() error {
 	}
 	m.state = Installing
 
+	fmt.Fprintln(m.Logger, "Installing server..")
+
 	err := os.Mkdir(m.dir, 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
 		m.state = Empty
+		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir)
 		return err
 	}
 	err = os.Mkdir(m.dir+"/server", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
 		m.state = Empty
+		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/server")
 		return err
 	}
 	err = os.Mkdir(m.dir+"/logs", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
 		m.state = Empty
+		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/logs")
 		return err
 	}
 	err = os.Mkdir(m.dir+"/backups", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
 		m.state = Empty
+		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/backups")
 		return err
 	}
 
+	fmt.Fprintln(m.Logger, "Getting latest software version...")
 	uri, err := GetLinuxDownload()
 	if err != nil {
 		m.state = Empty
@@ -160,22 +167,27 @@ func (m *Server) Install() error {
 	}
 	file := "bedrock-server.zip"
 
+	fmt.Fprintf(m.Logger, "Downloading: %s\n", uri)
 	// TODO: Remove dependence on curl
 	cmd := exec.Command("curl", uri, "-A", "firefox", "-o", file)
 	err = cmd.Run()
 	if err != nil {
 		m.state = Empty
+		fmt.Fprintln(m.Logger, "ERROR: Failed to download file")
 		return err
 	}
 
+	fmt.Fprintln(m.Logger, "Downloaded.\nExtracting archive...")
 	// TODO: Remove dependence on unzip
 	cmd = exec.Command("unzip", file, "-d", m.dir+"/server")
 	err = cmd.Run()
 	if err != nil {
 		m.state = Empty
+		fmt.Fprintln(m.Logger, "ERROR: Failed to extract file")
 		return err
 	}
 
+	fmt.Fprintln(m.Logger, "Server installed.")
 	m.state = Stopped
 	return nil
 }
@@ -189,6 +201,8 @@ func (m *Server) Backup() error {
 	}
 	m.state = BackingUp
 
+	fmt.Fprintln(m.Logger, "Creating backup...")
+
 	name := time.Now().Format("2006-01-02-15:04:05") + ".zip"
 	// TODO: Remove dependence on zip
 	cmd := exec.Command("zip", "-r", m.dir+"/backups/"+name, "worlds")
@@ -197,9 +211,11 @@ func (m *Server) Backup() error {
 	err := cmd.Run()
 	if err != nil {
 		m.state = Stopped
+		fmt.Fprintln(m.Logger, "ERROR: Failed to create backup")
 		return err
 	}
 
+	fmt.Fprintf(m.Logger, "Backup made at: %s.\n", name)
 	m.state = Stopped
 	return nil
 }
