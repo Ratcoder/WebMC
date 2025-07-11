@@ -82,14 +82,10 @@
         
         // --- TERMINAL
         const terminalOutput = document.getElementById("terminal-output");
-
-        function updateTerminal() {
-            fetch(`/api/servers/${serverId}/logs`)
-                .then(r => r.text())
-                .then(t => terminalOutput.innerText = t)
-                .catch(e => console.error("Failed to fetch server logs: ", e));
-        }
-        setInterval(updateTerminal, 1000);
+        const terminalSSE = new EventSource(`/api/servers/${serverId}/logs`);
+        terminalSSE.onmessage = (message) => {
+            terminalOutput.innerText += message.data + "\n";
+        };
         
         const terminalInput = document.getElementById("terminal-input");
         terminalInput.addEventListener("keydown", e => {

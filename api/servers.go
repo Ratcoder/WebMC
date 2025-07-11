@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 	"unicode"
 )
 
@@ -237,7 +239,58 @@ func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, api.serverManager.Servers[id].LogFile)
+	// Required SSE headers
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+		return
+	}
+
+	// Read the logfile and send all existing logs
+	file, err := os.Open(api.serverManager.Servers[id].LogFile)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Fprintf(w, "data: %s\n\n", line)
+	}
+	flusher.Flush()
+
+	// Subcribe to the logger for all future logs
+	logger := api.serverManager.Servers[id].Logger
+	logId, ch := logger.Subscribe()
+	defer logger.Unsubscribe(logId)
+
+	// Close connection when client disconnects
+	notify := r.Context().Done()
+
+	for {
+		select {
+		case <-notify:
+			// Client disconnected
+			return
+		case line, ok := <-ch:
+			if !ok {
+				return
+			}
+			// Write SSE message
+			fmt.Fprintf(w, "data: %s\n\n", line)
+			flusher.Flush()
+		case <-time.After(30 * time.Second):
+			// Send keepalive comment to prevent client timeout
+			fmt.Fprint(w, ": keep-alive\n\n")
+			flusher.Flush()
+		}
+	}
 }
 
 type Backup struct {

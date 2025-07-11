@@ -19,6 +19,7 @@ type Server struct {
 	stdinPipe io.WriteCloser
 	mutex     sync.Mutex
 	LogFile   string
+	Logger    *Logger
 }
 
 type State int
@@ -36,9 +37,9 @@ const (
 func loadServer(dir string) (*Server, error) {
 	_, err := os.Stat(dir + "/server/bedrock_server")
 	if err == nil {
-		return &Server{dir: dir, state: Stopped}, nil
+		return &Server{dir: dir, state: Stopped, Logger: NewLogger()}, nil
 	} else if os.IsNotExist(err) {
-		return &Server{dir: dir, state: Empty}, nil
+		return &Server{dir: dir, state: Empty, Logger: NewLogger()}, nil
 	}
 
 	return nil, err
@@ -61,7 +62,7 @@ func (m *Server) Start() error {
 
 	m.cmd = exec.Command("./bedrock_server")
 	m.cmd.Dir = m.dir + "/server"
-	m.cmd.Stdout = file
+	m.cmd.Stdout = io.MultiWriter(file, m.Logger)
 	m.stdinPipe, err = m.cmd.StdinPipe()
 	if err != nil {
 		return err
