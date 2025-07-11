@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello world!")
+	fmt.Println("Starting WebMC at http://localhost:8080")
 
 	db, err := OpenDatabase()
 	if err != nil {
