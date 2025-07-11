@@ -17,7 +17,7 @@ type Server struct {
 	state     State
 	cmd       *exec.Cmd
 	stdinPipe io.WriteCloser
-	mutex     sync.Mutex
+	mutex     sync.RWMutex
 	LogFile   string
 	Logger    *Logger
 }
@@ -73,22 +73,39 @@ func (m *Server) Start() error {
 		return err
 	}
 
+	m.state = Running
+
 	go func() {
 		err := m.cmd.Wait()
+
+		m.mutex.Lock()
 		m.state = Stopped
-		if err != nil {
-			// Restart if server exits abnormally
+		m.mutex.Unlock()
+
+		if err == nil {
+			// Program exited normally, don't restart
+			return
+		}
+
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			code := exitErr.ExitCode()
+			fmt.Println("Server exited with code:", code)
+			if code != 0 {
+				// Abnormal exit — restart
+				m.Start()
+			}
+		} else {
+			// Some other unexpected error
+			fmt.Println("Unexpected error:", err)
 			m.Start()
 		}
 	}()
-
-	m.state = Running
 	return nil
 }
 
 func (m *Server) Command(command string) error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
 
 	if m.state != Running {
 		return errors.New("server is not running")
@@ -103,51 +120,42 @@ func (m *Server) Command(command string) error {
 }
 
 func (m *Server) Stop() error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
-
-	if m.state != Running {
-		return errors.New("server is already not running")
-	}
-
-	_, err := io.WriteString(m.stdinPipe, "stop\n")
-	if err != nil {
-		return err
-	}
-
-	m.cmd.Wait()
-
-	m.state = Stopped
-	return nil
+	return m.Command("stop")
 }
 
 func (m *Server) Install() error {
 	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	defer m.mutex.Lock()
 
 	if m.state != Empty {
 		return errors.New("minecraft server already installed")
 	}
+	m.state = Installing
 
 	err := os.Mkdir(m.dir, 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
+		m.state = Empty
 		return err
 	}
 	err = os.Mkdir(m.dir+"/server", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
+		m.state = Empty
 		return err
 	}
 	err = os.Mkdir(m.dir+"/logs", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
+		m.state = Empty
 		return err
 	}
 	err = os.Mkdir(m.dir+"/backups", 0700) // Read/write/execute for owner only
 	if err != nil && !os.IsExist(err) {
+		m.state = Empty
 		return err
 	}
 
 	uri, err := GetLinuxDownload()
 	if err != nil {
+		m.state = Empty
 		return err
 	}
 	file := "bedrock-server.zip"
@@ -156,6 +164,7 @@ func (m *Server) Install() error {
 	cmd := exec.Command("curl", uri, "-A", "firefox", "-o", file)
 	err = cmd.Run()
 	if err != nil {
+		m.state = Empty
 		return err
 	}
 
@@ -163,6 +172,7 @@ func (m *Server) Install() error {
 	cmd = exec.Command("unzip", file, "-d", m.dir+"/server")
 	err = cmd.Run()
 	if err != nil {
+		m.state = Empty
 		return err
 	}
 
@@ -177,16 +187,20 @@ func (m *Server) Backup() error {
 	if m.state != Stopped {
 		return errors.New("minecraft server is not stopped")
 	}
+	m.state = BackingUp
 
 	name := time.Now().Format("2006-01-02-15:04:05") + ".zip"
 	// TODO: Remove dependence on zip
 	cmd := exec.Command("zip", "-r", m.dir+"/backups/"+name, "worlds")
 	cmd.Dir = m.dir + "/server"
+	cmd.Stdout = m.Logger
 	err := cmd.Run()
 	if err != nil {
+		m.state = Stopped
 		return err
 	}
 
+	m.state = Stopped
 	return nil
 }
 
@@ -197,23 +211,28 @@ func (m *Server) Restore(backup string) error {
 	if m.state != Stopped {
 		return errors.New("minecraft server is not stopped")
 	}
+	m.state = Restoring
 
 	// TODO: Remove use of rm
 	cmd := exec.Command("rm", "-r", m.dir+"/server/worlds")
 	err := cmd.Run()
 	if err != nil {
+		m.state = Stopped
 		return err
 	}
 
 	// TODO: Remove dependence on unzip
 	cmd = exec.Command("unzip", m.dir+"/backups/"+backup, "-d", m.dir+"/server")
 	cmd.Dir = m.dir
+	cmd.Stdout = m.Logger
 	err = cmd.Run()
 	if err != nil {
 		fmt.Println("unzip failed")
+		m.state = Stopped
 		return err
 	}
-
+	
+	m.state = Stopped
 	return nil
 }
 
@@ -254,6 +273,8 @@ func GetLinuxDownload() (string, error) {
 }
 
 func (m *Server) GetState() State {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
 	return m.state
 }
 
