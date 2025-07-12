@@ -9,7 +9,6 @@ import (
 
 	"github.com/ratcoder/webmc/minecraft"
 )
-import _ "net/http/pprof"
 
 type API struct {
 	db            *sql.DB
