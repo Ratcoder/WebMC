@@ -205,7 +205,7 @@ func (m *Server) Backup() error {
 
 	name := time.Now().Format("2006-01-02-15:04:05") + ".zip"
 	// TODO: Remove dependence on zip
-	cmd := exec.Command("zip", "-r", m.dir+"/backups/"+name, "worlds")
+	cmd := exec.Command("zip", "-r", m.dir+"/backups/"+name, "worlds", "server.properties", "allowlist.json", "permissions.json")
 	cmd.Dir = m.dir + "/server"
 	cmd.Stdout = m.Logger
 	err := cmd.Run()
