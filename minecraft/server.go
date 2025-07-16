@@ -1,6 +1,8 @@
 package minecraft
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,6 +10,9 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -196,28 +201,14 @@ func (m *Server) Backup() error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	if m.state != Stopped {
-		return errors.New("minecraft server is not stopped")
+	switch m.state {
+	case Stopped:
+		return stoppedBackup(m)
+	case Running:
+		return runningBackup(m)
+	default:
+		return errors.New("cannot backup in state: " + m.state.ToString())
 	}
-	m.state = BackingUp
-
-	fmt.Fprintln(m.Logger, "Creating backup...")
-
-	name := time.Now().Format("2006-01-02-15:04:05") + ".zip"
-	// TODO: Remove dependence on zip
-	cmd := exec.Command("zip", "-r", m.dir+"/backups/"+name, "worlds", "server.properties", "allowlist.json", "permissions.json")
-	cmd.Dir = m.dir + "/server"
-	cmd.Stdout = m.Logger
-	err := cmd.Run()
-	if err != nil {
-		m.state = Stopped
-		fmt.Fprintln(m.Logger, "ERROR: Failed to create backup")
-		return err
-	}
-
-	fmt.Fprintf(m.Logger, "Backup made at: %s.\n", name)
-	m.state = Stopped
-	return nil
 }
 
 func (m *Server) Restore(backup string) error {
@@ -247,7 +238,7 @@ func (m *Server) Restore(backup string) error {
 		m.state = Stopped
 		return err
 	}
-	
+
 	m.state = Stopped
 	return nil
 }
@@ -313,4 +304,233 @@ func (s State) ToString() string {
 	default:
 		panic("no string for minecraft server state")
 	}
+}
+
+// backedUpFiles are the files to be backed up in addition to the worlds folder
+var backedUpFiles = []string{"server.properties", "allowlist.json", "permissions.json"}
+
+// stoppedBackup creates a backup of the server by copying entire files.
+// It assumes that m.mutex is already locked and that the server is stopped.
+func stoppedBackup(m *Server) error {
+	if m.state != Stopped {
+		return errors.New("server is not stopped")
+	}
+	m.state = BackingUp
+	// State will always return to Stopped
+	defer func() {
+		m.state = Stopped
+	}()
+
+	fmt.Fprintf(m.Logger, "Creating backup...\n")
+
+	name := time.Now().Format("2006-01-02-15:04:05") + ".tar.gz"
+	backupFile, err := os.Create(m.dir + "/backups/" + name)
+	if err != nil {
+		return err
+	}
+	defer backupFile.Close()
+
+	gw := gzip.NewWriter(backupFile)
+	defer gw.Close()
+
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+
+	for _, fileName := range backedUpFiles {
+		fmt.Fprintf(m.Logger, "Adding: %s\n", fileName)
+
+		fileInfo, err := os.Stat(m.dir + "/server/" + fileName)
+		if err != nil {
+			return err
+		}
+
+		header, err := tar.FileInfoHeader(fileInfo, "")
+		if err != nil {
+			return err
+		}
+
+		header.Name = fileName
+		if err = tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		file, err := os.Open(m.dir + "/server/" + fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		if _, err = io.Copy(tw, file); err != nil {
+			return err
+		}
+	}
+
+	filepath.Walk(m.dir+"/server/worlds", func(fileName string, fileInfo os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !fileInfo.Mode().IsRegular() {
+			return nil // Ignore non regular files
+		}
+
+		if fileInfo.IsDir() {
+			return nil // Ignore directories
+		}
+
+		relativePath, err := filepath.Rel(m.dir+"/server/worlds", fileName)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(m.Logger, "Adding: %s\n", relativePath)
+
+		header, err := tar.FileInfoHeader(fileInfo, "")
+		if err != nil {
+			return err
+		}
+
+		header.Name = relativePath
+		if err = tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		file, err := os.Open(fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		if _, err = io.Copy(tw, file); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	fmt.Fprintf(m.Logger, "Backup created: %s\n", name)
+
+	return nil
+}
+
+// runningBackup creates a backup of a running server using `save hold`, `save query`, and `save resume`.
+// It assumes that m.mutex is already locked and that the server is running.
+func runningBackup(m *Server) error {
+	if m.state != Running {
+		return errors.New("server is not running")
+	}
+	m.state = BackingUp
+	// State will always return to Running
+	defer func() {
+		m.state = Running
+	}()
+
+	io.WriteString(m.stdinPipe, "save hold\n")
+
+	id, ch := m.Logger.Subscribe()
+	ready := false
+	isNextLogFiles := false
+	var worldFiles []string
+
+	for !ready {
+		select {
+		case log := <-ch:
+			if isNextLogFiles {
+				log = strings.TrimSuffix(log, "\n")
+				worldFiles = strings.Split(log, ", ")
+				ready = true
+			} else if strings.Contains(log, "Data saved. Files are now ready to be copied.") {
+				isNextLogFiles = true
+			}
+		default:
+			// No available logs yet
+			io.WriteString(m.stdinPipe, "save query\n")
+			time.Sleep(time.Second)
+		}
+	}
+	m.Logger.Unsubscribe(id)
+
+	name := time.Now().Format("2006-01-02-15:04:05") + ".tar.gz"
+	backupFile, err := os.Create(m.dir + "/backups/" + name)
+	if err != nil {
+		return err
+	}
+	defer backupFile.Close()
+
+	gw := gzip.NewWriter(backupFile)
+	defer gw.Close()
+
+	tw := tar.NewWriter(gw)
+	defer tw.Close()
+
+	for _, fileName := range backedUpFiles {
+		fileInfo, err := os.Stat(m.dir + "/server/" + fileName)
+		if err != nil {
+			return err
+		}
+
+		header, err := tar.FileInfoHeader(fileInfo, "")
+		if err != nil {
+			return err
+		}
+
+		header.Name = fileName
+		if err = tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		file, err := os.Open(m.dir + "/server/" + fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		if _, err = io.Copy(tw, file); err != nil {
+			return err
+		}
+	}
+
+	for _, worldFile := range worldFiles {
+		// The worldFiles are displayed as file:len
+		// The file needs to be truncated to n bytes
+		worldFileParts := strings.Split(worldFile, ":")
+		if len(worldFileParts) != 2 {
+			return errors.New("bad filename: " + worldFile)
+		}
+		fileName := worldFileParts[0]
+		fileLen, err := strconv.ParseInt(worldFileParts[1], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		fileInfo, err := os.Stat(m.dir + "/server/worlds/" + fileName)
+		if err != nil {
+			return err
+		}
+
+		header, err := tar.FileInfoHeader(fileInfo, "")
+		if err != nil {
+			return err
+		}
+
+		header.Name = "worlds/" + fileName
+		header.Size = fileLen // File will be truncated
+		if err = tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		file, err := os.Open(m.dir + "/server/worlds/" + fileName)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		if _, err = io.CopyN(tw, file, fileLen); err != nil {
+			return err
+		}
+	}
+
+	io.WriteString(m.stdinPipe, "save resume\n")
+
+	return nil
 }
