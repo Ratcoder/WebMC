@@ -221,28 +221,60 @@ func (m *Server) Restore(backup string) error {
 		return errors.New("minecraft server is not stopped")
 	}
 	m.state = Restoring
-
-	// TODO: Remove use of rm
-	cmd := exec.Command("rm", "-r", m.dir+"/server/worlds")
-	err := cmd.Run()
-	if err != nil {
+	// State will always return to Stopped
+	defer func() {
 		m.state = Stopped
+	}()
+
+	if err := os.RemoveAll(m.dir+"/server/worlds"); err != nil {
 		return err
 	}
 
-	// TODO: Remove dependence on unzip
-	cmd = exec.Command("unzip", m.dir+"/backups/"+backup, "-d", m.dir+"/server")
-	cmd.Dir = m.dir
-	cmd.Stdout = m.Logger
-	err = cmd.Run()
+	source, err := os.Open(m.dir+"/backups/"+backup)
 	if err != nil {
-		fmt.Println("unzip failed")
-		m.state = Stopped
 		return err
 	}
+	defer source.Close()
 
-	m.state = Stopped
-	return nil
+	gr, err := gzip.NewReader(source)
+	if err != nil {
+		return err
+	}
+	defer gr.Close()
+	
+	tr := tar.NewReader(gr)
+
+	for {
+		header, err := tr.Next()
+
+		if err == io.EOF {
+			// No more files to extract
+			return nil
+		} else if err != nil {
+			return err
+		}
+
+		path := filepath.Join(m.dir, "server", header.Name)
+		fmt.Printf("Creating file: %s\n", path)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err = os.MkdirAll(path, 0700); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			if err != nil {
+				return err
+			}
+
+			if _, err = io.Copy(file, tr); err != nil {
+				return err
+			}
+
+			file.Close()
+		}
+	}
 }
 
 type downloadLinkResponse struct {
@@ -373,15 +405,11 @@ func stoppedBackup(m *Server) (string, error) {
 			return err
 		}
 
-		if !fileInfo.Mode().IsRegular() {
-			return nil // Ignore non regular files
+		if !fileInfo.Mode().IsRegular() && !fileInfo.IsDir() {
+			return nil // Ignore non regular files, unless they are directories
 		}
 
-		if fileInfo.IsDir() {
-			return nil // Ignore directories
-		}
-
-		relativePath, err := filepath.Rel(m.dir+"/server/worlds", fileName)
+		relativePath, err := filepath.Rel(m.dir+"/server", fileName)
 		if err != nil {
 			return err
 		}
@@ -396,6 +424,10 @@ func stoppedBackup(m *Server) (string, error) {
 		header.Name = relativePath
 		if err = tw.WriteHeader(header); err != nil {
 			return err
+		}
+
+		if fileInfo.IsDir() {
+			return nil // Directories only need headers
 		}
 
 		file, err := os.Open(fileName)
@@ -495,6 +527,39 @@ func runningBackup(m *Server) (string, error) {
 		if _, err = io.Copy(tw, file); err != nil {
 			return "", err
 		}
+	}
+
+	// We need to traverse the worlds folder to add every subfolder to tar
+	err = filepath.Walk(m.dir+"/server/worlds", func(fileName string, fileInfo os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !fileInfo.IsDir() {
+			return nil // We are only adding directories
+		}
+
+		relativePath, err := filepath.Rel(m.dir+"/server", fileName)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(m.Logger, "Adding: %s\n", relativePath)
+
+		header, err := tar.FileInfoHeader(fileInfo, "")
+		if err != nil {
+			return err
+		}
+
+		header.Name = relativePath
+		if err = tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return "", err
 	}
 
 	for _, worldFile := range worldFiles {
