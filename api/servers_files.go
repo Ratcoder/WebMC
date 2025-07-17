@@ -46,6 +46,8 @@ func (api *API) serversFiles(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+
+		fmt.Fprint(w, "OK")
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
