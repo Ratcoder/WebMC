@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+	"fmt"
 )
 
 func (api *API) serversFiles(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +23,18 @@ func (api *API) serversFiles(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		http.ServeFile(w, r, absPath)
 	case http.MethodPut:
+		if strings.HasSuffix(r.PathValue("file"), "/") {
+			// Trailing slash indicates a directory
+			if err := os.MkdirAll(absPath, 0700); err != nil {
+				http.Error(w, "Internal server error", http.StatusInternalServerError)
+			}
+
+			w.WriteHeader(http.StatusCreated)
+			fmt.Fprint(w, "Created")
+			return
+		}
+		// No trailing slash is a normal file
+		
 		file, err := os.Create(absPath)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
