@@ -10,6 +10,8 @@ import (
 	"github.com/ratcoder/webmc/minecraft"
 )
 
+import _ "net/http/pprof" 
+
 type API struct {
 	db            *sql.DB
 	tokens        map[string]accessToken
@@ -57,8 +59,8 @@ func (api *API) Start() error {
 	http.HandleFunc("POST /api/servers/{id}/install", api.installServer)
 	http.HandleFunc("POST /api/servers/{id}/backup", api.backupServer)
 	http.HandleFunc("POST /api/servers/{id}/command", api.commandServer)
+	http.HandleFunc("POST /api/servers/{id}/update", api.updateServer)
 	http.HandleFunc("GET /api/servers/{id}/logs", api.getServerLogs)
-	// TODO: POST   /api/servers/{id}/update
 	http.HandleFunc("GET /api/servers/{id}/backups", api.getServerBackups)
 	http.HandleFunc("GET /api/servers/{id}/backups/{backup}", api.getServerBackup)
 	http.HandleFunc("POST /api/servers/{id}/backups/{backup}/restore", api.restoreServerBackup)

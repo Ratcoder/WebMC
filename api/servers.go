@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"time"
 	"unicode"
+
+	"github.com/ratcoder/webmc/minecraft"
 )
 
 type createServerRequest struct {
@@ -212,6 +214,21 @@ func (api *API) backupServer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Success")
 }
 
+func (api *API) updateServer(w http.ResponseWriter, r *http.Request) {
+	id, ok := canUserManageServer(api, w, r)
+	if !ok {
+		return
+	}
+
+	err := api.serverManager.Servers[id].Update()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, "Success")
+}
+
 func (api *API) commandServer(w http.ResponseWriter, r *http.Request) {
 	id, ok := canUserManageServer(api, w, r)
 	if !ok {
@@ -250,20 +267,22 @@ func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read the logfile and send all existing logs
-	file, err := os.Open(api.serverManager.Servers[id].LogFile)
-	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
+	if api.serverManager.Servers[id].GetState() == minecraft.Running {
+		// Read the logfile and send all existing logs
+		file, err := os.Open(api.serverManager.Servers[id].LogFile)
+		if err != nil {
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fmt.Fprintf(w, "data: %s\n\n", line)
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			fmt.Fprintf(w, "data: %s\n\n", line)
+		}
+		flusher.Flush()
 	}
-	flusher.Flush()
 
 	// Subcribe to the logger for all future logs
 	logger := api.serverManager.Servers[id].Logger

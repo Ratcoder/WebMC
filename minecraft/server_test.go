@@ -46,10 +46,24 @@ func TestRunningBackup(t *testing.T) {
 		return
 	}
 
-	for server.GetState() != Stopped {}
+	for server.GetState() != Stopped {
+	}
 
 	if err = server.Restore(backup); err != nil {
 		t.Errorf("Restore: %s", err)
+		return
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	server, err := loadServer("/etc/webmc/servers/1")
+	if err != nil {
+		t.Errorf("loadServer: %s", err)
+		return
+	}
+
+	if err = server.Update(); err != nil {
+		t.Errorf("Update: %s", err)
 		return
 	}
 }

@@ -2,6 +2,7 @@ package minecraft
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"compress/gzip"
 	"encoding/json"
 	"errors"
@@ -130,69 +131,64 @@ func (m *Server) Stop() error {
 
 func (m *Server) Install() error {
 	m.mutex.Lock()
-	defer m.mutex.Lock()
+	defer m.mutex.Unlock()
 
 	if m.state != Empty {
 		return errors.New("minecraft server already installed")
 	}
-	m.state = Installing
 
-	fmt.Fprintln(m.Logger, "Installing server..")
-
-	err := os.Mkdir(m.dir, 0700) // Read/write/execute for owner only
-	if err != nil && !os.IsExist(err) {
-		m.state = Empty
-		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir)
-		return err
-	}
-	err = os.Mkdir(m.dir+"/server", 0700) // Read/write/execute for owner only
-	if err != nil && !os.IsExist(err) {
-		m.state = Empty
-		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/server")
-		return err
-	}
-	err = os.Mkdir(m.dir+"/logs", 0700) // Read/write/execute for owner only
-	if err != nil && !os.IsExist(err) {
-		m.state = Empty
-		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/logs")
-		return err
-	}
-	err = os.Mkdir(m.dir+"/backups", 0700) // Read/write/execute for owner only
-	if err != nil && !os.IsExist(err) {
-		m.state = Empty
-		fmt.Fprintf(m.Logger, "ERROR: Failed to create directory: %s\n", m.dir+"/backups")
+	if err := os.MkdirAll(filepath.Join(m.dir, "server"), 0700); err != nil {
 		return err
 	}
 
-	fmt.Fprintln(m.Logger, "Getting latest software version...")
-	uri, err := GetLinuxDownload()
+	if err := os.MkdirAll(filepath.Join(m.dir, "backups"), 0700); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Join(m.dir, "logs"), 0700); err != nil {
+		return err
+	}
+
+	if err := installSoftware(m); err != nil {
+		return err
+	}
+
+	m.state = Stopped
+	return nil
+}
+
+func (m *Server) Update() error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	if m.state != Stopped {
+		return errors.New("cannot update in state: " + m.state.ToString())
+	}
+
+	fmt.Fprintln(m.Logger, "Updating server...")
+
+	backup, err := stoppedBackup(m)
 	if err != nil {
-		m.state = Empty
-		return err
-	}
-	file := "bedrock-server.zip"
-
-	fmt.Fprintf(m.Logger, "Downloading: %s\n", uri)
-	// TODO: Remove dependence on curl
-	cmd := exec.Command("curl", uri, "-A", "firefox", "-o", file)
-	err = cmd.Run()
-	if err != nil {
-		m.state = Empty
-		fmt.Fprintln(m.Logger, "ERROR: Failed to download file")
 		return err
 	}
 
-	fmt.Fprintln(m.Logger, "Downloaded.\nExtracting archive...")
-	// TODO: Remove dependence on unzip
-	cmd = exec.Command("unzip", file, "-d", m.dir+"/server")
-	err = cmd.Run()
-	if err != nil {
-		m.state = Empty
-		fmt.Fprintln(m.Logger, "ERROR: Failed to extract file")
+	if err := os.RemoveAll(filepath.Join(m.dir, "server")); err != nil {
 		return err
 	}
 
-	fmt.Fprintln(m.Logger, "Server installed.")
+	if err := os.MkdirAll(filepath.Join(m.dir, "server"), 0700); err != nil {
+		return err
+	}
+
+	if err := installSoftware(m); err != nil {
+		return err
+	}
+
+	if err := restore(m, backup); err != nil {
+		return err
+	}
+
+	fmt.Fprintln(m.Logger, "Update complete.")
 	m.state = Stopped
 	return nil
 }
@@ -226,55 +222,7 @@ func (m *Server) Restore(backup string) error {
 		m.state = Stopped
 	}()
 
-	if err := os.RemoveAll(m.dir+"/server/worlds"); err != nil {
-		return err
-	}
-
-	source, err := os.Open(m.dir+"/backups/"+backup)
-	if err != nil {
-		return err
-	}
-	defer source.Close()
-
-	gr, err := gzip.NewReader(source)
-	if err != nil {
-		return err
-	}
-	defer gr.Close()
-	
-	tr := tar.NewReader(gr)
-
-	for {
-		header, err := tr.Next()
-
-		if err == io.EOF {
-			// No more files to extract
-			return nil
-		} else if err != nil {
-			return err
-		}
-
-		path := filepath.Join(m.dir, "server", header.Name)
-		fmt.Printf("Creating file: %s\n", path)
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err = os.MkdirAll(path, 0700); err != nil {
-				return err
-			}
-		case tar.TypeReg:
-			file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
-			if err != nil {
-				return err
-			}
-
-			if _, err = io.Copy(file, tr); err != nil {
-				return err
-			}
-
-			file.Close()
-		}
-	}
+	return restore(m, backup)
 }
 
 type downloadLinkResponse struct {
@@ -337,6 +285,63 @@ func (s State) ToString() string {
 		return "restoring"
 	default:
 		panic("no string for minecraft server state")
+	}
+}
+
+// restore restores the server to the specified backup.
+// It assumes the server is already stopped.
+func restore(m *Server, backup string) error {
+	fmt.Fprintf(m.Logger, "Restoring server to backup: %s\n", backup)
+
+	if err := os.RemoveAll(m.dir + "/server/worlds"); err != nil {
+		return err
+	}
+
+	source, err := os.Open(m.dir + "/backups/" + backup)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	gr, err := gzip.NewReader(source)
+	if err != nil {
+		return err
+	}
+	defer gr.Close()
+
+	tr := tar.NewReader(gr)
+
+	for {
+		header, err := tr.Next()
+
+		if err == io.EOF {
+			// No more files to extract
+			return nil
+		} else if err != nil {
+			return err
+		}
+
+		path := filepath.Join(m.dir, "server", header.Name)
+		fmt.Fprintf(m.Logger, "Creating file: %s\n", path)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if err = os.MkdirAll(path, 0700); err != nil {
+				fmt.Fprintf(m.Logger, "Server restored.")
+				return err
+			}
+		case tar.TypeReg:
+			file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			if err != nil {
+				return err
+			}
+
+			if _, err = io.Copy(file, tr); err != nil {
+				return err
+			}
+
+			file.Close()
+		}
 	}
 }
 
@@ -605,4 +610,132 @@ func runningBackup(m *Server) (string, error) {
 	io.WriteString(m.stdinPipe, "save resume\n")
 
 	return name, nil
+}
+
+// installSoftware installs the latest Minecraft server software.
+// It will cache the software and only download when there is a new version.
+// Do not call this function while the server is running.
+func installSoftware(m *Server) error {
+	fmt.Fprintf(m.Logger, "Installing Minecraft server software...\n")
+
+	url, err := GetLinuxDownload()
+	if err != nil {
+		return err
+	}
+
+	segments := strings.Split(url, "/")
+	archivePath := "/etc/webmc/cache/" + segments[len(segments)-1]
+
+	_, err = os.Stat(archivePath)
+	if os.IsNotExist(err) {
+		fmt.Fprintf(m.Logger, "New software version available: %s\n", url)
+		fmt.Fprintf(m.Logger, "Downloading...\n")
+
+		client := &http.Client{
+			Timeout: 10 * time.Minute,
+		}
+
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return err
+		}
+		req.Header.Set("User-Agent", "firefox")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return errors.New("could not download server: " + resp.Status)
+		}
+
+		filePart, err := os.Create(archivePath+".part")
+		if err != nil {
+			return err
+		}
+
+		const logEveryBytes = 5 * 1024 * 1024 // 5 MB
+
+		buffer := make([]byte, 32*1024) // 32 KB buffer
+		var total int64 = 0
+		var lastLogged int64 = 0
+
+		for {
+			n, err := resp.Body.Read(buffer)
+			if n > 0 {
+				written, writeErr := filePart.Write(buffer[:n])
+				if writeErr != nil {
+					return writeErr
+				}
+				total += int64(written)
+
+				if total-lastLogged >= logEveryBytes {
+					fmt.Fprintf(m.Logger, "Downloaded %d MB...\n", total/(1024*1024))
+					lastLogged = total
+				}
+			}
+
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return err
+			}
+		}
+
+		filePart.Close()
+		if err = os.Rename(archivePath+".part", archivePath); err != nil {
+			return err
+		}
+
+		fmt.Fprintf(m.Logger, "Finished downloading. Total size: %d MB\n", total/(1024*1024))
+	} else {
+		fmt.Fprintf(m.Logger, "Using cache of latest software: %s\n", archivePath)
+	}
+
+	fmt.Fprintf(m.Logger, "Extracting...\n")
+
+	archive, err := zip.OpenReader(archivePath)
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+
+	for _, zipFile := range archive.File {
+		path := filepath.Join(m.dir, "server", zipFile.Name)
+
+		if zipFile.FileInfo().IsDir() {
+			if err = os.MkdirAll(path, 0700); err != nil {
+				return err
+			}
+			continue
+		}
+
+		fileInArchive, err := zipFile.Open()
+		if err != nil {
+			return err
+		}
+
+		// In case the files directory does not exist yet
+		if err = os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+			return err
+		}
+
+		file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0700)
+		if err != nil {
+			return err
+		}
+
+		if _, err := io.Copy(file, fileInArchive); err != nil {
+			return err
+		}
+
+		fileInArchive.Close()
+		file.Close()
+	}
+
+	fmt.Fprintf(m.Logger, "Server software installed.\n")
+	return nil
 }
