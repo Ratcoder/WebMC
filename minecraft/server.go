@@ -513,6 +513,8 @@ func runningBackup(m *Server) (string, error) {
 			return "", err
 		}
 
+		fmt.Fprintf(m.Logger, "Adding: %s\n", fileName)
+
 		header, err := tar.FileInfoHeader(fileInfo, "")
 		if err != nil {
 			return "", err
@@ -584,6 +586,8 @@ func runningBackup(m *Server) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		fmt.Fprintf(m.Logger, "Adding: %s\n", "worlds/" + fileName)
 
 		header, err := tar.FileInfoHeader(fileInfo, "")
 		if err != nil {
