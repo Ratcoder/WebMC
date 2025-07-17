@@ -587,7 +587,7 @@ func runningBackup(m *Server) (string, error) {
 			return "", err
 		}
 
-		fmt.Fprintf(m.Logger, "Adding: %s\n", "worlds/" + fileName)
+		fmt.Fprintf(m.Logger, "Adding: %s\n", "worlds/"+fileName)
 
 		header, err := tar.FileInfoHeader(fileInfo, "")
 		if err != nil {
@@ -655,7 +655,7 @@ func installSoftware(m *Server) error {
 			return errors.New("could not download server: " + resp.Status)
 		}
 
-		filePart, err := os.Create(archivePath+".part")
+		filePart, err := os.Create(archivePath + ".part")
 		if err != nil {
 			return err
 		}
