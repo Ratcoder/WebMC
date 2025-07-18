@@ -8,6 +8,7 @@
     --font-size: 14px;
 
     font-size: var(--font-size);
+    background-color: #1b1b1b;
 }
 
 /* TEXT STYLES */
