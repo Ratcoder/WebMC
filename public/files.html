@@ -6,6 +6,58 @@
     <link rel="stylesheet" href="main.css">
     <script src="https://unpkg.com/feather-icons"></script>
     <title>WebMC</title>
+    <style>
+        #files {
+            grid-area: terminal;
+            border-radius: 1rem;
+            background-color: var(--color-background);
+        }
+
+        #files ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #files li {
+            color: var(--color-foreground);
+            font-family: var(--font-mono);
+            display: grid;
+            grid-template-areas: "pre-icon file-name icon1 icon2 icon3";
+            grid-template-columns: 24px 1fr 24px 24px 24px;
+            gap: 1rem;
+            margin: 1rem;
+            align-items: center;
+        }
+
+        #files span {
+            grid-area: file-name;
+        }
+
+        .file-type {
+            grid-area: pre-icon;
+            display: flex;
+            justify-content: center;
+        }
+
+        .edit-file {
+            grid-area: icon1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .download-file {
+            grid-area: icon2;
+            display: flex;
+            justify-content: center;
+        }
+
+        .delete-file {
+            grid-area: icon3;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <nav id="sidebar">
