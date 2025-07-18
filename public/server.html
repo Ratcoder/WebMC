@@ -152,9 +152,20 @@
         const terminalSSE = new EventSource(`/api/servers/${serverId}/logs`);
         terminalSSE.onmessage = (message) => {
             terminalOutput.innerText += message.data + "\n";
+            if (document.activeElement === terminalInput) {
+                scrollTerminal();
+            }
         };
         
         const terminalInput = document.getElementById("terminal-input");
+
+        function scrollTerminal() {
+            terminalOutput.scrollTo({
+                top: terminalOutput.scrollHeight,
+                behavior: "instant"
+            });
+        }
+
         terminalInput.addEventListener("keydown", e => {
             if (e.key != "Enter") return;
 
@@ -165,6 +176,8 @@
 
             terminalInput.value = "";
         });
+
+        terminalInput.addEventListener("click", scrollTerminal);
 
         // --- SERVER CONTROLS
         const startButton = document.getElementById("start-button");
