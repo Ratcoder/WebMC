@@ -16,8 +16,11 @@
                 "sidebar terminal graph1"
                 "sidebar terminal graph2"
                 "sidebar terminal graph3";
+            height: 100vh;
+            margin: 0;
             grid-gap: 1rem;
             padding: 1rem;
+            box-sizing: border-box;
         }
 
         #sidebar {
@@ -38,15 +41,23 @@
         #terminal {
             grid-area: terminal;
             display: flex;
-            flex-direction: column-reverse;
-            overflow-y: scroll;
-            /* border: 1px solid var(--color-border); */
+            flex-direction: column;
             padding: 1rem;
             background-color: var(--color-background);
             border-radius: 1rem;
         }
 
-        #terminal input {
+        #terminal-output {
+            height: 100%;
+            padding-bottom: 1rem;
+            overflow-y: scroll;
+        }
+
+        #terminal-input {
+            font-family: var(--font-mono);
+        }
+
+        /* #terminal input {
             background-color: var(--color-background);
             font-size: var(--font-size);
             font-family: var(--font-mono);
@@ -55,8 +66,8 @@
 
         #terminal input:focus {
             outline: none;
-            /* border-bottom: 1px solid var(--color-foreground); */
-        }
+            /* border-bottom: 1px solid var(--color-foreground);
+        } */
 
         #player-graph { grid-area: graph1; }
         #cpu-graph { grid-area: graph2; }
@@ -112,8 +123,8 @@
         </ul>
     </nav>
     <div id="terminal">
-        <pre>$ <input type="text" id="terminal-input" placeholder=""/></pre>
         <pre id="terminal-output"></pre>
+        <input type="text" id="terminal-input" placeholder="command"/>
     </div>
     <div id="server-controls">
         <button id="start-button">Start</button>
