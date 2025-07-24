@@ -63,6 +63,7 @@ func (api *API) Start() error {
 	http.HandleFunc("GET /api/servers/{id}/logs", api.getServerLogs)
 	http.HandleFunc("GET /api/servers/{id}/backups", api.getServerBackups)
 	http.HandleFunc("GET /api/servers/{id}/backups/{backup}", api.getServerBackup)
+	http.HandleFunc("DELETE /api/servers/{id}/backups/{backup}", api.deleteServerBackup)
 	http.HandleFunc("POST /api/servers/{id}/backups/{backup}/restore", api.restoreServerBackup)
 	http.HandleFunc("/api/servers/{id}/files/{file...}", api.serversFiles)
 
