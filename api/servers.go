@@ -1,17 +1,14 @@
 package api
 
 import (
-	"bufio"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
+	"strings"
 	"time"
-
-	"github.com/ratcoder/webmc/minecraft"
 )
 
 type createServerRequest struct {
@@ -251,27 +248,11 @@ func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if api.serverManager.Servers[id].GetState() == minecraft.Running {
-		// Read the logfile and send all existing logs
-		file, err := os.Open(api.serverManager.Servers[id].LogFile)
-		if err != nil {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-			fmt.Fprintf(w, "data: %s\n\n", line)
-		}
-		flusher.Flush()
-	}
-
-	// Subcribe to the logger for all future logs
+	// Subcribe to the logger
 	logger := api.serverManager.Servers[id].Logger
 	logId, ch := logger.Subscribe()
 	defer logger.Unsubscribe(logId)
+	logger.SendHistory(logId)
 
 	// Close connection when client disconnects
 	notify := r.Context().Done()
@@ -281,12 +262,20 @@ func (api *API) getServerLogs(w http.ResponseWriter, r *http.Request) {
 		case <-notify:
 			// Client disconnected
 			return
-		case line, ok := <-ch:
+		case data, ok := <-ch:
 			if !ok {
 				return
 			}
-			// Write SSE message
-			fmt.Fprintf(w, "data: %s\n\n", line)
+			// A single event may include multiple lines
+			lines := strings.Split(data, "\n")
+			// The last element is always an empty line
+			if len(lines) > 0 {
+				lines = lines[:len(lines)-1]
+			}
+			// Send SSE message(s)
+			for _, line := range lines {
+				fmt.Fprintf(w, "data: %s\n\n", line)
+			}
 			flusher.Flush()
 		case <-time.After(30 * time.Second):
 			// Send keepalive comment to prevent client timeout
