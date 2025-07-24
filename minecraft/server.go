@@ -216,11 +216,15 @@ func (m *Server) Restore(backup string) error {
 	if m.state != Stopped {
 		return errors.New("minecraft server is not stopped")
 	}
-	m.state = Restoring
 	// State will always return to Stopped
 	defer func() {
 		m.state = Stopped
 	}()
+
+	if _, err := stoppedBackup(m); err != nil {
+		return err
+	}
+	m.state = Restoring
 
 	return restore(m, backup)
 }
