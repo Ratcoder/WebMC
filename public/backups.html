@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <title>WebMC</title>
+    <style>
+        body {
+            display: grid;
+            grid-template-columns: 50px 1fr;
+            grid-template-areas:
+                "sidebar main";
+            height: 100vh;
+            margin: 0;
+            grid-gap: 1rem;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        #sidebar {
+            grid-area: sidebar;
+        }
+
+        nav ul {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            gap: 1rem;
+            padding-top: 1rem;
+            list-style: none;
+            text-align: center;
+        }
+
+        nav {
+            /* border: 1px solid var(--color-border); */
+            border-radius: 1rem;
+            background-color: var(--color-background);
+        }
+
+        main {
+            grid-area: main;
+            padding: 1rem;
+            background-color: var(--color-background);
+            border-radius: 1rem;
+            overflow-y: scroll;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--color-foreground);
+        }
+
+        tr:last-child {
+            border: none;
+        }
+
+        td {
+            padding: 1rem;
+            color: var(--color-foreground);
+            font-family: var(--font-body);
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <ul>
+            <li>
+                <a href="/">
+                    <i data-feather="activity"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/files.html">
+                    <i data-feather="folder"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/backups.html">
+                    <i data-feather="archive"></i>
+                </a>
+            </li>
+            <li>
+                <a href="/settings">
+                    <i data-feather="settings"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <main>
+        <table id="backups-container"></table>
+    </main>
+    <script>
+        feather.replace();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const serverId = urlParams.get('id');
+
+        const backupsContainer = document.getElementById('backups-container');
+        
+        fetch(`/api/servers/${serverId}/backups`)
+            .then(body => body.json())
+            .then(resp => resp.sort((a, b) => b.time - a.time)
+            .forEach(backup => {
+                const container = document.createElement('tr');
+                container.className = 'backup';
+
+                const time = document.createElement('td');
+                time.className = 'backup-time';
+                time.innerText = formatTime(backup.time)
+                container.appendChild(time);
+
+                const size = document.createElement('td');
+                size.className = 'backup-size';
+                size.innerText = formatSize(backup.size);
+                container.appendChild(size);
+
+                const restoreContainer = document.createElement('td')
+                const restore = document.createElement('button');
+                restore.innerText = 'Restore';
+                restore.className = 'backup-restore';
+                restore.addEventListener('click', _ => {
+                    fetch(`${backup.url}/restore`, { method: "POST" })
+                        .catch(e => console.error("Failed to restore backup: ", e));
+                });
+                restoreContainer.appendChild(restore);
+                container.appendChild(restoreContainer);
+
+                const deleteContainer = document.createElement('td')
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete';
+                deleteButton.className = 'backup-delete';
+                deleteButton.addEventListener('click', _ => {
+                    fetch(`${backup.url}`, { method: "DELETE" })
+                        .then(_ => container.remove())
+                        .catch(e => console.error("Failed to delete backup: ", e));
+                });
+                deleteContainer.appendChild(deleteButton);
+                container.appendChild(deleteContainer);
+
+                backupsContainer.appendChild(container);
+            }))
+            .catch(e => console.error(`Failed to get server backups`, e));
+        
+        function formatSize(size) {
+            if (size < 1_000) return `${size} B`
+            else if (size < 1_000_000) return `${(size / 1_000).toFixed(2)} KB`
+            else if (size < 1_000_000) return `${(size / 1_000_000).toFixed(2)} MB`
+            else if (size < 1_000_000_000) return `${(size / 1_000_000_000).toFixed(2)} GB`
+            else return `${(size / 1_000_000_000_000).toFixed(2)} TB`
+        }
+
+        function formatTime(time) {
+            const date = new Date(time * 1_000);
+            const options = {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            };
+            return new Intl.DateTimeFormat('en-US', options).format(date);
+        }
+    </script>
+</body>
+</html>

@@ -111,7 +111,7 @@
                 </a>
             </li>
             <li>
-                <a href="/backups">
+                <a href="/backups.html">
                     <i data-feather="archive"></i>
                 </a>
             </li>
@@ -152,6 +152,7 @@
         const terminalSSE = new EventSource(`/api/servers/${serverId}/logs`);
         terminalSSE.onmessage = (message) => {
             terminalOutput.innerText += message.data + "\n";
+            console.log(message.data)
             if (document.activeElement === terminalInput) {
                 scrollTerminal();
             }
